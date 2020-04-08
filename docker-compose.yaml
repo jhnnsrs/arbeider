@@ -5,20 +5,11 @@ services:
     build: .
     command: python /arbeider/manage.py runallworkers
     environment:
-      - ARNHEIM_MODULES=bioconverter,importer
+      - ARNHEIM_MODULES=test
     env_file:
       - arnheim.env
-      - deployment.env
-    volumes:
-      - ./arbeider/base/arbeid:/arbeider/arbeid
-      - ./bergen/bioconverter:/code/bioconverter
-      - ./bergen/importer:/code/importer
-      - ./bergen/larvik:/arbeider/larvik
-      - ./bergen/elements:/arbeider/elements
-      - ./media:/code/media
-      - ./files:/code/files
 
 networks:
   default:
     external:
-    name: bergen
+      name: bergen_default

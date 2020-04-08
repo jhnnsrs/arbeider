@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
-
+from .modeselektor import ArnheimDefaults
 
 # General Debug or Production Settings
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -25,33 +25,25 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 #                  Arnheim Settings
 
 
-ARNHEIM_LOGGING = os.getenv("ARNHEIM_LOGGING", "False") == "True"
-ARNHEIM_DEBUG = os.getenv("ARNHEIM_DEBUG", "False") == "True"
-ARNHEIM_DOMAIN = os.getenv("ARNHEIM_DOMAIN","localhost")
-ARNHEIM_SQL_ENGINE = os.environ.get("ARNHEIM_SQL_ENGINE", "django.db.backends.sqlite3")
-ARNHEIM_STORAGE_MODE = os.environ.get("ARNHEIM_STORAGE_MODE","LOCAL")
-
+    
+defaults = ArnheimDefaults()
+ARNHEIM = defaults
 # Zarr Related
-ZARR_COMPRESSION = os.getenv("ZARR_COMPRESSION",None)
-ZARR_DTYPE = os.getenv("ZARR_DTYPE",float)
+ZARR_COMPRESSION = defaults.zarr_compression
+ZARR_DTYPE = defaults.zarr_dtype
 
-# Redis Settings
-REDIS_HOST = os.environ.get('REDIS_SERVICE_HOST', 'redis')
-REDIS_PORT = os.environ.get("REDIS_SERVICE_PORT_REDISPORT", 6379)
-
-#Minio Settings:
-MINIO_HOST = os.environ.get("MINIO_SERVICE_HOST", "minio")
-MINIO_PORT = os.environ.get("MINIO_SERVICE_PORT_MINIOPORT", 9000)
+# Larvik Related
+LARVIK_APIVERSION = "0.1"
+LARVIK_FILEVERSION = "0.1"
 
 # Postgres Settings
-POSTGRES_DB = os.environ.get("POSTGRES_DB", os.path.join(BASE_DIR, "db.sqlite3"))
+POSTGRES_DB = os.environ.get("POSTGRES_DB", None)
 POSTGRES_USER = os.environ.get("POSTGRES_USER", "user")
 POSTGRES_PASSWORD = os.environ.get("POSTGRES_PASSWORD", "password")
 POSTGRES_HOST =  os.environ.get("POSTGRES_SERVICE_HOST", "localhost")
 POSTGRES_PORT = os.environ.get("POSTGRES_SERVICE_PORT_POSTGRESPORT", 5432)
 
 # Dask Setings =
-
 DASK_SCHEDULER_HOST =  os.environ.get("DASK_SCHEDULER_SERVICE_HOST", "localhost")
 DASK_SCHEDULER_PORT = os.environ.get("DASK_SCHEDULER_SERVICE_DASKPORT", 5432)
 
@@ -74,18 +66,21 @@ MODULES = os.environ.get("ARNHEIM_MODULES", "").split(",")
 #   |_____/ \___|_|  |_| \_/ \___|\__,_|
 #       Derived Settings for Django
 
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+MEDIA_ROOT = str(defaults.media_path)
 
 # S3 Settings
-AWS_S3_ENDPOINT_URL  = 'http://' + MINIO_HOST + ":" + str(MINIO_PORT)
-AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID", "weak_acces_key")
-AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY", "weak_secret_key")
+
+#S3 Settings
+S3_PUBLIC_DOMAIN = defaults.s3_public_domain
+AWS_ACCESS_KEY_ID = defaults.s3_key
+AWS_SECRET_ACCESS_KEY = defaults.s3_secret
+AWS_S3_ENDPOINT_URL  = str(defaults.s3_endpointurl)
 AWS_STORAGE_BUCKET_NAME = "test"
-AWS_S3_URL_PROTOCOL ="http:"
+AWS_S3_URL_PROTOCOL = defaults.s3_protocol
 AWS_S3_FILE_OVERWRITE = False
 AWS_DEFAULT_ACL = None
 AWS_S3_USE_SSL = True
-AWS_S3_SECURE_URLS = False # SHould resort to True if using in Production behind TLS
+AWS_S3_SECURE_URLS = False # Should resort to True if using in Production behind TLS
 
 ZARR_BUCKET = "zarr"
 MEDIA_BUCKET = "media"
@@ -94,12 +89,12 @@ FILES_BUCKET = "files"
 
 ALLOWED_HOSTS = ["*"]
 
-
+MEDIA_URL = defaults.media_url
 # Overwrite Django Settings
-DEBUG = ARNHEIM_DEBUG
-SECRET_KEY = os.environ.get('ARNHEIM_KEY', 'e+uck-nbb+_%(d@%s-@l@*o!xp__p7rssglb74xr*6=m5lh=vx')
-
-
+DEBUG = defaults.debug
+SECRET_KEY = defaults.secret_key
+STORAGE_MODE = defaults.storage
+DEFAULT_FILE_STORAGE = defaults.storage_default
 # Application definition
 
 INSTALLED_APPS = [
@@ -150,15 +145,12 @@ TEMPLATES = [
 CHANNEL_LAYERS = {
     "default": {
         # This example app uses the Redis channel layer implementation channels_redis
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "BACKEND": defaults.channel_backend,
         "CONFIG": {
-            "hosts": [(REDIS_HOST, REDIS_PORT)],
+            "hosts": [(defaults.channel_host, defaults.channel_port)],
         },
     },
 }
-
-STORAGE_MODE = ARNHEIM_STORAGE_MODE
-DEFAULT_FILE_STORAGE = 'larvik.storage.local.MediaStorage'
 
 # ASGI_APPLICATION should be set to your outermost router
 ASGI_APPLICATION = 'arbeid.routing.application'
@@ -169,15 +161,31 @@ WSGI_APPLICATION = 'arbeid.wsgi.application'
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 DATABASES = {
     "default": {
-        "ENGINE": ARNHEIM_SQL_ENGINE,
-        "NAME": POSTGRES_DB,
-        "USER": POSTGRES_USER,
-        "PASSWORD": POSTGRES_PASSWORD,
-        "HOST": POSTGRES_HOST,
-        "PORT": POSTGRES_PORT,
+        "ENGINE": defaults.sql_engine,
+        "NAME": defaults.db_name,
+        "USER": defaults.db_user,
+        "PASSWORD":defaults.db_password,
+        "HOST": defaults.db_host,
+        "PORT": int(defaults.db_port),
+        **defaults.db_kwargs
     }
 }
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': True,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': defaults.loglevel,
+        },
+    },
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
@@ -201,41 +209,19 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_ROOT = defaults.static_path
+STATIC_URL = defaults.static_url
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+]
 
-if ARNHEIM_LOGGING:
-    try:
-        from larvik.logging import get_module_logger
-    except Exception as e:
-        print("Larvik is apparently not installed. Make sure it is")
-    logger = get_module_logger(__name__)
-
-    logger.info(f"Zarr Compression: {ZARR_COMPRESSION}")
-    logger.info(f"Zarr Dtype: {ZARR_DTYPE}")
-
-    logger.info(f"Redis Host: {REDIS_HOST}")
-    logger.info(f"Redis Port: {REDIS_PORT}")
-
-    logger.info(f"Dask Scheduler Port: {DASK_SCHEDULER_PORT}")
-    logger.info(f"Dask Scheduler Host: {DASK_SCHEDULER_HOST}")
-
-    logger.info(f"Scheduling in {ARNHEIM_STORAGE_MODE} Storage Mode")
-
-    logger.info(f"Postgres Port: {POSTGRES_PORT}")
-    logger.info(f"Postgres Host: {POSTGRES_HOST}")
-    logger.info(f"Postgres User: {POSTGRES_USER}")
-    logger.info(f"Postgres DB: {POSTGRES_DB}")
-    logger.info(f"Postgres Password: {POSTGRES_PASSWORD}")
+FIXTURE_DIRS =  [ "fixtures"]

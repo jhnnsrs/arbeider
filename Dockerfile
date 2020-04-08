@@ -11,6 +11,7 @@ RUN mkdir /code
 RUN mkdir /arbeider
 ENV PYTHONPATH="$PYTHONPATH:/arbeider"
 ENV DJANGO_SETTINGS_MODULE arbeid.settings
+ENV ARNHEIM_MODULES=test
 ADD . /arbeider
 WORKDIR /code
 

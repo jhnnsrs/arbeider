@@ -1,9 +1,15 @@
-from typing import Callable, Awaitable, Any, Dict, List, Tuple
+from typing import (Any, Awaitable, Callable, Dict, Generic, List, Tuple,
+                    TypeVar)
 
 import dask
 from asgiref.sync import async_to_sync
 from channels.consumer import AsyncConsumer, SyncConsumer
 from channels.layers import get_channel_layer
+from dask import get as get_debug
+from dask.distributed import Client
+from dask.multiprocessing import get as get_multi
+from dask.threaded import get as get_threaded
+from django.conf import settings
 from django.db import models
 from rest_framework import serializers
 
@@ -11,15 +17,29 @@ from larvik.discover import NodeType
 from larvik.helpers import LarvikManager
 from larvik.logging import get_module_logger
 from larvik.models import LarvikJob
-from larvik.structures import StatusCode, LarvikStatus, larvikError, larvikProgress
-from django.conf import settings
+from larvik.structures import (LarvikStatus, StatusCode, larvikError,
+                               larvikProgress, larvikWarning)
 
 channel_layer = get_channel_layer()
+DEBUG = settings.DEBUG
+DISTRIBUTED_CLIENT = None
 
-from dask.distributed import LocalCluster
-cluster = LocalCluster()
+def get_default_scheduler(wanted = None):
+    global get_debug, get_multi, get_threaded, DISTRIBUTED_CLIENT
+    defaults: ArnheimDefaults = settings.ARNHEIM
+    if defaults.dask_mode == "LOCAL" or wanted == "LOCAL":
+        return get_debug
+    if defaults.dask_mode == "THREADED" or wanted == "THREADED":
+        return get_threaded
+    if defaults.dask_mode == "MULTI" or wanted == "MULTI":
+        return get_multi
+    if defaults.dask_mode == "DISTRIBUTED" or wanted == "DISTRIBUTED":
+        if DISTRIBUTED_CLIENT is None:
+            DISTRIBUTED_CLIENT = Client(address= defaults.dask_scheduler_address)
+        return DISTRIBUTED_CLIENT
 
-DEBUG = settings.ARNHEIM_DEBUG
+
+
 
 class LarvikError(Exception):
 
@@ -235,6 +255,11 @@ class SyncLarvikConsumer(SyncConsumer, NodeType, LarvikManager):
         self.logger.info(f"Progress {message}")
         self.updateStatus(larvikProgress(message=message))
 
+    def warning(self,message=None):
+        self.logger.warning(message)
+        self.updateStatus(larvikWarning(message=message))
+
+
     def publish(self,serializer, method, publishers,stream):
         if publishers is not None:
             for el in publishers:
@@ -265,7 +290,7 @@ class SyncLarvikConsumer(SyncConsumer, NodeType, LarvikManager):
     def getRequest(self,data) -> LarvikJob:
         '''Should return a Function that returns the Model and not the Serialized instance'''
         if self.requestClass is None:
-            raise NotImplementedError("Please specifiy 'requestModel' or override getRequest")
+            raise NotImplementedError("Please specifiy 'requestClass' or override getRequest")
         else:
             return self.requestClass.objects.get(pk = data["id"])
 
@@ -275,16 +300,16 @@ class SyncLarvikConsumer(SyncConsumer, NodeType, LarvikManager):
 
     def updateStatus(self, status: LarvikStatus):
         # Classic Update Circle
-        if self.requestSerializer is None: self.requestSerializer = self.getSerializers()[type(self.request).__name__]
+        if self.requestClassSerializer is None: self.requestClassSerializer = self.getSerializers()[self.requestClass.__name__]
         self.request.statuscode = status.statuscode
         self.request.statusmessage = status.message
         self.request.save()
-        self.modelCreated(self.request, self.requestSerializer, "update")
+        self.modelCreated(self.request, self.requestClassSerializer, "update")
 
 
     def getDefaultSettings(self, request: models.Model) -> Dict:
         ''' Should return the Defaultsettings as a JSON parsable String'''
-        raise NotImplementedError
+        return {}
 
     def start(self,request: LarvikJob, settings: dict):
         raise NotImplementedError
@@ -318,6 +343,7 @@ class SyncLarvikConsumer(SyncConsumer, NodeType, LarvikManager):
 
 
 
+
     def _getsettings(self, settings: str, defaultsettings: Dict):
         """Updateds the Settings with the Defaultsettings"""
         import json
@@ -342,22 +368,27 @@ class DaskSyncLarvikConsumer(SyncLarvikConsumer):
         super().__init__(scope)
         self.iscluster = False
 
-    def compute(self, graph):
-        if self.iscluster:
-            return self.c.compute(graph)
-        else:
-            with dask.config.set(scheduler='threads'):
-                result = graph.compute()
+    def compute(self, graph, wanted= None):
+        try:
+            if self.iscluster:
+                return graph.compute(scheduler=get_default_scheduler(wanted="DISTRIBUTED"))
+            else:
+                result = graph.compute(scheduler=get_default_scheduler(wanted=wanted))
                 return result
+        except IOError as e:
+            if wanted == "THREADED" : raise e
+            self.warning(f"Not able to reach Distributed cluster: {repr(e)}, resorting to threaded")
+            return self.compute(graph, wanted="THREADED")
+
 
     def persist(self, graph):
-        return graph.persist()
+        return graph.persist(scheduler=get_default_scheduler())
 
     def getSerializers(self):
         raise NotImplementedError
 
     def getDefaultSettings(self, request: models.Model) -> Dict:
-        raise NotImplementedError
+        return {}
 
     def parse(self, request: LarvikJob, settings: dict) -> List[Tuple[models.Model,str]]:
         raise NotImplementedError
@@ -378,7 +409,6 @@ class DaskSyncLarvikConsumer(SyncLarvikConsumer):
 
 
 
-from typing import TypeVar, Generic
 
 T = TypeVar('T')
 

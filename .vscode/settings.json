@@ -1,0 +1,13 @@
+// Workspace settings
+{
+    // The following will hide the js and map files in the editor
+    "files.exclude": {
+        "**/__pycache__": true,
+    },
+    "python.pythonPath": "/usr/local/bin/python3.7",
+    "python.linting.pylintEnabled": true,
+    "python.linting.pylintArgs": [
+        "--enable=W0614",
+        "--load-plugins",
+        "pylint_django",
+}
