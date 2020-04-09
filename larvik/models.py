@@ -14,7 +14,7 @@ from django.db import models
 # Create your models here.
 from larvik.fields import DimsField, ShapeField, StoreFileField
 from larvik.logging import get_module_logger
-from larvik.managers import LarvikArrayManager
+from larvik.managers import LarvikArrayManager, DelayedLarvikArrayManager
 from larvik.storage.default import get_default_storagemode
 from larvik.storage.local import LocalStorage, ZarrStorage
 from larvik.storage.s3 import S3Storage
@@ -61,6 +61,7 @@ class LarvikArrayBase(models.Model):
     unique = models.UUIDField(default=uuid.uuid4, editable=False)
 
     objects = LarvikArrayManager()
+    delayed = DelayedLarvikArrayManager()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

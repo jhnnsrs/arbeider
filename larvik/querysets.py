@@ -72,7 +72,6 @@ class LarvikArrayQueryset(QuerySet):
 
 
     def spread(self):
-
         arrayslist = []
         for el in self.all():
             arrayslist.append(el.store.load())
