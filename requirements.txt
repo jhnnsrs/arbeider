@@ -3,7 +3,7 @@ channels>=2.0.2
 channels_redis~=2.0
 django-extensions
 drf-access-policy
-
+django-oauth-toolkit
 django-cors-headers
 django-filter
 djangorestframework
@@ -28,6 +28,7 @@ xarray
 seaborn
 blosc
 dask-image
+Markdown
 
 # Testing and Linting
 ptvsd

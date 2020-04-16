@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from elements.models import Antibody, Experiment, Sample, ExperimentalGroup, Animal, FileMatchString, Representation, \
-    ROI
+    ROI, Transformation
 
 
 class AntibodySerializer(serializers.ModelSerializer):
@@ -33,6 +33,11 @@ class ExperimentalGroupSerializer(serializers.ModelSerializer):
 class RepresentationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Representation
+        fields = "__all__"
+
+class TransformationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Transformation
         fields = "__all__"
 
 

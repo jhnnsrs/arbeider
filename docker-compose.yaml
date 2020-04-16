@@ -1,6 +1,14 @@
 version: "3.4"
 
 services:
+  karl:
+    image: postgres:12.2-alpine
+    env_file:
+      - arnheim.env
+  frank:
+    image: postgres:12.2-alpine
+    env_file:
+      - arnheim.env
   arbeider:
     build: .
     command: python /arbeider/manage.py runallworkers
@@ -13,3 +21,7 @@ networks:
   default:
     external:
       name: bergen_default
+
+volumes:
+  newdata:
+  oldfranceso:

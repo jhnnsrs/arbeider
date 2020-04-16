@@ -32,9 +32,13 @@ ARNHEIM = defaults
 ZARR_COMPRESSION = defaults.zarr_compression
 ZARR_DTYPE = defaults.zarr_dtype
 
-# Larvik Related
-LARVIK_APIVERSION = "0.1"
-LARVIK_FILEVERSION = "0.1"
+# Matrise Related
+MATRISE_APIVERSION = "0.1"
+MATRISE_FILEVERSION = "0.1"
+
+#Bord Related
+BORD_APIVERSION = "0.1"
+BORD_FILEVERSION = "0.1"
 
 # Postgres Settings
 POSTGRES_DB = os.environ.get("POSTGRES_DB", None)
@@ -85,8 +89,11 @@ AWS_S3_SECURE_URLS = False # Should resort to True if using in Production behind
 ZARR_BUCKET = "zarr"
 MEDIA_BUCKET = "media"
 FILES_BUCKET = "files"
+PARQUET_BUCKET = "parquet"
 
-
+DEFAULT_PARQUET_STORAGE = defaults.parquet_storage
+DEFAULT_ZARR_STORAGE = defaults.zarr_storage
+DEFAULT_NAME_GENERATOR = defaults.name_generator
 ALLOWED_HOSTS = ["*"]
 
 MEDIA_URL = defaults.media_url
@@ -97,6 +104,12 @@ STORAGE_MODE = defaults.storage
 DEFAULT_FILE_STORAGE = defaults.storage_default
 # Application definition
 
+MODULES = MODULES + [
+    'elements',
+    'filters'
+]
+
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -104,10 +117,18 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'oauth2_provider',
+    'django_filters',
     'channels',
-    'larvik',
-    'flow',
-    'elements',
+    'kanal',
+    'fremmed',
+    'herre',
+    'due',
+    'delt',
+    'bord',
+    'matrise',
+    'jobb',
 ] + MODULES
 
 
@@ -127,7 +148,9 @@ ROOT_URLCONF = 'arbeid.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            'templates',
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -156,6 +179,38 @@ CHANNEL_LAYERS = {
 ASGI_APPLICATION = 'arbeid.routing.application'
 WSGI_APPLICATION = 'arbeid.wsgi.application'
 
+NODE_BACKENDS = {
+    "kanal": {
+        "autodiscover": True,
+        "enforce_catalog": False,
+        "enforce_register": False,
+        "path": "kanal",
+        "base": "nodes",
+    },
+    "frontend": {
+        "autodiscover": True,
+        "enforce_catalog": False,
+        "enforce_register": False,
+        "path": "frontend",
+        "base": "nodes",
+    },
+    "kafka": {
+        "autodiscover": True,
+        "enforce_catalog": False,
+        "enforce_register": False,
+        "path": "kafka",
+        "base": "nodes"
+    }
+}
+
+ROUTER_BACKENDS = {
+    "jobb": {
+        "autodiscover": True,
+        "enforce_catalog": False,
+        "enforce_register": False,
+        "path": "jobs"
+    },
+}
 
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
@@ -173,16 +228,24 @@ DATABASES = {
 
 LOGGING = {
     'version': 1,
-    'disable_existing_loggers': True,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'console': {
+            # exact format is not important, this is the minimum information
+            'format': '%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
+        },
+    },
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
+            'formatter': 'console',
         },
     },
     'loggers': {
-        'django': {
-            'handlers': ['console'],
+    # root logger
+        '': {
             'level': defaults.loglevel,
+            'handlers': ['console'],
         },
     },
 }

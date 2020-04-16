@@ -78,7 +78,7 @@ class PublishingModelViewSet(viewsets.ModelViewSet):
 
 
 class TaskPublishingViewSet(PublishingModelViewSet):
-
+    register: Node = None
     actionpublishers = None  # this publishers will be send to the Action Handles and then they can send to the according
     channel = None
     actiontype = "startJob"

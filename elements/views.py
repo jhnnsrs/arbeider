@@ -12,11 +12,11 @@ from elements.serializers import (AnimalSerializer, AntibodySerializer,
                                   ExperimentSerializer,
                                   FileMatchStringSerializer,
                                   RepresentationSerializer, ROISerializer,
+                                  TransformationSerializer,
                                   SampleSerializer)
-from larvik.views import LarvikArrayMixIn
+from matrise.views import MatriseViewsetMixIn
 # Get an instance of a logger
-from transformers.serializers import TransformationSerializer
-from trontheim.views import PublishingModelViewSet
+from due.views import PublishingModelViewSet
 logger = logging.getLogger(__name__)
 
 class AntibodyViewSet(PublishingModelViewSet):
@@ -84,7 +84,7 @@ class ExperimentViewSet(PublishingModelViewSet):
     filter_fields = ("creator",)
 
 
-class RepresentationViewSet(PublishingModelViewSet, LarvikArrayMixIn):
+class RepresentationViewSet(PublishingModelViewSet, MatriseViewsetMixIn):
 
     queryset = Representation.objects.all()
     serializer_class = RepresentationSerializer
@@ -93,7 +93,7 @@ class RepresentationViewSet(PublishingModelViewSet, LarvikArrayMixIn):
     filter_fields = ("sample",)
 
 
-class TransformationViewSet(PublishingModelViewSet, LarvikArrayMixIn):
+class TransformationViewSet(PublishingModelViewSet, MatriseViewsetMixIn):
     """
     API endpoint that allows users to be viewed or edited.
     """

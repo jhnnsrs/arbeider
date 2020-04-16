@@ -1,17 +1,12 @@
 import os
-from larvik.logging import get_module_logger
+import logging
 
 ARNHEIM_MODE = os.getenv("ARNHEIM_MODE", "S3_POSTGRES_LOCAL_REDIS_DEBUG")
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 NOTSET = "!!!!!!! NOT SET !!!!!!!"
 
 
-try:
-    from larvik.logging import get_module_logger
-except Exception as e:
-    print("Larvik is apparently not installed. Make sure it is")
-
-logger = get_module_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class ArnheimDefaults:
@@ -26,7 +21,7 @@ class ArnheimDefaults:
     # Domain
     domains = ["localhost"]
     secret_key = NOTSET
-
+    name_generator = "larvik.generators.ArnheimNameGenerator"
     # Zarr Settings
     zarr_dtype = float
     zarr_compression = None
@@ -119,13 +114,22 @@ class ArnheimDefaults:
 
         if storage == "LOCAL":
             self.storage = "LOCAL"
+            self.storage_default = 'herre.storage.local.MediaStorage'
+            self.parquet_storage = 'herre.storage.local.ParquetStorage'
+            self.zarr_storage = 'herre.storage.local.ZarrStorage'
+            self.files_storage = 'herre.storage.local.FilesStorage'
+            self.media_storage = 'herre.storage.local.MediaStorage'
             self.log(f"Storing Files Locally in {self.media_path}")
             self.log(f"Default Storage Class: {self.storage_default}")
             
 
         if storage == "S3":
             self.storage = "S3"
-            self.storage_default = 'larvik.storage.s3.MediaStorage'
+            self.storage_default = 'herre.storage.s3.MediaStorage'
+            self.parquet_storage = 'herre.storage.s3.ParquetStorage'
+            self.zarr_storage = 'herre.storage.s3.ZarrStorage'
+            self.files_storage = 'herre.storage.s3.FilesStorage'
+            self.media_storage = 'herre.storage.s3.MediaStorage'
             self.s3_public_domain = os.environ.get("S3_PUBLIC_DOMAIN", NOTSET)
             self.s3_host = os.environ.get("S3_HOST", "minio")
             self.s3_port = os.environ.get("S3_PORT", 9000)
@@ -141,7 +145,11 @@ class ArnheimDefaults:
 
         if storage == "MINIO":
             self.storage = "S3"
-            self.storage_default = 'larvik.storage.s3.MediaStorage'
+            self.storage_default = 'herre.storage.s3.MediaStorage'
+            self.parquet_storage = 'herre.storage.s3.ParquetStorage'
+            self.zarr_storage = 'herre.storage.s3.ZarrStorage'
+            self.files_storage = 'herre.storage.s3.FilesStorage'
+            self.media_storage = 'herre.storage.s3.MediaStorage'
             self.s3_public_domain = os.environ.get("S3_PUBLIC_DOMAIN", "minio.localhost")
             self.s3_host = os.environ.get("MINIO_SERVICE_HOST", "minio")
             self.s3_port = os.environ.get("MINIO_SERVICE_PORT", 9000)

@@ -2,11 +2,8 @@ from channels.auth import AuthMiddlewareStack
 from channels.routing import ProtocolTypeRouter, URLRouter, ChannelNameRouter
 from django.urls import path
 
-from larvik.discover import autodiscover
-from trontheim.consumers import OsloConsumer
-from trontheim.middleware import QueryAuthMiddleware
+from delt.registry import get_registry
 
-OauthMiddleWareStack = lambda inner: QueryAuthMiddleware(AuthMiddlewareStack(inner))
 
 # The channel routing defines what connections get handled by what consumers,
 # selecting on either the connection type (ProtocolTypeRouter) or properties
@@ -22,5 +19,5 @@ application = ProtocolTypeRouter({
     # We actually don't need the URLRouter here, but we've put it in for
     # illustration. Also note the inclusion of the AuthMiddlewareStack to
     # add users and sessions - see http://channels.readthedocs.io/en/latest/topics/authentication.html
-    "channel": ChannelNameRouter(autodiscover()),
+    "channel": ChannelNameRouter(get_registry().getConsumersMap()),
 })

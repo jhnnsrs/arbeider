@@ -1,3 +1,5 @@
+import logging
+
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from django.core import serializers
@@ -6,13 +8,12 @@ from django.db import models
 from pandas import HDFStore
 
 from elements.managers import (DelayedRepresentationManager,
-                               DelayedTransformationManager, PandasManager,
-                               RepresentationManager, ROIManager,
+                               DelayedTransformationManager,
+                               RepresentationManager, TableManager,
                                TransformationManager)
-from larvik.logging import get_module_logger
-from larvik.models import LarvikArray
+from matrise.models import Matrise
 
-logger = get_module_logger(__name__)
+logger = logging.getLogger(__name__)
 
 def get_sentinel_user():
     return get_user_model().objects.get_or_create(username='deleted')[0]
@@ -97,13 +98,13 @@ class Sample(models.Model):
 
 
 
-class Pandas(models.Model):
+class Table(models.Model):
     filepath = models.FilePathField(max_length=400) # aka pandas/$answerid.h5
     vid = models.CharField(max_length=1000) # aca vid0, vid1, vid2, vid3
     type = models.CharField(max_length=100)
     compression = models.CharField(max_length=300, blank=True, null=True)
     # Custom Manager to simply create an array
-    objects = PandasManager()
+    objects = TableManager()
 
     def get_dataframe(self):
         logger.info("Trying to access file {0} to get dataframe".format(self.filepath))
@@ -147,14 +148,13 @@ class ChannelMap(object):
     pass
 
 
-class Representation(LarvikArray):
-    creator = models.ForeignKey(User, on_delete=models.CASCADE)
+class Representation(Matrise):
+    creator = models.ForeignKey(User, on_delete=models.CASCADE, help_text="The Person that created this representation")
     inputrep = models.ForeignKey('self', on_delete=models.SET_NULL, blank=True, null= True)
-    sample = models.ForeignKey(Sample, on_delete=models.CASCADE,related_name='representations')
-    type = models.CharField(max_length=400, blank=True, null=True)
+    sample = models.ForeignKey(Sample, on_delete=models.CASCADE, related_name='representations', help_text="The Sample this representation belongs to")
+    type = models.CharField(max_length=400, blank=True, null=True, help_text="The Representation can have varying types, consult your API")
     chain = models.CharField(max_length=9000, blank=True, null=True)
     nodeid = models.CharField(max_length=400, null=True, blank=True)
-    meta = models.CharField(max_length=6000, null=True, blank=True) #deprecated
 
     objects = RepresentationManager()
     delayed = DelayedRepresentationManager()
@@ -180,8 +180,6 @@ class ROI(models.Model):
     representation = models.ForeignKey(Representation, on_delete=models.CASCADE,blank=True, null=True, related_name="rois")
     experimentalgroup = models.ForeignKey(ExperimentalGroup, on_delete=models.SET_NULL, blank=True, null=True)
 
-    objects = ROIManager()
-
     class Meta:
         base_manager_name = "objects"
         default_manager_name = "objects"
@@ -190,7 +188,7 @@ class ROI(models.Model):
     def __str__(self):
         return f"ROI created by {self.creator.username} on {self.representation.name}"
 
-class Transformation(LarvikArray):
+class Transformation(Matrise):
     creator = models.ForeignKey(User, on_delete=models.CASCADE)
     nodeid = models.CharField(max_length=400, null=True, blank=True)
     roi = models.ForeignKey(ROI, on_delete=models.CASCADE, related_name='transformations')
