@@ -11,6 +11,9 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+
+from delt.scopes import SCOPES as DELTSCOPES
+
 from .modeselektor import ArnheimDefaults
 
 # General Debug or Production Settings
@@ -111,14 +114,16 @@ MODULES = MODULES + [
 
 
 INSTALLED_APPS = [
+    'registration',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework',
     'oauth2_provider',
+    'rest_framework',
+    'corsheaders',
     'django_filters',
     'channels',
     'kanal',
@@ -134,8 +139,10 @@ INSTALLED_APPS = [
 
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'oauth2_provider.middleware.OAuth2TokenMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -144,6 +151,15 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'arbeid.urls'
+
+CORS_ORIGIN_ALLOW_ALL = True
+
+
+AUTHENTICATION_BACKENDS = (
+    'oauth2_provider.backends.OAuth2Backend',
+    # Uncomment following if you want to access the admin
+    'django.contrib.auth.backends.ModelBackend'
+)
 
 TEMPLATES = [
     {
@@ -179,6 +195,11 @@ CHANNEL_LAYERS = {
 ASGI_APPLICATION = 'arbeid.routing.application'
 WSGI_APPLICATION = 'arbeid.wsgi.application'
 
+
+ACCOUNT_ACTIVATION_DAYS = 7 # One-week activation window; you may, of course, use a different value.
+REGISTRATION_AUTO_LOGIN = True # Automatically log the user in.
+
+
 NODE_BACKENDS = {
     "kanal": {
         "autodiscover": True,
@@ -187,11 +208,11 @@ NODE_BACKENDS = {
         "path": "kanal",
         "base": "nodes",
     },
-    "frontend": {
+    "fremmed": {
         "autodiscover": True,
         "enforce_catalog": False,
         "enforce_register": False,
-        "path": "frontend",
+        "path": "fremmed",
         "base": "nodes",
     },
     "kafka": {
@@ -247,9 +268,40 @@ LOGGING = {
             'level': defaults.loglevel,
             'handlers': ['console'],
         },
+        'oauthlib': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
     },
 }
 
+OAUTH2_PROVIDER = {
+    # this is the list of available scopes
+    'SCOPES': {
+        'read': 'Reading all of your Data ',
+        'read_starred': "Reading your shared Data",
+        'write': 'Modifying all of your Data',
+        'can_provision': "Provision",
+        'can_start_job': "Can start Nodes",
+        'profile': 'Access to your Profile (including Email, Name and Address',
+        **DELTSCOPES
+        }
+
+}
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    )
+}
+
+LOGIN_REDIRECT_URL = "/"
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
 

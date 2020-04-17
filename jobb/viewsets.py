@@ -1,15 +1,18 @@
 import logging
 
+from oauth2_provider.contrib.rest_framework import (TokenHasReadWriteScope,
+                                                    TokenHasScope)
 from rest_framework import permissions, status, viewsets
 from rest_framework.exceptions import APIException
 from rest_framework.metadata import SimpleMetadata
 from rest_framework.response import Response
 
+from delt.job import JobConfig, JobContext
 from delt.message import send_to_backend
 from delt.models import Job
-from delt.job import JobConfig
 from delt.node import NodeConfig
 from delt.params import Inputs
+from delt.provisioner import BaseProvisionerError
 from delt.serializers import JobSerializer
 
 logger = logging.getLogger(__name__)
@@ -89,6 +92,13 @@ class JobRouteViewSet(viewsets.ModelViewSet):
 
     
     def create(self, request):
+        print(request)
+        if request.auth is not None:
+            # We are dealing with an Oauth Request instead of a Simple online Request
+            context = JobContext(scopes=request.auth.scopes, user = request.user)
+        else:
+            #TODO: Check for permissions and set Scopes accordingly
+            context = JobContext(scopes = None, user= request.user)
         if self.node is None:
             raise APIException(detail="No Node found on any Backend. Have you installed it or restarted the Server after cataloging it?")
         serializer = self.created_serializer(data=request.data)
@@ -101,7 +111,10 @@ class JobRouteViewSet(viewsets.ModelViewSet):
                 instance= serializer.validated_data["instance"],
                 )
 
-            serialized = send_to_backend(job)
+            try:
+                serialized = send_to_backend(job, context)
+            except BaseProvisionerError as e:
+                raise APIException(detail=f"{e}")
 
             return Response(serialized.data, status=status.HTTP_201_CREATED)
 
@@ -109,7 +122,7 @@ class JobRouteViewSet(viewsets.ModelViewSet):
             serializer = JobSerializer(data=request.data)
             if serializer.is_valid():
                 job = serializer.save()
-                serialized = send_to_backend(job)
+                serialized = send_to_backend(job, context)
 
                 return Response(serialized.data, status=status.HTTP_201_CREATED)
             else:

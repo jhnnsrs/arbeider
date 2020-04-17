@@ -41,12 +41,12 @@ class BaseRegister(object):
     config: NodeConfig = None
     type = None
     provider = None
-    settingsClass = None
+    settingsClass: BaseRegisterSettings = None
 
     def __init__(self, config: NodeConfig):
         if not getDiscover(): raise NotDiscoveringError("This module was called while not Discovering. Please make sure it is not imported")
         if not issubclass(config, NodeConfig):
-            raise BaseRegisterConfigurationError(f"You didnt provide a Proper NodeConfig in {self.__name__}")
+            raise BaseRegisterConfigurationError(f"You didnt provide a Proper NodeConfig in {self.__class__}")
         if self.type is None:
             raise BaseRegisterConfigurationError(f"Please provided a type property to your BaseRegister")
         if self.provider is None:
@@ -108,6 +108,7 @@ class BaseRegister(object):
     def register_class(self, cls):
         """Implement your Custom Registration Logic Here
         """
+        return cls
 
     def class_registered(self, cls):
         """ The cataloged class as a Callback

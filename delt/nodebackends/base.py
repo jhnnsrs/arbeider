@@ -115,9 +115,7 @@ def parse_inputs(config: NodeConfig):
         argsfields = inputs._declared_fields #We are dealing with an Instance (fields is not accessible)
         for key, field in argsfields.items():
             port = generatePort(key,field)
-            print(port)
             ports.append(port)
-    print(ports)
     return ports
 
 def parse_outputs(config: NodeConfig):
@@ -127,9 +125,7 @@ def parse_outputs(config: NodeConfig):
         argsfields = outputs._declared_fields #We are dealing with an Instance (fields is not accessible)
         for key, field in argsfields.items():
             port = generatePort(key,field)
-            print(port)
             ports.append(port)
-    print(ports)
     return ports
 
 

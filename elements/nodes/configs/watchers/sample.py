@@ -9,6 +9,7 @@ class SampleWatcherOutputs(BaseWatcherOutputs):
 
 
 class SampleWatcherConfig(BaseWatcherConfig):
+    name="Sample Watcher"
     path = "Sample-Watcher"
     interface = "sample-watcher"
     inputs = BaseWatcherInputs

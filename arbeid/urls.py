@@ -15,11 +15,13 @@ Including another URLconf
 """
 from django.conf.urls import url
 from django.contrib import admin
+from django.shortcuts import render
 from django.urls import include, path, re_path
 from django.utils.safestring import mark_safe
 from rest_framework import routers
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from django.contrib.auth.decorators import login_required
 
 from delt.router import router as configrouter
 from delt.settingsregistry import get_settings_registry
@@ -27,8 +29,10 @@ from elements.router import router as elementsrouter
 from jobb.router import JobRouter
 from jobb.router import router as jobrouter
 from kanal.handler import KanalHandler
+from fremmed.handler import FremmedHandler
 
-get_settings_registry().setHandlerForBackend("kanal", KanalHandler()) # This shouldnt be done here?
+get_settings_registry().setHandlerForBackend("kanal", KanalHandler())
+get_settings_registry().setHandlerForBackend("fremmed", FremmedHandler())
 
 class DocsView(APIView):
     """
@@ -48,10 +52,16 @@ class DocsView(APIView):
                    }
         return Response(apidocs)
 
-
+# Bootstrap Backend
+@login_required
+def index(request):
+        # Render that in the index template
+    return render(request, "index-oslo.html")
 
 
 urlpatterns = [
+    path('', index, name='index'),
+    url(r'^accounts/', include('registration.backends.default.urls')),
     path('admin/', admin.site.urls),
     path('api/', DocsView.as_view()),
     url(r'^api/elements/', include((elementsrouter.urls, 'elementsapi'))),

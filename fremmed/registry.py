@@ -14,11 +14,11 @@ class IsNotFrontEnd(NodeBackendRegisterConfigurationError):
 
 class FrontendSettings(NodeBackendSettings):
     enforce_update = False
-    provider = "frontend"
+    provider = "fremmed"
 
 
 class FrontendBackend(NodeBackendRegister):
-    provider = "frontend"
+    provider = "fremmed"
     settingsClass = FrontendSettings
 
     def __init__(self, *args, path = None, **kwargs):
@@ -31,7 +31,7 @@ class FrontendBackend(NodeBackendRegister):
         super().__init__(*args,**kwargs)
         self._path = path
 
-    def get_additional_kwargs(self):
+    def get_additional_uniques(self):
         path =  self.get_value_in_derived("path")
         return {
             "path": path

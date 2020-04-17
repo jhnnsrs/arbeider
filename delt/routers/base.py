@@ -36,7 +36,7 @@ class RouterRegisterSettings(RouterRegistryConfigurationError):
 
 class RouterRegister(BaseRegister):
     type = ROUTER_TYPE
-    register = None
+    register: Route = None
     config: NodeConfig = None
     provider = None
     settingsClass = None

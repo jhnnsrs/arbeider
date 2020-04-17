@@ -4,9 +4,11 @@ from django.contrib.auth import get_user_model
 from django.contrib.postgres.fields.jsonb import JSONField
 from django.db import models
 
-from delt.fields import SettingsField, ArgsField
+from delt.fields import AccessPolicy, ArgsField, SelectorField, SettingsField
 from delt.helpers import get_default_job_settings
 from delt.status import STATUS_PENDING
+
+
 
 
 class Node(models.Model):
@@ -40,6 +42,14 @@ class Route(models.Model):
         return f"Node {self.name} ( Package: {self.package}/{self.interface}  ) on Identifier {self.identifier}"
 
 
+
+class Pod(models.Model):
+    node = models.ForeignKey(Node, on_delete=models.CASCADE, help_text="The node this Pod is an instance of")
+    provisioner = models.CharField(max_length=1000, help_text="The provisioner that created this Pod")
+    policy = AccessPolicy(help_text="The access policy attached to this pod")
+
+
+
 class Job(models.Model):
     args = ArgsField()
     settings = SettingsField(max_length=1000, default=get_default_job_settings) # jsondecoded
@@ -47,8 +57,9 @@ class Job(models.Model):
     statusmessage = models.CharField(max_length=500,  default= "Pending")
     creator = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     node = models.ForeignKey(Node, on_delete=models.CASCADE)
+    pod = models.ForeignKey(Pod, on_delete=models.CASCADE, null=True, blank=True, help_text="The Pod this Job lives on")
     instance = models.CharField(max_length=400, default= uuid.uuid4, help_text="The Nodeinstance this Job lives on")
-    selector = models.CharField(max_length=400, default= uuid.uuid4, help_text="The Selectivity for Instances of this Node (especially unique Frontends)")
+    selector = SelectorField(max_length=400, blank=True, help_text="The Selectivity for Instances of this Node (especially unique Frontends)")
     unique = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
     def __str__(self):
@@ -81,8 +92,3 @@ class Flow(models.Model):
     name = models.CharField(max_length=100, null=True, default="Not Set")
     diagram = JSONField(max_length=50000, help_text="The Charted diagram")
     description = models.CharField(max_length=50000, default="Add a Description")
-
-
-
-
-

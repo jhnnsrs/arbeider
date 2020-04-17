@@ -1,4 +1,6 @@
 from django.contrib.postgres.fields.jsonb import JSONField
+from django.db.models.fields import CharField
+from rest_access_policy.access_policy import AccessPolicy
 
 
 class SettingsField(JSONField):
@@ -6,4 +8,12 @@ class SettingsField(JSONField):
 
 
 class ArgsField(JSONField):
+    pass
+
+
+class AccessPolicy(JSONField):
+    pass
+
+
+class SelectorField(CharField):
     pass

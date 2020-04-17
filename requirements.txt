@@ -1,6 +1,7 @@
 Django>=2.0.0,<3
 channels>=2.0.2
 channels_redis~=2.0
+django-registration-redux
 django-extensions
 drf-access-policy
 django-oauth-toolkit

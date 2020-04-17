@@ -1,19 +1,24 @@
+import logging
+
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 
-from delt.handler import BaseHandler
+from delt.handler import BaseHandler, BaseHandlerConfigException
 from delt.serializers import JobSerializer
-from kanal.exceptions import KanalHandlerConfigException
-import logging
+from kanal.provisioner import KanalProvisioner
 
 CHANNELS_JOB_ACTION = "emit_job"
 channel_layer = get_channel_layer()
 logger = logging.getLogger(__name__)
 
+class KanalHandlerConfigException(BaseHandlerConfigException):
+    pass
+
 
 class KanalHandler(BaseHandler):
+    provisioner = KanalProvisioner()
 
-    def on_job(self, job):
+    def send_job(self, job, pod):
         serialized = JobSerializer(job)
         channel = job.node.kanalnode.channel
         logger.info(f"Sending to channel {channel}")
