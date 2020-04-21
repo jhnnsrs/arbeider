@@ -2,7 +2,7 @@ import logging
 
 from django.core.management import BaseCommand
 import os
-from delt.discover import autodiscover_routes, autodiscover_nodes
+from delt.discover import autodiscover_routers, autodiscover_pods, autodiscover_nodes
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +18,7 @@ class Command(BaseCommand):
         always register Workers with the Backend, here we turn it on just for the Moment"""
 
         logger.info("Starting to discover")
-        #autodiscover_nodes(catalog=True)
-        autodiscover_nodes(register=False, catalog=True)
+        autodiscover_nodes(catalog=True)
+        autodiscover_pods(register=False, catalog=True)
         #autodiscover_routes(catalog=True)
         logger.info("DONE - Restart")

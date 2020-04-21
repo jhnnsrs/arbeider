@@ -7,13 +7,15 @@ from rest_framework.exceptions import APIException
 from rest_framework.metadata import SimpleMetadata
 from rest_framework.response import Response
 
-from delt.job import JobConfig, JobContext
+from delt.job import JobConfig, JobContext, job_config_builder
 from delt.message import send_to_backend
 from delt.models import Job
 from delt.node import NodeConfig
 from delt.params import Inputs
 from delt.provisioner import BaseProvisionerError
 from delt.serializers import JobSerializer
+from balder.schema import JobSubscription
+from delt.pipes import new_job_pipe
 
 logger = logging.getLogger(__name__)
 
@@ -68,10 +70,7 @@ class JobRouteViewSet(viewsets.ModelViewSet):
     def created_serializer(self):
         if self.config and issubclass(self.config, NodeConfig):
 
-            class Parsing(JobConfig):
-                inputs = self.config.inputs() 
-
-            return Parsing
+            return job_config_builder(self.node, self.config.inputs)
 
         if not self.inputs_class or not issubclass(self.inputs_class, Inputs):
             raise NotImplementedError("Please specifiy inputs as Subclass of Inputs")
@@ -92,38 +91,39 @@ class JobRouteViewSet(viewsets.ModelViewSet):
 
     
     def create(self, request):
-        print(request)
+        if self.node is None:
+            raise APIException(detail="No Node found on any Backend. Have you installed it or restarted the Server after cataloging it?")
+
         if request.auth is not None:
             # We are dealing with an Oauth Request instead of a Simple online Request
             context = JobContext(scopes=request.auth.scopes, user = request.user)
         else:
             #TODO: Check for permissions and set Scopes accordingly
             context = JobContext(scopes = None, user= request.user)
-        if self.node is None:
-            raise APIException(detail="No Node found on any Backend. Have you installed it or restarted the Server after cataloging it?")
+
         serializer = self.created_serializer(data=request.data)
         if serializer.is_valid():
+
             inputs = serializer.data["inputs"]
+            pod = serializer.validated_data["pod"]
+            instance = serializer.validated_data["instance"]
+            
             job = Job.objects.create(
                 args=inputs,
                 creator= request.user,
-                node= self.node,
+                node = self.node,
+                pod = pod,
                 instance= serializer.validated_data["instance"],
                 )
 
+            serialized = JobSerializer(job)
+
             try:
-                serialized = send_to_backend(job, context)
+                new_job_pipe(job, context)
             except BaseProvisionerError as e:
                 raise APIException(detail=f"{e}")
 
             return Response(serialized.data, status=status.HTTP_201_CREATED)
 
         else:
-            serializer = JobSerializer(data=request.data)
-            if serializer.is_valid():
-                job = serializer.save()
-                serialized = send_to_backend(job, context)
-
-                return Response(serialized.data, status=status.HTTP_201_CREATED)
-            else:
-                raise APIException(detail="Wrong")
+            raise APIException(detail="Wrong")

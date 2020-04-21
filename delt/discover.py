@@ -16,8 +16,33 @@ ROUTER_BACKENDS_FIELD = "ROUTER_BACKENDS"
 ROUTER_TYPE = "routers"
 
 NODE_BACKENDS_FIELD = "NODE_BACKENDS"
-NODEBACKEND_TYPE = "nodebackend"
+NODE_BACKEND_TYPE  = "nodes"
 
+PUBLISHER_BACKENDS_FIELD = "PUBLISHER_BACKENDS"
+PUBLISHER_BACKEND_TYPE  = "publishers"
+
+POD_BACKENDS_FIELD = "POD_BACKENDS"
+POD_BACKEND_TYPE  = "pods"
+
+NodeMember = {
+    "field" : NODE_BACKENDS_FIELD,
+    "type" : NODE_BACKEND_TYPE
+}
+
+PodMember = {
+    "field" : POD_BACKENDS_FIELD,
+    "type" : POD_BACKEND_TYPE
+}
+
+RouterMember = {
+    "field" : ROUTER_BACKENDS_FIELD,
+    "type" : ROUTER_TYPE
+}
+
+PublisherMember = {
+    "field" : PUBLISHER_BACKENDS_FIELD,
+    "type" : PUBLISHER_BACKEND_TYPE
+}
 
 class NotDiscoveringError(Exception):
     pass
@@ -104,60 +129,58 @@ def discover_from_config(config: dict, backend: str, type = None , catalog = Fal
     else:
         logger.warn(f"{backend} has disabled Autodisovery")
 
-def autodiscover_nodes(backend = None, catalog = False, register=False):
-    """ This function will be importing all Nodes in the app directorys, if
-     DELT_ENSURE_REGISTER env is set to True it will also try to register all nodes
-     with the database"""
-    
+
+
+def autodiscover(member: dict, backend = None, catalog = False, register=False):
+
     setDiscover(True)
 
-    if not hasattr(settings, NODE_BACKENDS_FIELD):
-        raise NotImplementedError("We didnt find a configuration to autodiscover from. Please implement NODE_BACKENDS in your settings.")
+    if not hasattr(settings, member["field"]):
+        raise NotImplementedError(f"We didnt find a configuration to autodiscover from. Please implement {member['field']} in your settings.")
 
-    backends = getattr(settings, NODE_BACKENDS_FIELD)
+    backends = getattr(settings, member["field"])
     if backend is not None:
-        logger.info(f"Trying to import {backend} in all Apps")
+        logger.info(f"Trying to import {backend}-Pods in all Apps")
         try:
             config = backends[backend]
         except KeyError:
-            raise NotImplementedError(f"No NODE_BACKEND found for {backend}")
-        discover_from_config(config, backend, type=NODEBACKEND_TYPE, catalog=catalog, register = register,)
+            raise NotImplementedError(f"No {member['field']} configuration found for {backend}")
+        discover_from_config(config, backend, type=member["type"] , catalog=catalog, register = register,)
           
     else: 
-        logger.info("Trying to import all Backend in all Apps")
-        for backend, config in settings.NODE_BACKENDS.items():
-            discover_from_config(config, backend, type=NODEBACKEND_TYPE, catalog=catalog, register = register,)
-
-    setDiscover(False)
-    # The Registry we return holds all information of the registered Nodes according to their backend
-    return get_registry()
-
-
-
-def autodiscover_routes(backend = None, catalog = False, register=False, type="router"):
-    """ This function will be importing all Nodes in the app directorys, if
-     DELT_ENSURE_REGISTER env is set to True it will also try to register all nodes
-     with the database"""
-    
-    setDiscover(True)
-
-    if not hasattr(settings, ROUTER_BACKENDS_FIELD):
-        raise NotImplementedError("We didnt find a configuration to autodiscover from. Please implement ROUTES_BACKENDS in your settings.")
-
-    backends = getattr(settings, ROUTER_BACKENDS_FIELD)
-    if backend is not None:
-        logger.info(f"Trying to import Routes from {backend} in all Apps")
-        try:
-            config = backends[backend]
-        except KeyError:
-            raise NotImplementedError(f"No ROUTERS_BACKEND found for {backend}")
-        discover_from_config(config, backend, type=ROUTER_TYPE, catalog=catalog, register = register)
-          
-    else: 
-        logger.info("Trying to import all Routes in all Apps")
+        logger.info("Trying to import all Pods in all Apps")
         for backend, config in backends.items():
-            discover_from_config(config, backend, type=ROUTER_TYPE, catalog=catalog, register = register,)
+            discover_from_config(config, backend, type=member["type"] , catalog=catalog, register = register,)
 
     setDiscover(False)
     # The Registry we return holds all information of the registered Nodes according to their backend
     return get_registry()
+
+
+
+
+def autodiscover_pods(*args, **kwargs):
+    """ This function will be importing all Pods in the app directorys, if
+     DELT_ENSURE_REGISTER env is set to True it will also try to register all nodes
+     with the database"""
+    return autodiscover(PodMember, *args, **kwargs)
+
+def autodiscover_nodes(*args, **kwargs):
+    """ This function will be importing all Nodes in the app directorys, if
+     DELT_ENSURE_REGISTER env is set to True it will also try to register all nodes
+     with the database"""
+    return autodiscover(NodeMember, *args, **kwargs)
+
+def autodiscover_routers(*args, **kwargs):
+    """ This function will be importing all Nodes in the app directorys, if
+     DELT_ENSURE_REGISTER env is set to True it will also try to register all nodes
+     with the database"""
+    return autodiscover(RouterMember, *args, **kwargs)
+
+
+def autodiscover_publishers(*args, **kwargs):
+    """ This function will be importing all Nodes in the app directorys, if
+     DELT_ENSURE_REGISTER env is set to True it will also try to register all nodes
+     with the database"""
+    return autodiscover(PublisherMember, *args, **kwargs)
+

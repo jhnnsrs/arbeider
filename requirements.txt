@@ -12,6 +12,7 @@ drf-access-policy
 psycopg2
 pytest-django
 pytest-asyncio
+django-channels-graphql-ws
 
 python-slugify
 s3fs

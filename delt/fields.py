@@ -14,6 +14,9 @@ class ArgsField(JSONField):
 class AccessPolicy(JSONField):
     pass
 
+class PublishersField(JSONField):
+    pass
+
 
 class SelectorField(CharField):
     pass

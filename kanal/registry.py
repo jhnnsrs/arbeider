@@ -1,21 +1,22 @@
 import logging
 
-from delt.nodebackends.base import NodeBackendRegister, NodeBackendSettings, NodeBackendRegisterConfigurationError
+from delt.pods.base import PodBackendRegister, PodBackendSettings, PodBackendRegisterConfigurationError
 from delt.registry import get_registry
-from kanal.models import KanalNode
+from kanal.models import KanalPod
 logger = logging.getLogger(__name__)
 #CHANNELS_JOB_ACTION = "emit_job"
 
-class IsNotConsumer(NodeBackendRegisterConfigurationError):
+class IsNotConsumer(PodBackendRegisterConfigurationError):
     pass
 
-class KanalSettings(NodeBackendSettings):
+class KanalSettings(PodBackendSettings):
     enforce_catalog = False
     enforce_register = False
     provider = "kanal"
 
 
-class KanalRegistry(NodeBackendRegister):
+class KanalRegistry(PodBackendRegister):
+    persistent = True
     provider = "kanal"
     _channel = None
     settingsClass = KanalSettings
@@ -30,7 +31,7 @@ class KanalRegistry(NodeBackendRegister):
         self._channel = channel
         super().__init__(config, **kwargs)
 
-    def get_default_nodetype(self):
+    def get_default_podclass(self):
         return "classic-node"
 
     def get_additional_uniques(self):
@@ -40,7 +41,7 @@ class KanalRegistry(NodeBackendRegister):
 
     def get_channel(self):
         if self._channel is None:
-            self._channel = "channel_"+ self.get_node_identifier()
+            self._channel = "channel_"+ self.get_pod_identifier()
             return self._channel
         else:
             return self._channel
@@ -66,4 +67,4 @@ class KanalRegistry(NodeBackendRegister):
 
 
 class register_with_kanal_backend(KanalRegistry):
-    register = KanalNode
+    register = KanalPod

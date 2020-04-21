@@ -20,7 +20,7 @@ class KanalHandler(BaseHandler):
 
     def send_job(self, job, pod):
         serialized = JobSerializer(job)
-        channel = job.node.kanalnode.channel
+        channel = job.pod.kanalpod.channel
         logger.info(f"Sending to channel {channel}")
         async_to_sync(channel_layer.send)(channel, {"type": CHANNELS_JOB_ACTION, "data": serialized.data})
         return job

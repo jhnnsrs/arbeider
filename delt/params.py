@@ -37,3 +37,6 @@ class DummyInputs(serializers.Serializer):
 class DummyOutputs(serializers.Serializer):
     dummy = CharField(help_text= "This is just a Dummy")
 
+
+def FilteredModelField(model, filterkwargs, *args, **kwargs):
+    return PrimaryKeyRelatedField(queryset=model.objects.filter(**filterkwargs).all(),*args, **kwargs)

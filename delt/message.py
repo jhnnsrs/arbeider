@@ -11,7 +11,7 @@ from delt.settingsregistry import get_settings_registry
 logger = logging.getLogger(__name__)
 
 def send_to_backend(job: Job, context: JobContext):
-    backend = job.node.backend
+    backend = job.pod.provider
     handler = get_settings_registry().getHandlerForBackend(backend)
     
     job = handler.on_job(job, context)

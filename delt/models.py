@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.postgres.fields.jsonb import JSONField
 from django.db import models
 
-from delt.fields import AccessPolicy, ArgsField, SelectorField, SettingsField
+from delt.fields import AccessPolicy, ArgsField, SelectorField, SettingsField, PublishersField
 from delt.helpers import get_default_job_settings
 from delt.status import STATUS_PENDING
 
@@ -14,9 +14,10 @@ from delt.status import STATUS_PENDING
 class Node(models.Model):
     identifier = models.CharField(max_length=1000, unique=True, editable=False, help_text="A unique identifier of this Node on this Platform, calculated hashing the package and interface")
     variety = models.CharField(max_length=1000, help_text="Is this Node a Frontend, Backend, DaskExlusiv Node?")
-    backend = models.CharField(max_length=1000, help_text="The Backend this Node uses")
+    realm = models.CharField(max_length=1000, help_text="The realm this Node was registered to?")
     package = models.CharField(max_length=1000, help_text="The Package this Node belongs to")
     interface = models.CharField(max_length=1000, help_text="The unique interface of this Node within the Package")
+    publishers = PublishersField(help_text="The publishers thie Node will send to",default=dict)
     name = models.CharField(max_length=1000, help_text="The Package that channel belongs to")
     description = models.TextField(help_text="A Short description for the Node")
     settings = SettingsField(max_length=1000, default=dict)  # json decoded standardsettings
@@ -44,9 +45,14 @@ class Route(models.Model):
 
 
 class Pod(models.Model):
-    node = models.ForeignKey(Node, on_delete=models.CASCADE, help_text="The node this Pod is an instance of")
-    provisioner = models.CharField(max_length=1000, help_text="The provisioner that created this Pod")
-    policy = AccessPolicy(help_text="The access policy attached to this pod")
+    node = models.ForeignKey(Node, on_delete=models.CASCADE, help_text="The node this Pod is an instance of", related_name="pods")
+    podclass = models.CharField(max_length=400, default="classic-pod")
+    provider = models.CharField(max_length=1000, help_text="The provisioner that created this Pod")
+    persistent = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"Pod for node {self.node.name} ( Package: {self.node.package}/{self.node.interface}  ) at {self.provider}"
+
 
 
 

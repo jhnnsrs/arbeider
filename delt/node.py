@@ -8,10 +8,10 @@ from delt.params import DummyInputs, DummyOutputs
 
 logger = logging.getLogger(__name__)
 
-def node_identifier(package, interface, backend, withsecret= settings.SECRET_KEY):
+def node_identifier(package, interface, withsecret= settings.SECRET_KEY):
     """This function generate 10 character long hash of the package and interface name"""
     hash = hashlib.sha1()
-    salt = package + interface + backend + withsecret
+    salt = package + interface + withsecret
     hash.update(salt.encode('utf-8'))
     return  hash.hexdigest()
 

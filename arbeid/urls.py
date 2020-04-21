@@ -22,17 +22,23 @@ from rest_framework import routers
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.contrib.auth.decorators import login_required
-
+from graphene_django.views import GraphQLView
 from delt.router import router as configrouter
 from delt.settingsregistry import get_settings_registry
 from elements.router import router as elementsrouter
+from herre.router import router as herrerouter
 from jobb.router import JobRouter
 from jobb.router import router as jobrouter
 from kanal.handler import KanalHandler
 from fremmed.handler import FremmedHandler
+from delt.publishers.log import LogPublisher
+from balder.publisher import BalderPublisher
+from django.views.decorators.csrf import csrf_exempt
 
 get_settings_registry().setHandlerForBackend("kanal", KanalHandler())
 get_settings_registry().setHandlerForBackend("fremmed", FremmedHandler())
+get_settings_registry().setPublisher("log", LogPublisher())
+get_settings_registry().setPublisher("balder", BalderPublisher())
 
 class DocsView(APIView):
     """
@@ -48,6 +54,7 @@ class DocsView(APIView):
     def get(self, request, *args, **kwargs):
         apidocs = {'elements': request.build_absolute_uri('elements/'),
                    'config': request.build_absolute_uri('config/'),
+                   'herre': request.build_absolute_uri('herre/'),
                    'jobs': request.build_absolute_uri('jobs/'),
                    }
         return Response(apidocs)
@@ -62,9 +69,11 @@ def index(request):
 urlpatterns = [
     path('', index, name='index'),
     url(r'^accounts/', include('registration.backends.default.urls')),
+    url(r'^graphql$', csrf_exempt(GraphQLView.as_view(graphiql=True))),
     path('admin/', admin.site.urls),
     path('api/', DocsView.as_view()),
     url(r'^api/elements/', include((elementsrouter.urls, 'elementsapi'))),
+    url(r'^api/herre/', include((herrerouter.urls, 'herrapi'))),
     url(r'^api/config/', include((configrouter.urls, 'configapi'))),
     url(r'^api/jobs/', include((jobrouter.urls, 'jobsapi'))),
     path('o/', include('oauth2_provider.urls', namespace='oauth2_provider')),

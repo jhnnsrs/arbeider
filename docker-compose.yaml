@@ -1,11 +1,11 @@
 version: "3.4"
 
 services:
-  karl:
+  sandra:
     image: postgres:12.2-alpine
     env_file:
       - arnheim.env
-  frank:
+  karl:
     image: postgres:12.2-alpine
     env_file:
       - arnheim.env

@@ -35,6 +35,15 @@ class JobViewSet(PublishingModelViewSet):
     serializer_class = JobSerializer
 
 
+class PodViewSet(PublishingModelViewSet):
+    """
+    API endpoint that allows users to be viewed or edited.
+    """
+    filter_backends = (DjangoFilterBackend,)
+    filter_fields = ("node",)
+    queryset = Pod.objects.all()
+    serializer_class = PodSerializer
+
 class FlowViewSet(PublishingModelViewSet):
     # MAKE THIS AN ACTION PUBLISHER THAT WILL PIPE IT THROUGH A META OBJECT CREATOR
 

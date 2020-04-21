@@ -8,6 +8,10 @@ class JobSerializer(serializers.ModelSerializer):
         model = Job
         fields = "__all__"
 
+class PodSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Pod
+        fields = "__all__"
 
 class RouteSerializer(serializers.ModelSerializer):
     class Meta:
@@ -18,11 +22,11 @@ class RouteSerializer(serializers.ModelSerializer):
 
 class NodeSerializer(serializers.ModelSerializer):
     routes = RouteSerializer(many=True, read_only=True)
+    pods = PodSerializer(many=True, read_only=True)
 
     class Meta:
         model = Node
         fields = "__all__"
-
 
 # FLOW Implementation
 

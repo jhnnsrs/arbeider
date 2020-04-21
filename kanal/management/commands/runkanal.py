@@ -6,7 +6,7 @@ from channels.routing import get_default_application
 from channels.worker import Worker
 from django.core.management import BaseCommand, CommandError
 
-from delt.discover import autodiscover_nodes
+from delt.discover import autodiscover_pods
 from delt.registry import get_registry
 
 logger = logging.getLogger(__name__)
@@ -39,7 +39,7 @@ class Command(BaseCommand):
         if self.channel_layer is None:
             raise CommandError("You do not have any CHANNEL_LAYERS configured.")
         # Autodiscover all of the the worker
-        registry = autodiscover_nodes(backend="kanal", register=True)
+        registry = autodiscover_pods(backend="kanal", register=True)
         allchannels = [key for key, _ in get_registry().getConsumersMap().items()]
         logger.info("Running worker for channels %s", allchannels)
         worker = self.worker_class(

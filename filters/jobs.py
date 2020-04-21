@@ -1,9 +1,9 @@
 from jobb.registry import register_with_job_routes
 from jobb.viewsets import JobRouteViewSet
 
-from .nodes.configs.projections.maxisp import MaxISPConfig
-from .nodes.configs.filters.blur import BlurFilterConfig
-from .nodes.configs.filters.prewitt import PrewittFilterConfig
+from .configs.projections.maxisp import MaxISPConfig
+from .configs.filters.blur import BlurFilterConfig
+from .configs.filters.prewitt import PrewittFilterConfig
 
 
 @register_with_job_routes(MaxISPConfig)

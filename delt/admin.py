@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 # Register your models here.
-from .models import Node, Route, Job
+from .models import Node, Route, Job, Pod
 
 class RouteInline(admin.TabularInline):
     model = Route
@@ -15,3 +15,4 @@ class NodeAdmin(admin.ModelAdmin):
 admin.site.register(Route)
 admin.site.register(Job)
 admin.site.register(Node, NodeAdmin)
+admin.site.register(Pod)

@@ -122,6 +122,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'oauth2_provider',
+    'graphene_django',
     'rest_framework',
     'corsheaders',
     'django_filters',
@@ -134,8 +135,13 @@ INSTALLED_APPS = [
     'bord',
     'matrise',
     'jobb',
+    'balder',
 ] + MODULES
 
+
+GRAPHENE = {
+    'SCHEMA': 'balder.schema.graphql_schema' # Where your Graphene schema lives
+}
 
 
 MIDDLEWARE = [
@@ -160,6 +166,20 @@ AUTHENTICATION_BACKENDS = (
     # Uncomment following if you want to access the admin
     'django.contrib.auth.backends.ModelBackend'
 )
+
+PUBLISHERS = {
+    "balder": {
+        "CLASS": "balder.publisher.BalderPublisher",
+        "INCLUDE": ["job"],
+        "EXCLUDE": ["representation"]
+    },
+    "log": {
+        "CLASS": "delt.publishers.log.LogPublisher",
+        "INCLUDE": ["job"],
+    }
+}
+
+DEFAULT_JOB_PUBLISHERS = ["balder","log"]
 
 TEMPLATES = [
     {
@@ -200,27 +220,40 @@ ACCOUNT_ACTIVATION_DAYS = 7 # One-week activation window; you may, of course, us
 REGISTRATION_AUTO_LOGIN = True # Automatically log the user in.
 
 
+
+
 NODE_BACKENDS = {
+    "default": {
+        "registry": "delt.nodes.registry",
+        "autodiscover": True,
+        "enforce_catalog": False,
+        "enforce_register": False,
+        "path": "nodes",
+    }
+}
+
+
+POD_BACKENDS = {
     "kanal": {
         "autodiscover": True,
         "enforce_catalog": False,
         "enforce_register": False,
         "path": "kanal",
-        "base": "nodes",
+        "base": "pods",
     },
     "fremmed": {
         "autodiscover": True,
         "enforce_catalog": False,
         "enforce_register": False,
         "path": "fremmed",
-        "base": "nodes",
+        "base": "pods",
     },
     "kafka": {
         "autodiscover": True,
         "enforce_catalog": False,
         "enforce_register": False,
         "path": "kafka",
-        "base": "nodes"
+        "base": "pods"
     }
 }
 
