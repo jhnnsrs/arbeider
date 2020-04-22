@@ -1,10 +1,12 @@
-from balder.schema import graphql_schema
 import channels_graphql_ws
+from aiohttp import payload
+
+from balder.schema import graphql_schema
+
 
 class MyGraphqlWsConsumer(channels_graphql_ws.GraphqlWsConsumer):
     """Channels WebSocket consumer which provides GraphQL API."""
     schema = graphql_schema
-
     # Uncomment to send keepalive message every 42 seconds.
     # send_keepalive_every = 42
 
@@ -14,4 +16,5 @@ class MyGraphqlWsConsumer(channels_graphql_ws.GraphqlWsConsumer):
     async def on_connect(self, payload):
         """New client connection handler."""
         # You can `raise` from here to reject the connection.
+        print(payload)
         print("New client connected!")

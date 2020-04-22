@@ -15,25 +15,27 @@ Including another URLconf
 """
 from django.conf.urls import url
 from django.contrib import admin
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from django.urls import include, path, re_path
 from django.utils.safestring import mark_safe
+from django.views.decorators.csrf import csrf_exempt
+from graphene_django.views import GraphQLView
+from graphql.backend import GraphQLCoreBackend
 from rest_framework import routers
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from django.contrib.auth.decorators import login_required
-from graphene_django.views import GraphQLView
+
+from balder.publisher import BalderPublisher
+from delt.publishers.log import LogPublisher
 from delt.router import router as configrouter
 from delt.settingsregistry import get_settings_registry
 from elements.router import router as elementsrouter
+from fremmed.handler import FremmedHandler
 from herre.router import router as herrerouter
 from jobb.router import JobRouter
 from jobb.router import router as jobrouter
 from kanal.handler import KanalHandler
-from fremmed.handler import FremmedHandler
-from delt.publishers.log import LogPublisher
-from balder.publisher import BalderPublisher
-from django.views.decorators.csrf import csrf_exempt
 
 get_settings_registry().setHandlerForBackend("kanal", KanalHandler())
 get_settings_registry().setHandlerForBackend("fremmed", FremmedHandler())

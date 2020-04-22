@@ -12,7 +12,8 @@ class SettingRegistry():
 
     def setHandlerForBackend(self, backend, handler):
         if backend in self.backendHandlerMap:
-            raise RegistryError(" Backend already registered with another Handler. Configuration Error!")
+            pass
+            #raise RegistryError(" Backend already registered with another Handler. Configuration Error!")
         else:
             self.backendHandlerMap[backend] = handler
 
@@ -32,7 +33,8 @@ class SettingRegistry():
 
     def setPublisher(self, publisher, handler):
         if publisher in self.backendHandlerMap:
-            raise RegistryError(" Publisher already registered with another Handler. Configuration Error!")
+            pass
+            #raise RegistryError(" Publisher already registered with another Handler. Configuration Error!")
         else:
             self.publisherHandlerMap[publisher] = handler
 

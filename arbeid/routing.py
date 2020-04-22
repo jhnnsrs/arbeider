@@ -19,8 +19,9 @@ application = ProtocolTypeRouter({
     # We actually don't need the URLRouter here, but we've put it in for
     # illustration. Also note the inclusion of the AuthMiddlewareStack to
     # add users and sessions - see http://channels.readthedocs.io/en/latest/topics/authentication.html
-    'websocket': URLRouter([
+    'websocket': AuthMiddlewareStack(URLRouter([
         path('graphql/', MyGraphqlWsConsumer),
-    ]),
+        path('graphql', MyGraphqlWsConsumer),
+    ])),
     "channel": ChannelNameRouter(get_registry().getConsumersMap()),
 })

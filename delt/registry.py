@@ -57,7 +57,11 @@ class Registry():
 
 
 
-GLOBAL_REGISTRY = Registry()
+registry = None
 
 def get_registry():
-    return GLOBAL_REGISTRY
+    global registry
+    if registry is None:
+        registry = Registry()
+    return registry
+

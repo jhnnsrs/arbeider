@@ -2,13 +2,14 @@
 
 import logging
 
-from balder.schema import JobSubscription
+from balder.subscriptions import JobSubscription
 from delt.models import Job
 from delt.publishers.base import BasePublisher, BasePublisherSettings
 from delt.serializers import JobSerializer
+from balder.registry import get_registry
 
 logger = logging.getLogger(__name__)
-
+JOB_SUBSCRIPTION = "all_jobs"
 
 
 class BalderPublisherSettings(BasePublisherSettings):
@@ -26,7 +27,7 @@ class BalderPublisher(BasePublisher):
         pod = job.pod
         if pod is not None:
             serialized = JobSerializer(job)
-            JobSubscription.broadcast(group="pod_"+str(pod.id), payload=serialized.data)
+            get_registry().getSubscription(JOB_SUBSCRIPTION).broadcast(group="pod_"+str(pod.id), payload=serialized.data)
 
 
     def on_job_updated(self, job: Job):

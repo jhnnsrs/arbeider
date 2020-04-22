@@ -71,6 +71,7 @@ class Animal(models.Model):
 
 
 class Sample(models.Model):
+    """ A sgfsefsef is a multi-dimensional Array that can do what ever it wants """
     creator = models.ForeignKey(User, on_delete=models.SET(get_sentinel_user))
     name = models.CharField(max_length=1000)
     experiment = models.ForeignKey(Experiment, on_delete=models.SET_NULL, blank=True, null=True)
@@ -149,6 +150,7 @@ class ChannelMap(object):
 
 
 class Representation(Matrise):
+    ''' A Representation is 5-dimensional representation of a microscopic image '''
     creator = models.ForeignKey(User, on_delete=models.CASCADE, help_text="The Person that created this representation")
     inputrep = models.ForeignKey('self', on_delete=models.SET_NULL, blank=True, null= True)
     sample = models.ForeignKey(Sample, on_delete=models.CASCADE, related_name='representations', help_text="The Sample this representation belongs to")

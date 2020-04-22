@@ -107,8 +107,9 @@ STORAGE_MODE = defaults.storage
 DEFAULT_FILE_STORAGE = defaults.storage_default
 # Application definition
 
-MODULES = MODULES + [
-    'elements',
+MODULES = [
+    'extensions', # Extensions Provide a place where to place additional Parameters to extend the Delt, Framework
+    'elements', # Elements is the integral part of the Framework
     'filters'
 ]
 
@@ -198,6 +199,13 @@ TEMPLATES = [
         },
     },
 ]
+
+BALDER_SETTINGS = {
+        "default": {
+            "autodiscover": True,
+            "path": "graphql",
+        } 
+}
 
 # Channel layer definitions
 # http://channels.readthedocs.io/en/latest/topics/channel_layers.html

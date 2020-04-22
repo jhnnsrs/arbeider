@@ -3,57 +3,54 @@ import graphene
 from graphene import Dynamic
 from graphene.types import generic
 
-from balder.types import JobQuery
+from balder.discover import autodiscover_balder
+from balder.registry import get_registry
+from delt.models import Job
 
 
-class JobSubscription(channels_graphql_ws.Subscription):
-    """Simple GraphQL subscription."""
 
-    # Subscription payload.
-    event = graphene.String()
-    args = generic.GenericScalar()
 
-    class Arguments:
-        """That is how subscription arguments are defined."""
-        podid = graphene.Int()
-        instanceid = graphene.Int()
 
-    @staticmethod
-    def subscribe(root, info, podid, instanceid):
-        """Called when user subscribes."""
+rootquery = None
+rootsubscription = None
+rootmutation = None
 
-        # Return the list of subscription group names.
-        print(podid)
-        return ['pod_'+str(podid)]
 
-    @staticmethod
-    def publish(payload, info, podid, instanceid):
-        """Called to notify the client."""
+def buildRootMutation():
+    global rootmutation
+    if rootmutation is None:
+        fields  = get_registry().getQueryFields()
+        rootmutation = type('Subscription', (graphene.ObjectType,), { **fields, "__doc__": "All Mutations are to be found here"})
+    return rootmutation
 
-        # Here `payload` contains the `payload` from the `broadcast()`
-        # invocation (see below). You can return `MySubscription.SKIP`
-        # if you wish to suppress the notification to a particular
-        # client. For example, this allows to avoid notifications for
-        # the actions made by this particular client.
-        print("Hallo"+str(payload))
 
-        return JobSubscription(event='Something has happened!', args=payload["args"])
+def buildRootSubscription():
+    global rootsubscription
+    if rootsubscription is None:
+        fields  = get_registry().getSubscriptionFields()
+        rootsubscription = type('Subscription', (graphene.ObjectType,), { **fields, "__doc__": "All Subscriptions are to be found here"})
+    return rootsubscription
 
-class Query(graphene.ObjectType, JobQuery, Dynamic):
-    """Root GraphQL query."""
-    # Check Graphene docs to see how to define queries.
-    pass
+
+
+def buildRootQuery():
+    global rootquery
+    if rootquery is None:
+        fields  = get_registry().getQueryFields()
+        rootquery = type('Query', (graphene.ObjectType,), { **fields, "__doc__": "This is the Root Query"})
+    return rootquery
+
+
+# We will Autodiscover everything in the Default Space
+autodiscover_balder("default")
 
 class Mutation(graphene.ObjectType):
     """Root GraphQL mutation."""
     # Check Graphene docs to see how to define mutations.
     pass
 
-class Subscription(graphene.ObjectType):
-    """Root GraphQL subscription."""
-    job_subscription = JobSubscription.Field()
 
 graphql_schema = graphene.Schema(
-    query=Query,
-    subscription=Subscription,
+    query=buildRootQuery(),
+    subscription=buildRootSubscription(),
 )

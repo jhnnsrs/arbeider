@@ -14,7 +14,6 @@ from delt.node import NodeConfig
 from delt.params import Inputs
 from delt.provisioner import BaseProvisionerError
 from delt.serializers import JobSerializer
-from balder.schema import JobSubscription
 from delt.pipes import new_job_pipe
 
 logger = logging.getLogger(__name__)

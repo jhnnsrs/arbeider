@@ -1,12 +1,11 @@
 """ The Discover Module """
 
-import logging 
-
-from importlib import import_module
+import logging
 import os
+from importlib import import_module
+
 from django.conf import settings
 from delt.registry import get_registry
-
 
 logger = logging.getLogger(__name__)
 
@@ -24,25 +23,26 @@ PUBLISHER_BACKEND_TYPE  = "publishers"
 POD_BACKENDS_FIELD = "POD_BACKENDS"
 POD_BACKEND_TYPE  = "pods"
 
-NodeMember = {
-    "field" : NODE_BACKENDS_FIELD,
-    "type" : NODE_BACKEND_TYPE
-}
+class DiscoverMember:
+    field = None
+    type = None
 
-PodMember = {
-    "field" : POD_BACKENDS_FIELD,
-    "type" : POD_BACKEND_TYPE
-}
+class NodeMember(DiscoverMember):
+    field = NODE_BACKENDS_FIELD
+    type = NODE_BACKEND_TYPE
 
-RouterMember = {
-    "field" : ROUTER_BACKENDS_FIELD,
-    "type" : ROUTER_TYPE
-}
+class PodMember(DiscoverMember):
+    field = POD_BACKENDS_FIELD
+    type = POD_BACKEND_TYPE
 
-PublisherMember = {
-    "field" : PUBLISHER_BACKENDS_FIELD,
-    "type" : PUBLISHER_BACKEND_TYPE
-}
+class RouterMember(DiscoverMember):
+    field = ROUTER_BACKENDS_FIELD
+    type = ROUTER_TYPE
+
+class PublisherMember(DiscoverMember):
+    field = PUBLISHER_BACKENDS_FIELD
+    type = PUBLISHER_BACKEND_TYPE
+
 
 class NotDiscoveringError(Exception):
     pass
@@ -131,26 +131,26 @@ def discover_from_config(config: dict, backend: str, type = None , catalog = Fal
 
 
 
-def autodiscover(member: dict, backend = None, catalog = False, register=False):
+def autodiscover(member: DiscoverMember, backend = None, catalog = False, register=False):
 
     setDiscover(True)
 
-    if not hasattr(settings, member["field"]):
-        raise NotImplementedError(f"We didnt find a configuration to autodiscover from. Please implement {member['field']} in your settings.")
+    if not hasattr(settings, member.field):
+        raise NotImplementedError(f"We didnt find a configuration to autodiscover from. Please implement {member.field} in your settings.")
 
-    backends = getattr(settings, member["field"])
+    backends = getattr(settings, member.field)
     if backend is not None:
         logger.info(f"Trying to import {backend}-Pods in all Apps")
         try:
             config = backends[backend]
         except KeyError:
-            raise NotImplementedError(f"No {member['field']} configuration found for {backend}")
-        discover_from_config(config, backend, type=member["type"] , catalog=catalog, register = register,)
+            raise NotImplementedError(f"No {member.field} configuration found for {backend}")
+        discover_from_config(config, backend, type=member.type , catalog=catalog, register = register,)
           
     else: 
         logger.info("Trying to import all Pods in all Apps")
         for backend, config in backends.items():
-            discover_from_config(config, backend, type=member["type"] , catalog=catalog, register = register,)
+            discover_from_config(config, backend, type=member.type  , catalog=catalog, register = register,)
 
     setDiscover(False)
     # The Registry we return holds all information of the registered Nodes according to their backend
@@ -183,4 +183,3 @@ def autodiscover_publishers(*args, **kwargs):
      DELT_ENSURE_REGISTER env is set to True it will also try to register all nodes
      with the database"""
     return autodiscover(PublisherMember, *args, **kwargs)
-

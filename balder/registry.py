@@ -1,26 +1,43 @@
 import graphene
-from PIL.Image import NONE
-
-from delt.node import NodeConfig
 
 
-class to_object(object):
-    config: NodeConfig = None
+class Registry():
 
-    def __init__(self, config: NodeConfig):
+    def __init__(self):
+        self.fieldQueryMap = {}
+        self.fieldSubscriptionMap = {}
+        self.fieldMutationMap = {}
+        self.subscriptionMap = {}
 
-        self.config = config
+    def getQueryFields(self):
+        return self.fieldQueryMap
+    
+    def setSubscription(self, field, value):
+        self.subscriptionMap[field] = value
 
-    def __call__(self, cls):
-        # Do Initial Weird stuff to class
-        fields = {"hallo": {"entity": graphene.String(), "resolver" : lambda self, info, **kwargs: "Hallo"}}
+    def getSubscription(self, field):
+        return self.subscriptionMap[field]
 
-        for key, value in fields.items():
-            setattr(cls, key, value["entity"])
-            setattr(cls, "resolve_"+key, value["resolver"])
+    def setQueryField(self, field, value):
+        self.fieldQueryMap[field] = value
 
-        return cls
-        
+    def getSubscriptionFields(self):
+        return self.fieldSubscriptionMap
+    
+    def setSubscriptionField(self, field, value):
+        self.fieldSubscriptionMap[field] = value
 
-class register_with_schema(to_object):
-    pass
+    def getMutationFields(self):
+        return self.fieldMutationMap
+    
+    def setMutationField(self, field, value):
+        self.fieldMutationMap[field] = value
+
+
+registry = None
+
+def get_registry()-> Registry:
+    global registry
+    if registry is None:
+        registry = Registry()
+    return registry
