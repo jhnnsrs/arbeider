@@ -4,8 +4,13 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-
-
+        {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal"
+        },
         {
             "name": "Python: Django",
             "type": "python",
@@ -19,13 +24,20 @@
             "django": true
         },
         {
-            "name": "Node Register",
+            "name": "Provisioners",
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/manage.py",
             "args": [
-                "registerall",
+                "runproviders",
             ],
+            "django": true
+        },
+        {
+            "name": "Test",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/tests/test.py",
             "django": true
         },
     ]

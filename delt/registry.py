@@ -10,6 +10,7 @@ class Registry():
     def __init__(self):
         self.channelConsumersMap = {}
         self.nodeidentifierBackendMap = {}
+        self.nodeidentifierConfigMap = {}
         self.nodes = {}
         self.viewsetRoutes = {}
         self.nodeIdentifierPublishersMap = {}
@@ -40,6 +41,17 @@ class Registry():
             self.viewsetRoutes[basename] = route
 
 
+    def registerConfigForIdentifier(self, nodeidentifier, config):
+        if nodeidentifier in self.nodeidentifierConfigMap:
+            raise RegistryError(" Nodeidentifier already registered. Configuration Error!")
+        else:
+            self.nodeidentifierConfigMap[nodeidentifier] = config
+
+    def getConfigForIdentifier(self, nodeidentifier):
+        if nodeidentifier in self.nodeidentifierConfigMap:
+            return self.nodeidentifierConfigMap[nodeidentifier]
+        else:
+            raise RegistryError("Node not registered with any Config. Did you overide NodeBackend?")
 
     def registerBackendForNode(self, nodeidentifier, backend):
         if nodeidentifier in self.nodeidentifierBackendMap:
@@ -64,4 +76,12 @@ def get_registry():
     if registry is None:
         registry = Registry()
     return registry
+
+
+
+def get_delt_registry():
+    return get_registry()
+
+
+
 

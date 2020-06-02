@@ -1,5 +1,18 @@
 import graphene
+from django.contrib.postgres.fields.jsonb import JSONField
+from graphene_django.converter import convert_django_field
 
+from balder.fields import Inputs, Outputs
+from delt.fields import InputsField, OutputsField
+
+
+@convert_django_field.register(OutputsField)
+def convert_json_field_to_string(field, registry=None):
+    return Inputs()
+
+@convert_django_field.register(InputsField)
+def convert_json_field_to_string(field, registry=None):
+    return Outputs()
 
 class Registry():
 
@@ -7,16 +20,19 @@ class Registry():
         self.fieldQueryMap = {}
         self.fieldSubscriptionMap = {}
         self.fieldMutationMap = {}
-        self.subscriptionMap = {}
+        self.nodeSubscriptionMap = {}
 
     def getQueryFields(self):
         return self.fieldQueryMap
     
-    def setSubscription(self, field, value):
-        self.subscriptionMap[field] = value
+    def setSubscriptionForNode(self, node, value):
+        self.nodeSubscriptionMap[node.id] = value
 
-    def getSubscription(self, field):
-        return self.subscriptionMap[field]
+    def getSubscriptionForNode(self, node):
+        if node.id in self.nodeSubscriptionMap:
+            return self.nodeSubscriptionMap[node.id]
+        else:
+            raise Exception(f"Did Not find Subscription for Node {node.id}. Fields are {self.nodeSubscriptionMap}")
 
     def setQueryField(self, field, value):
         self.fieldQueryMap[field] = value

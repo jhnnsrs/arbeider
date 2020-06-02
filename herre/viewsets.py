@@ -38,4 +38,4 @@ class ProfileViewSet(viewsets.ModelViewSet):
     def me(self, request):
         # We are trying to pass on selection params
         serialized = ProfileSerializer(request.user.profile)
-        return Response(serialized.data )
+        return Response(serialized.data)

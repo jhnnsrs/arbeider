@@ -31,6 +31,6 @@ class ArnheimGenerator(object):
 
     @property
     def path(self):
-        return f'{self.model.sample.id}-sample.{self.group}.{self.name}'
+        return f'{self._id_generator()}-sample.{self.group}.{self.name}'
 
 

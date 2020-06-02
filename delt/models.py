@@ -4,11 +4,11 @@ from django.contrib.auth import get_user_model
 from django.contrib.postgres.fields.jsonb import JSONField
 from django.db import models
 
-from delt.fields import AccessPolicy, ArgsField, SelectorField, SettingsField, PublishersField
+from delt.fields import (AccessPolicy, ArgsField, InputsField, OutputsField,
+                         PublishersField, SelectorField, SettingsField)
 from delt.helpers import get_default_job_settings
+from delt.pod import PODPENDING
 from delt.status import STATUS_PENDING
-
-
 
 
 class Node(models.Model):
@@ -20,10 +20,12 @@ class Node(models.Model):
     publishers = PublishersField(help_text="The publishers thie Node will send to",default=dict)
     name = models.CharField(max_length=1000, help_text="The Package that channel belongs to")
     description = models.TextField(help_text="A Short description for the Node")
-    settings = SettingsField(max_length=1000, default=dict)  # json decoded standardsettings
-    inputs = JSONField(default=list)
-    outputs = JSONField(default=list)
+    inputs = InputsField(default=list)
+    outputs = OutputsField(default=list)
     nodeclass = models.CharField(max_length=400, default="classic-node")
+
+    def get_identifier(self):
+        return self.identifier
 
     def __str__(self):
         return f"Node {self.name} ( Package: {self.package}/{self.interface}  ) on Identifier {self.identifier}"
@@ -43,30 +45,41 @@ class Route(models.Model):
         return f"Node {self.name} ( Package: {self.package}/{self.interface}  ) on Identifier {self.identifier}"
 
 
-
 class Pod(models.Model):
     node = models.ForeignKey(Node, on_delete=models.CASCADE, help_text="The node this Pod is an instance of", related_name="pods")
     podclass = models.CharField(max_length=400, default="classic-pod")
+    status = models.CharField(max_length=300, default=PODPENDING)
     provider = models.CharField(max_length=1000, help_text="The provisioner that created this Pod")
+    unique = models.UUIDField(max_length=1000, unique=True, default=uuid.uuid4, help_text="The Unique identifier of this POD")
+    reference = models.CharField(max_length=1000, unique=True, null=True, blank=True,  help_text="The Unique identifier of this POD")
     persistent = models.BooleanField(default=False)
 
     def __str__(self):
         return f"Pod for node {self.node.name} ( Package: {self.node.package}/{self.node.interface}  ) at {self.provider}"
 
-
-
+class Provision(models.Model):
+    node = models.ForeignKey(Node, on_delete=models.CASCADE, help_text="The node this provision connects", related_name="provisions")
+    pod = models.ForeignKey(Pod, on_delete=models.CASCADE, help_text="The pod this provision connects", related_name="provisions", null=True, blank=True)
+    provider = models.CharField(max_length=1000, help_text="The Provider")
+    subselector = models.CharField(max_length=1000, help_text="The selector")
+    reference = models.CharField(max_length=1000, unique=True, default=uuid.uuid4, help_text="The Unique identifier of this Provision")
+    status = models.CharField(max_length=1000, blank=True, help_text="This provisions status")
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, max_length=1000, help_text="This provision creator")
 
 class Job(models.Model):
-    args = ArgsField()
+    """ 
+    A Job is the Arnheim equivalent of a Task that lives on a Node
+    """
+    inputs = InputsField(blank=True, null=True, help_text="The Inputs")
+    outputs = OutputsField(help_text="The Outputs", blank=True, null=True)
     settings = SettingsField(max_length=1000, default=get_default_job_settings) # jsondecoded
     statuscode = models.IntegerField( default= STATUS_PENDING)
     statusmessage = models.CharField(max_length=500,  default= "Pending")
     creator = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
-    node = models.ForeignKey(Node, on_delete=models.CASCADE)
     pod = models.ForeignKey(Pod, on_delete=models.CASCADE, null=True, blank=True, help_text="The Pod this Job lives on")
-    instance = models.CharField(max_length=400, default= uuid.uuid4, help_text="The Nodeinstance this Job lives on")
+    reference = models.CharField(max_length=400, default= uuid.uuid4, help_text="The Nodeinstance this Job lives on")
     selector = SelectorField(max_length=400, blank=True, help_text="The Selectivity for Instances of this Node (especially unique Frontends)")
-    unique = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+    unique = models.UUIDField(max_length=1000, unique=True, default=uuid.uuid4, editable=False)
 
     def __str__(self):
         return f"Request by {self.creator.username}"
@@ -83,15 +96,20 @@ class Job(models.Model):
         # Check how the current values differ from ._loaded_values. For example,
         # prevent changing the creator_id of the model. (This example doesn't
         # support cases where 'creator_id' is deferred).
-        if not self._state.adding and (
-                self.creator_id != self._loaded_values['creator_id']):
-            raise ValueError("Updating the value of creator isn't allowed")
         super().save(*args, **kwargs)
 
+    class Meta:
+        permissions = (
+                ('queue_job', 'Queue Job'),
+            )
+
+class Assignation(models.Model):
+    pod = models.ForeignKey(Pod, on_delete=models.CASCADE, help_text="The pod this provision connects", related_name="assignations")
+    job = models.ForeignKey(Node, on_delete=models.CASCADE, help_text="The job this provision connects", related_name="assignations")
+    reference = models.CharField(max_length=1000, unique=True, default=uuid.uuid4, help_text="The Unique identifier of this Provision")
+    status = models.CharField(max_length=1000, help_text="This provisions status")
 
     
-
-
 # Layout and Flow for construction of Graphs
 class Flow(models.Model):
     creator = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, null=True, blank=True)

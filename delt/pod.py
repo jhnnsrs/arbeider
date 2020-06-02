@@ -1,19 +1,28 @@
-import uuid
 import hashlib
+import re
+import uuid
+
 from django.conf import settings
 from rest_framework import serializers
+
 from delt.params import CharField
+from delt.settingsregistry import get_settings_registry
 
-
-class DummyPod(object):
-    pass
-
-
-ANYSELECTOR = "any"
-UNIQUESELECTOR = "unique"
-
-UNIQUEIDENTIFIER = "unique"
+# Pod Selector Settings
+ANYSELECTOR = "__any__"
+UNIQUESELECTOR = "#"
+PROVIDERSELECTOR = "@"
 SEPERATOR = "/"
+
+
+# Statuscodes
+
+PODACTIVE = "active"
+PODREADY = "active"
+PODFAILED = "failed"
+PODBUSY = "budy"
+PODPENDING = "pending"
+
 
 
 def pod_identifier(package, interface, provider,  withsecret= settings.SECRET_KEY):
@@ -24,18 +33,3 @@ def pod_identifier(package, interface, provider,  withsecret= settings.SECRET_KE
     return  hash.hexdigest()
 
 
-
-
-class Selector(object):
-    type = ANYSELECTOR
-    params = None
-
-    def __init__(self, selectorstr: str):
-        if selectorstr.startswith(UNIQUEIDENTIFIER):
-            self.type = UNIQUESELECTOR
-            internal = f"{UNIQUEIDENTIFIER}{SEPERATOR}"
-            if selectorstr.startswith(internal):
-                self.params = selectorstr.split(internal)[1]
-
-        
-        super().__init__()

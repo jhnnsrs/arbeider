@@ -5,6 +5,7 @@ from django.conf import settings
 from rest_framework.fields import empty
 
 from delt.params import DummyInputs, DummyOutputs
+from delt.models import Node
 
 logger = logging.getLogger(__name__)
 
@@ -30,5 +31,10 @@ class NodeConfig(object):
             logger.warning("This Job has Dummy Settings")
         super().__init__()
 
-    def get_identifier_for_backend(self, backend):
-        return node_identifier(self.package, self.interface, backend)
+    @classmethod
+    def get_node_identifier(cls):
+        return node_identifier(cls.package, cls.interface,)
+
+    @classmethod
+    def get_node(cls):
+        return Node.objects.get(identifier=cls.get_node_identifier())

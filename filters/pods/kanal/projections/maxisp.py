@@ -3,7 +3,6 @@ from filters.pods.kanal.base import FilterConsumer
 from filters.configs.projections.maxisp import MaxISPConfig
 import xarray as xr
 
-print("Hallo")
 @register_with_kanal_backend(MaxISPConfig)
 class MaxISPConsumer(FilterConsumer):
     """This is a Maximum Projection

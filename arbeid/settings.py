@@ -107,10 +107,23 @@ STORAGE_MODE = defaults.storage
 DEFAULT_FILE_STORAGE = defaults.storage_default
 # Application definition
 
+EXTENSIONS = [
+    'konfig',
+    'kanal',
+    'fremmed',
+    'jobb',
+    'balder',
+    'port',
+]
+
+
+
 MODULES = [
     'extensions', # Extensions Provide a place where to place additional Parameters to extend the Delt, Framework
     'elements', # Elements is the integral part of the Framework
-    'filters'
+    'filters',
+    'drawing',
+    'flow'
 ]
 
 
@@ -123,21 +136,18 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'oauth2_provider',
+    'guardian',
     'graphene_django',
     'rest_framework',
     'corsheaders',
     'django_filters',
     'channels',
-    'kanal',
-    'fremmed',
     'herre',
     'due',
     'delt',
     'bord',
     'matrise',
-    'jobb',
-    'balder',
-] + MODULES
+] + EXTENSIONS + MODULES
 
 
 GRAPHENE = {
@@ -165,18 +175,17 @@ CORS_ORIGIN_ALLOW_ALL = True
 AUTHENTICATION_BACKENDS = (
     'oauth2_provider.backends.OAuth2Backend',
     # Uncomment following if you want to access the admin
-    'django.contrib.auth.backends.ModelBackend'
+    'django.contrib.auth.backends.ModelBackend',
+    'guardian.backends.ObjectPermissionBackend',
 )
 
 PUBLISHERS = {
     "balder": {
         "CLASS": "balder.publisher.BalderPublisher",
-        "INCLUDE": ["job"],
         "EXCLUDE": ["representation"]
     },
     "log": {
         "CLASS": "delt.publishers.log.LogPublisher",
-        "INCLUDE": ["job"],
     }
 }
 
@@ -231,12 +240,16 @@ REGISTRATION_AUTO_LOGIN = True # Automatically log the user in.
 
 
 NODE_BACKENDS = {
-    "default": {
-        "registry": "delt.nodes.registry",
+    "konfig": {
         "autodiscover": True,
         "enforce_catalog": False,
         "enforce_register": False,
         "path": "nodes",
+    },
+    "flow": {
+        "autodiscover": False,
+        "enforce_catalog": False,
+        "enforce_register": False,
     }
 }
 
@@ -261,6 +274,13 @@ POD_BACKENDS = {
         "enforce_catalog": False,
         "enforce_register": False,
         "path": "kafka",
+        "base": "pods"
+    },
+    "port": {
+        "autodiscover": False,
+        "enforce_catalog": False,
+        "enforce_register": False,
+        "path": "port",
         "base": "pods"
     }
 }
@@ -293,13 +313,21 @@ LOGGING = {
     'disable_existing_loggers': False,
     'formatters': {
         'console': {
+            '()': 'colorlog.ColoredFormatter',  # colored output
             # exact format is not important, this is the minimum information
-            'format': '%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
+            'format': '%(log_color)s[%(levelname)s] %(asctime)s :: %(message)s',
+            'log_colors': {
+                'DEBUG':    'bold_black',
+                'INFO':     'green',
+                'WARNING':  'yellow',
+                'ERROR':    'red',
+                'CRITICAL': 'bold_red',
+            },
         },
     },
     'handlers': {
         'console': {
-            'class': 'logging.StreamHandler',
+            'class': 'colorlog.StreamHandler',
             'formatter': 'console',
         },
     },
@@ -313,6 +341,11 @@ LOGGING = {
             'handlers': ['console'],
             'level': 'INFO',
             'propagate': True,
+        },
+        'delt': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
         },
     },
 }

@@ -10,15 +10,7 @@ class JobConfig(serializers.Serializer):
     pod = ModelField(Pod, allow_null=True)
 
 
-class JobContext(object):
-    scopes = []
-    user = None
 
-
-    def __init__(self,*args, **kwargs):
-        for key, value in kwargs.items():
-            if hasattr(self, key):
-                setattr(self, key, value)
 
 
 

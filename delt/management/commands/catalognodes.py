@@ -16,7 +16,7 @@ class Command(BaseCommand):
         """If Delt Register is set to True, autoDiscoverConsumers will
         always register Workers with the Backend, here we turn it on just for the Moment"""
 
-        logger.info("Starting to discover Nodes")
+        logger.debug("Starting to discover Nodes")
         #autodiscover_nodes(catalog=True)
         autodiscover_nodes(register=False, catalog=True)
         #autodiscover_routes(catalog=True)

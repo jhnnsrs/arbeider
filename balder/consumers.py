@@ -1,8 +1,14 @@
+import logging
+from django.test import RequestFactory
 import channels_graphql_ws
 from aiohttp import payload
+from asgiref.sync import async_to_sync
+from channels.auth import login
+from rest_framework.settings import api_settings
 
 from balder.schema import graphql_schema
 
+logger = logging.getLogger(__name__)
 
 class MyGraphqlWsConsumer(channels_graphql_ws.GraphqlWsConsumer):
     """Channels WebSocket consumer which provides GraphQL API."""
@@ -16,5 +22,4 @@ class MyGraphqlWsConsumer(channels_graphql_ws.GraphqlWsConsumer):
     async def on_connect(self, payload):
         """New client connection handler."""
         # You can `raise` from here to reject the connection.
-        print(payload)
-        print("New client connected!")
+        logger.info(f"New client connected with user {self.scope.get('user')}")

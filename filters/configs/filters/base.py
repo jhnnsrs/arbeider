@@ -1,16 +1,18 @@
-from delt.params import (BoolField, Inputs, IntField, ModelField,
-                         Outputs)
 from delt.node import NodeConfig
+from delt.params import BoolField, Inputs, IntField, ModelField, Outputs
 from elements.models import Representation
+from elements.serializers import RepresentationSerializer
+from konfig.node import Konfig
+
 
 class BaseFilterInputs(Inputs):
-    rep = ModelField(Representation, help_text="The Representation that will be filtered", label="Representation")
+    rep = ModelField(Representation, info="The Incoming Representation", description="This Representation will be <b>filtered</b>", label="Representation")
 
 class BaseFilterOutputs(Outputs):
-    rep = ModelField(Representation, help_text="The Outgoing Representation (with altered dimensions)", label="Representation")
+    rep = RepresentationSerializer(help_text="The Outgoing Representation (with altered dimensions)", label="Representation")
 
 
-class BaseFilterConfig(NodeConfig):
+class BaseFilterConfig(Konfig):
     package = "@canoncial/generic/filters"
     inputs = BaseFilterInputs
     outputs = BaseFilterOutputs

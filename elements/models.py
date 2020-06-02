@@ -13,6 +13,8 @@ from elements.managers import (DelayedRepresentationManager,
                                TransformationManager)
 from matrise.models import Matrise
 
+from elements.getters import get_all_access_groups
+
 logger = logging.getLogger(__name__)
 
 def get_sentinel_user():
@@ -152,7 +154,7 @@ class ChannelMap(object):
 class Representation(Matrise):
     ''' A Representation is 5-dimensional representation of a microscopic image '''
     creator = models.ForeignKey(User, on_delete=models.CASCADE, help_text="The Person that created this representation")
-    inputrep = models.ForeignKey('self', on_delete=models.SET_NULL, blank=True, null= True)
+    origin = models.ForeignKey('self', on_delete=models.SET_NULL, blank=True, null= True, related_name="derived", related_query_name="derived")
     sample = models.ForeignKey(Sample, on_delete=models.CASCADE, related_name='representations', help_text="The Sample this representation belongs to")
     type = models.CharField(max_length=400, blank=True, null=True, help_text="The Representation can have varying types, consult your API")
     chain = models.CharField(max_length=9000, blank=True, null=True)
@@ -162,6 +164,9 @@ class Representation(Matrise):
     delayed = DelayedRepresentationManager()
 
     class Meta:
+        permissions = [
+            ('download_representation', 'Can download Presentation')
+        ]
         base_manager_name = "objects"
         default_manager_name = "objects"
 
@@ -206,3 +211,9 @@ class Transformation(Matrise):
 
     def __str__(self):
         return self.name
+
+
+
+
+
+from . import signals

@@ -1,16 +1,18 @@
-from delt.params import (BoolField, Inputs, IntField, ModelField,
-                         Outputs)
 from delt.node import NodeConfig
+from delt.params import BoolField, Inputs, IntField, ModelField, Outputs
 from elements.models import Representation
+from elements.serializers import RepresentationSerializer
+from konfig.node import Konfig
+
 
 class BaseProjectorInputs(Inputs):
-    rep = ModelField(Representation, help_text="The Representation that will be projected")
+    rep = ModelField(Representation, label="Representation", help_text="The Representation that will be projected")
 
 class BaseProjectorOutputs(Outputs):
-    rep = ModelField(Representation, help_text="The Outgoing Representation (with altered dimensions)")
+    rep = RepresentationSerializer(label="Representation", help_text="The Outgoing Representation (with altered dimensions)")
 
 
-class BaseProjectorConfig(NodeConfig):
+class BaseProjectorConfig(Konfig):
     package = "@canoncial/generic/projectors"
     inputs = BaseProjectorInputs
     outputs = BaseProjectorOutputs

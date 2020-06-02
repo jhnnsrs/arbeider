@@ -7,14 +7,13 @@ from rest_framework.exceptions import APIException
 from rest_framework.metadata import SimpleMetadata
 from rest_framework.response import Response
 
-from delt.job import JobConfig, JobContext, job_config_builder
+from delt.job import JobConfig, job_config_builder
 from delt.message import send_to_backend
 from delt.models import Job
+from delt.context import Context
 from delt.node import NodeConfig
 from delt.params import Inputs
-from delt.provisioner import BaseProvisionerError
 from delt.serializers import JobSerializer
-from delt.pipes import new_job_pipe
 
 logger = logging.getLogger(__name__)
 
@@ -93,13 +92,8 @@ class JobRouteViewSet(viewsets.ModelViewSet):
         if self.node is None:
             raise APIException(detail="No Node found on any Backend. Have you installed it or restarted the Server after cataloging it?")
 
-        if request.auth is not None:
-            # We are dealing with an Oauth Request instead of a Simple online Request
-            context = JobContext(scopes=request.auth.scopes, user = request.user)
-        else:
-            #TODO: Check for permissions and set Scopes accordingly
-            context = JobContext(scopes = None, user= request.user)
-
+        context = Context(request=request)
+        context.is_authorized("")
         serializer = self.created_serializer(data=request.data)
         if serializer.is_valid():
 

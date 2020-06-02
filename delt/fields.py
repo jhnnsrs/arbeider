@@ -3,6 +3,15 @@ from django.db.models.fields import CharField
 from rest_access_policy.access_policy import AccessPolicy
 
 
+# Composed NodeFields
+class InputsField(JSONField):
+    pass
+
+# Composed NodeFields
+class OutputsField(JSONField):
+    pass
+
+
 class SettingsField(JSONField):
     pass
 

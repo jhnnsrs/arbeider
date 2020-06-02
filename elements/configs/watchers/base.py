@@ -1,6 +1,8 @@
-from delt.params import Inputs,Outputs, CharField
-from delt.node import NodeConfig
 from rest_framework import serializers
+
+from delt.node import NodeConfig
+from delt.params import CharField, Inputs, Outputs
+from konfig.node import Konfig
 
 
 class Trigger(serializers.Serializer):
@@ -13,6 +15,6 @@ class BaseWatcherOutputs(Outputs):
     pass
 
 
-class BaseWatcherConfig(NodeConfig):
+class BaseWatcherConfig(Konfig):
     package = "@canonical/elements"
     variety = "watcher"

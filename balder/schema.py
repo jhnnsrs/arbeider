@@ -19,8 +19,8 @@ rootmutation = None
 def buildRootMutation():
     global rootmutation
     if rootmutation is None:
-        fields  = get_registry().getQueryFields()
-        rootmutation = type('Subscription', (graphene.ObjectType,), { **fields, "__doc__": "All Mutations are to be found here"})
+        fields  = get_registry().getMutationFields()
+        rootmutation = type('Mutation', (graphene.ObjectType,), { **fields, "__doc__": "All Mutations are to be found here"})
     return rootmutation
 
 
@@ -53,4 +53,5 @@ class Mutation(graphene.ObjectType):
 graphql_schema = graphene.Schema(
     query=buildRootQuery(),
     subscription=buildRootSubscription(),
+    mutation=buildRootMutation(),
 )

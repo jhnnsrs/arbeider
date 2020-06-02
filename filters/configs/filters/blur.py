@@ -3,7 +3,7 @@ from .base import BaseFilterOutputs, BaseFilterConfig, BaseFilterInputs
 
 
 class BlurFilterInputs(BaseFilterInputs):
-    sigma = IntField(allow_null=True, help_text="The Upper Index / The Upper Limit for the Slice", default=5)
+    sigma = IntField(allow_null=True, label="Sigma", help_text="Sigma describes a helpful way to ", default=5)
 
 class BlurFilterConfig(BaseFilterConfig):
     """

@@ -17,7 +17,7 @@ ROUTER_TYPE = "routers"
 NODE_BACKENDS_FIELD = "NODE_BACKENDS"
 NODE_BACKEND_TYPE  = "nodes"
 
-PUBLISHER_BACKENDS_FIELD = "PUBLISHER_BACKENDS"
+PUBLISHER_BACKENDS_FIELD = "PUBLISHERS"
 PUBLISHER_BACKEND_TYPE  = "publishers"
 
 POD_BACKENDS_FIELD = "POD_BACKENDS"
@@ -27,7 +27,7 @@ class DiscoverMember:
     field = None
     type = None
 
-class NodeMember(DiscoverMember):
+class NodeBackendMember(DiscoverMember):
     field = NODE_BACKENDS_FIELD
     type = NODE_BACKEND_TYPE
 
@@ -52,7 +52,7 @@ def getDiscover():
 
 def setDiscover(active):
     it = "True" if active else "False"
-    logger.info(f"DISCOVERING")
+    logger.debug(f"DISCOVERING")
     os.environ["DELT_DISCOVERING"] = it
 
 
@@ -64,12 +64,12 @@ def getRegister(backend, type):
 
 def setCatalog(active, backend, type):
     active_string = "True" if active else "False"
-    logger.info(f"SETTING {type} CATALOG TO {active_string} for {backend}")
+    logger.debug(f"SETTING {type} CATALOG TO {active_string} for {backend}")
     os.environ["DELT_ENSURE_CATALOG_" + type.upper() + "_" + backend.upper()] = active_string
 
 def setRegister(active, backend, type):
     active_string = "True" if active else "False"
-    logger.info(f"Setting {type} Register to {active_string}")
+    logger.debug(f"Setting {type} Register to {active_string}")
     os.environ["DELT_ENSURE_REGISTER_" + type.upper() + "_" + backend.upper()] = active_string
 
 def discover_path(thepath, backend, base, catalog=False, register=False, type= type):
@@ -103,11 +103,11 @@ def discover_path(thepath, backend, base, catalog=False, register=False, type= t
             else:
                 modulepath = f"{app}.{thepath}"
             import_module(modulepath, package=True)
-            logger.info(f"Imported {backend} at {app}")
+            logger.debug(f"Imported {backend} at {app}")
         except ImportError as e:
             if app in settings.MODULES:
                 if f"No module named '{app}" in str(e):
-                    logger.info(f"No Modules for {backend} found for {app} at {modulepath} {e}")
+                    logger.debug(f"No Modules for {backend} found for {app} at {modulepath} {e}")
                 else:
                     logger.error(f"Unable to import {backend} found for {app} at {modulepath} {e}")
                     raise e
@@ -120,14 +120,14 @@ def discover_path(thepath, backend, base, catalog=False, register=False, type= t
        setRegister(False, backend, type)
 
 
-def discover_from_config(config: dict, backend: str, type = None , catalog = False, register = False):
+def discover_from_config(config: dict, provider: str, type = None , catalog = False, register = False):
     if "autodiscover" in config and config["autodiscover"] is True:
-        logger.info(f"Discovering backends for {backend}")
+        logger.debug(f"Discovering modules for {provider}")
         base = config["base"] if "base" in config else None
         if "path" in config and config["path"] is not None:
-            discover_path(config["path"], backend, base, catalog=catalog, register=register, type= type)
+            discover_path(config["path"], provider, base, catalog=catalog, register=register, type= type)
     else:
-        logger.warn(f"{backend} has disabled Autodisovery")
+        logger.warn(f"{provider} has disabled Autodisovery")
 
 
 
@@ -140,7 +140,7 @@ def autodiscover(member: DiscoverMember, backend = None, catalog = False, regist
 
     backends = getattr(settings, member.field)
     if backend is not None:
-        logger.info(f"Trying to import {backend}-Pods in all Apps")
+        logger.debug(f"Trying to import {backend}-Pods in all Apps")
         try:
             config = backends[backend]
         except KeyError:
@@ -148,7 +148,7 @@ def autodiscover(member: DiscoverMember, backend = None, catalog = False, regist
         discover_from_config(config, backend, type=member.type , catalog=catalog, register = register,)
           
     else: 
-        logger.info("Trying to import all Pods in all Apps")
+        logger.debug("Trying to import all Pods in all Apps")
         for backend, config in backends.items():
             discover_from_config(config, backend, type=member.type  , catalog=catalog, register = register,)
 
@@ -169,7 +169,7 @@ def autodiscover_nodes(*args, **kwargs):
     """ This function will be importing all Nodes in the app directorys, if
      DELT_ENSURE_REGISTER env is set to True it will also try to register all nodes
      with the database"""
-    return autodiscover(NodeMember, *args, **kwargs)
+    return autodiscover(NodeBackendMember, *args, **kwargs)
 
 def autodiscover_routers(*args, **kwargs):
     """ This function will be importing all Nodes in the app directorys, if

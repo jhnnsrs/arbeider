@@ -4,9 +4,18 @@ import graphene
 from channels_graphql_ws import Subscription
 from django.conf import settings
 from graphene_django import DjangoObjectType
+from graphene_django.filter.fields import DjangoFilterConnectionField
 from jinja2.utils import object_type_repr
 
+from balder.fields import BalderFilterField
 from balder.registry import get_registry
+from balder.subscriptions.base import BaseSubscription
+from balder.subscriptions.job import BaseJobSubscription
+from balder.types import BalderObjectType
+from balder.wrappers import (BalderMutationWrapper, BalderObjectWrapper,
+                             BalderSubscriptionWrapper,
+                             BaseSubscriptionWrapper, NodeSubscriptionWrapper)
+from delt.node import NodeConfig
 
 logger = logging.getLogger(__name__)
 
@@ -22,13 +31,6 @@ class BalderRegisterException(Exception):
 
 class BalderRegisterConfigurationError(BalderRegisterException):
     pass
-
-
-class BalderObjectWrapper(object):
-    object_type = None
-    resolver = None
-    aslist = False
-    asfield = False
 
 
 class BalderSettings(object):
@@ -69,36 +71,61 @@ class BalderRegister(object):
 
 
     def __call__(self, cls):
-        if issubclass(cls, DjangoObjectType):
-            assert self.type == QUERY
-            if "aslist" in self.kwargs:
-                logger.info(f"Registering {cls.__name__} as ListQuery")
-                get_registry().setQueryField("all_jobs", graphene.List(cls, resolver=self.resolver))
-
         description = self.kwargs.pop("description") if "description" in self.kwargs else None
-        if issubclass(cls, BalderObjectWrapper):
-            if cls.object_type is None: raise BalderRegisterConfigurationError(f"Please specify a type in your ObjectWrapper {cls.__name__}")
-            
-            if self.type == QUERY:
+        aslist = self.kwargs.pop("aslist") if "aslist" in self.kwargs else False
+        withfilter = self.kwargs.pop("withfilter") if "withfilter" in self.kwargs else False
+        asfield = self.kwargs.pop("asfield") if "asfield" in self.kwargs else False
+        
+        if self.type == QUERY:
+            if issubclass(cls, BalderObjectWrapper):
+                if cls.object_type is None: raise BalderRegisterConfigurationError(f"Please specify a type in your ObjectWrapper {cls.__name__}")
                 if cls.resolver is None or not callable(cls.resolver): raise BalderRegisterConfigurationError(f"Please specify a callable resolver in your ObjectWrapper {cls.__name__}")
-                assert issubclass(cls.object_type, DjangoObjectType)
-                if cls.aslist or "aslist" in self.kwargs:
-                    logger.info(f"Registering {cls.object_type.__name__} as ListQuery")
-                    get_registry().setQueryField(self.path, graphene.List(cls.object_type, description=description, resolver=cls.resolver, **self.kwargs))
-                elif cls.asfield or "asfield" in self.kwargs:
+                assert issubclass(cls.object_type, BalderObjectType)
+                if cls.aslist or aslist:
+                    if cls.withfilter or withfilter:
+                        logger.info(f"Registering {cls.object_type.__name__} as ListQuery with DjangoFilter")
+                        get_registry().setQueryField(self.path, BalderFilterField(cls.object_type, description=description, **self.kwargs))
+                    else:
+                        logger.info(f"Registering {cls.object_type.__name__} as ListQuery")
+                        get_registry().setQueryField(self.path, graphene.List(cls.object_type, description=description, resolver=cls.resolver, **self.kwargs))
+                elif cls.asfield or asfield:
                     logger.info(f"Registering {cls.object_type.__name__} as ListQuery")
                     get_registry().setQueryField(self.path, graphene.Field(cls.object_type, description=description, resolver=cls.resolver, **self.kwargs))
-
-            elif self.type == SUBSCRIPTION: 
-                assert issubclass(cls.object_type, Subscription)
-                logger.info(f"Registering {cls.object_type.__name__} as Subscription")
-                get_registry().setSubscriptionField(self.path, cls.object_type.Field())
-                get_registry().setSubscription(self.path, cls.object_type)
-
+                else:
+                    raise BalderRegisterConfigurationError(f"Not sure how to register the Subclass of BalderObjectWrapper: {cls.__name__} no asfield or aslist argument Provided")
             else:
-                return BalderRegisterConfigurationError(f"Not sure how to register the Subclass of BalderObjectWrapper: {cls.__name__}")
+                raise BalderRegisterConfigurationError(f"Not sure how to register the Query {cls.__name__}, as it is not a BalderObjectWrapper")
 
+        elif self.type == SUBSCRIPTION: 
+            if issubclass(cls, BaseSubscriptionWrapper):
+                wrapperinstance = cls(self.path)
+                object_type = wrapperinstance.get_object()
+                if issubclass(object_type, BaseJobSubscription):
+                    config: NodeConfig = cls.config
+                    object_type.config = config
+                    get_registry().setSubscriptionField(self.path, object_type.Field())
+                    get_registry().setSubscriptionForNode(config.get_node(), object_type)
+                    logger.info(f"Registering {object_type.__name__} as JobSubscription")
+                elif issubclass(object_type, BaseSubscription):
+                    wrapperinstance = cls(self.path)
+                    object_type = wrapperinstance.get_object()
+                    get_registry().setSubscriptionField(self.path, object_type.Field())
+                else:
+                    raise BalderRegisterConfigurationError(f"Not sure how to register subscription {cls.__name__}. {object_type.__name__} does not inherit from BaseSubscription")
+            else:
+                raise BalderRegisterConfigurationError(f"Not sure how to Subscription: {cls.__name__}, Not Wrapped")
+           
 
+        elif self.type == MUTATION: 
+            if issubclass(cls, BalderMutationWrapper):
+                wrapperinstance = cls(self.path)
+                object_type = wrapperinstance.get_object()
+                logger.info(f"Registering {object_type.__name__} as Mutation")
+                get_registry().setMutationField(self.path, object_type.Field())
+            else:
+                raise BalderRegisterConfigurationError(f"Not sure how to Mutation: {cls.__name__}, Not Wrapped")
+
+            
         else:
             raise BalderRegisterConfigurationError(f"Not sure how to register {cls.__name__}")
 

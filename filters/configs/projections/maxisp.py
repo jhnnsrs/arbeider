@@ -2,6 +2,7 @@ from delt.params import Object, IntField
 from .base import BaseProjectorOutputs, BaseProjectorConfig, BaseProjectorInputs
 
 class Slice(Object):
+    """ A Slice is an Extension of a Lower and Upper Item"""
     upper = IntField(allow_null=True, help_text="The Upper Index / The Upper Limit for the Slice")
     lower = IntField(allow_null=True, help_text="The Lower Index / The Lower Limit for the Slice")
 

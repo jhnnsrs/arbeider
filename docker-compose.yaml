@@ -1,11 +1,11 @@
 version: "3.4"
 
 services:
-  sandra:
+  paola:
     image: postgres:12.2-alpine
     env_file:
       - arnheim.env
-  karl:
+  chantal:
     image: postgres:12.2-alpine
     env_file:
       - arnheim.env
@@ -16,6 +16,18 @@ services:
       - ARNHEIM_MODULES=test
     env_file:
       - arnheim.env
+  minio:
+    image: minio/minio:RELEASE.2020-05-16T01-33-21Z
+    command: server /export
+    ports:
+      - 9000:9000
+    environment:
+      MINIO_ACCESS_KEY: weak_access_key
+      MINIO_SECRET_KEY: weak_secret_key
+    volumes:
+        - mytest:/export
+  redis:
+    image: redis:latest
 
 networks:
   default:
@@ -23,5 +35,6 @@ networks:
       name: bergen_default
 
 volumes:
+  mytest:
   newdata:
   oldfranceso:

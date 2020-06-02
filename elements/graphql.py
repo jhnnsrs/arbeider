@@ -1,4 +1,5 @@
-from balder.register import BalderObjectWrapper, register_query
+from balder.register import register_query
+from balder.wrappers import BalderObjectWrapper
 from elements.types import SampleType
 from graphene import Int
 from .models import Representation, Sample

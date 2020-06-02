@@ -1,7 +1,7 @@
-from delt.nodes.default import ConfigNode, register_node
+from konfig.backend import register_konfig_node
 from elements.configs.watchers.sample import SampleWatcherConfig
 
 
-@register_node(SampleWatcherConfig)
-class SampleWatcher(ConfigNode):
+@register_konfig_node(SampleWatcherConfig)
+class SampleWatcher(object):
     pass

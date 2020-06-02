@@ -92,7 +92,6 @@ class JobRouteViewSet(viewsets.ModelViewSet):
 
     
     def create(self, request):
-        print(request)
         if request.auth is not None:
             # We are dealing with an Oauth Request instead of a Simple online Request
             context = JobContext(scopes=request.auth.scopes, user = request.user)

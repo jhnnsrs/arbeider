@@ -1,6 +1,8 @@
 import logging
-from delt.models import Job
+
 from django.conf import settings
+
+from delt.models import Job, Pod
 
 logger = logging.getLogger(__name__)
 
@@ -14,6 +16,11 @@ class BasePublisherConfigError(BasePublisherError):
 
 class BasePublisherSettings(object):
     settingsField = "PUBLISHERS"
+    provider = None
+    onall = False
+    INCLUDE = None
+    EXCLUDE = []
+    DEFAULTFIELDS = ["job","pod","model","pod_provisioned","pod_updated","job_assigned"]
 
     def __init__(self, **kwargs):
         if self.settingsField is None or self.provider is None:
@@ -26,17 +33,33 @@ class BasePublisherSettings(object):
                     logger.info(f"Overwriting {key} with {value} at {self.provider} in {self.settingsField}")
                     setattr(self,key,value)
 
+    @property
+    def fields(self):
+        if self.INCLUDE is None:
+            return [item for item in self.DEFAULTFIELDS if item not in self.EXCLUDE]
+        else:
+            return self.INCLUDE
 
 class BasePublisher(object):
+    settingsClass = None
 
     def __init__(self):
+        if self.settingsClass is None:
+            raise NotImplementedError("Please provide a settings Class in your Register Settings")
+        self._settings = self.settingsClass()
         super().__init__()
 
+    def on(self, field):
+        try:
+            method = getattr(self, f"on_{field}")
+            assert callable(method)
+            return method
+        except AttributeError:
+            logger.error(f"{self.__class__.__name__} doesnt know how to handle this event, please provide 'on_{field}' Method")
+            return lambda *arg, **kwargs: True
 
-    def on_job_created(self, job: Job):
-        logger.info(f"Created Job: {str(job)}")
-
-
-    def on_job_updated(self, job: Job):
-        logger.info(f"Uppdated Job: {str(job)}")
-
+    @property
+    def settings(self):
+        if self._settings is None:
+            self._settings = self.settingsClass()
+        return self._settings

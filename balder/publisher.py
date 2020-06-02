@@ -2,11 +2,11 @@
 
 import logging
 
-from balder.subscriptions import JobSubscription
-from delt.models import Job
-from delt.publishers.base import BasePublisher, BasePublisherSettings
-from delt.serializers import JobSerializer
 from balder.registry import get_registry
+from balder.subscriptions.provision import ProvisionSubscription
+from delt.models import Job, Pod
+from delt.publishers.base import BasePublisher, BasePublisherSettings
+from delt.serializers import JobSerializer, PodSerializer, ProvisionSerializer
 
 logger = logging.getLogger(__name__)
 JOB_SUBSCRIPTION = "all_jobs"
@@ -14,21 +14,40 @@ JOB_SUBSCRIPTION = "all_jobs"
 
 class BalderPublisherSettings(BasePublisherSettings):
     provider = "balder"
+    onall=True
 
 class BalderPublisher(BasePublisher):
-    settings = BalderPublisherSettings
+    settingsClass = BalderPublisherSettings
 
     def __init_(self):
         super().__init__(self)
 
 
-    def on_job_created(self, job: Job):
+    def on_job_assigned(self, job: Job):
         logger.info(f"Publishing Job: {str(job)}")
-        pod = job.pod
-        if pod is not None:
-            serialized = JobSerializer(job)
-            get_registry().getSubscription(JOB_SUBSCRIPTION).broadcast(group="pod_"+str(pod.id), payload=serialized.data)
+        node = job.pod.node
+        reference = job.reference
+        serialized = JobSerializer(job)
+        get_registry().getSubscriptionForNode(node).broadcast(group=f"job_{reference}", payload=serialized.data)
 
 
     def on_job_updated(self, job: Job):
         logger.info(f"Uppdated Job: {str(job)}")
+
+    def on_provision_succeeded(self, provision):
+        serialized = ProvisionSerializer(provision)
+        ProvisionSubscription.broadcast(group=f"provision_{provision['reference']}",payload=serialized.data)
+
+    def on_provision_failed(self, provision):
+        serialized = ProvisionSerializer(provision)
+        ProvisionSubscription.broadcast(group=f"provision_{provision['reference']}",payload=serialized.data)
+
+    def on_pod_pending(self, pod: Pod):
+        for provision in pod.provisions.all():
+            serialized = ProvisionSerializer(provision)
+            ProvisionSubscription.broadcast(group=f"provision_{provision.reference}",payload=serialized.data)
+
+    def on_pod_ready(self, pod: Pod):
+        for provision in pod.provisions.all():
+            serialized = ProvisionSerializer(provision)
+            ProvisionSubscription.broadcast(group=f"provision_{provision.reference}",payload=serialized.data)

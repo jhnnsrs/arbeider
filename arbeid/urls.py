@@ -27,20 +27,46 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from balder.publisher import BalderPublisher
+from delt.bouncers.job.all_access import AllAccessJobBouncer
+from delt.bouncers.node.all_access import AllAccessNodeBouncer
+from delt.bouncers.pod.all_access import AllAccessPodBouncer
+from delt.discover import (autodiscover_nodes, autodiscover_pods,
+                           autodiscover_publishers, autodiscover_routers)
+from delt.orchestrator import get_orchestrator
 from delt.publishers.log import LogPublisher
 from delt.router import router as configrouter
 from delt.settingsregistry import get_settings_registry
 from elements.router import router as elementsrouter
+from fjong.handler import AutoHandler
 from fremmed.handler import FremmedHandler
+from fremmed.publisher import FremmedPublisher
 from herre.router import router as herrerouter
 from jobb.router import JobRouter
 from jobb.router import router as jobrouter
 from kanal.handler import KanalHandler
+from konfig.backend import KonfigBackend
+from port.handler import PortHandler
+from fjong.handler import AutoHandler
 
-get_settings_registry().setHandlerForBackend("kanal", KanalHandler())
-get_settings_registry().setHandlerForBackend("fremmed", FremmedHandler())
 get_settings_registry().setPublisher("log", LogPublisher())
 get_settings_registry().setPublisher("balder", BalderPublisher())
+get_settings_registry().setPublisher("fremmed", FremmedPublisher())
+
+get_settings_registry().setHandlerForProvider("kanal", KanalHandler())
+get_settings_registry().setHandlerForProvider("fremmed", FremmedHandler())
+get_settings_registry().setHandlerForProvider("port", PortHandler())
+get_settings_registry().setHandlerForProvider("auto", AutoHandler())
+
+
+orchestrator = get_orchestrator()
+orchestrator.setHandlerForProvider("kanal", KanalHandler())
+orchestrator.setHandlerForProvider("fremmed", FremmedHandler())
+orchestrator.setHandlerForProvider("port", PortHandler())
+
+
+orchestrator.setDefaultJobBouncer(AllAccessJobBouncer)
+orchestrator.setDefaultPodBouncer(AllAccessPodBouncer)
+orchestrator.setDefaultNodeBouncer(AllAccessNodeBouncer)
 
 class DocsView(APIView):
     """

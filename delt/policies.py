@@ -1,16 +1,11 @@
-from rest_access_policy import AccessPolicy
+import rest_access_policy
 
 
-class ExternalAccessPolicy(AccessPolicy):
+class AccessPolicy(rest_access_policy.AccessPolicy):
     statements = [
         {
             "action": ["*"],
             "principal": "authenticated",
             "effect": "allow"
         },
-        {
-            "action": ["recent"],
-            "principal": ["*"],
-            "effect": "allow"
-        }
     ]

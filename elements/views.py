@@ -91,6 +91,7 @@ class RepresentationViewSet(PublishingModelViewSet, MatriseViewsetMixIn):
     filter_backends = (DjangoFilterBackend,)
     publishers = [["sample"],["creator"]]
     filter_fields = ("sample",)
+    download_permission = "download_representation"
 
 
 class TransformationViewSet(PublishingModelViewSet, MatriseViewsetMixIn):

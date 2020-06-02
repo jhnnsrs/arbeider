@@ -1,4 +1,4 @@
-from delt.nodes.default import register_node, ConfigNode
+from konfig.backend import register_konfig_node
 
 
 from .configs.filters.prewitt import PrewittFilterConfig
@@ -6,14 +6,14 @@ from .configs.filters.blur import BlurFilterConfig
 from .configs.projections.maxisp import MaxISPConfig
 
 
-@register_node(PrewittFilterConfig)
-class PrewittNode(ConfigNode):
+@register_konfig_node(PrewittFilterConfig)
+class PrewittNode(object):
     pass
 
-@register_node(BlurFilterConfig)
-class BlurNode(ConfigNode):
+@register_konfig_node(BlurFilterConfig)
+class BlurNode(object):
     pass
 
-@register_node(MaxISPConfig)
-class MaxISPNode(ConfigNode):
+@register_konfig_node(MaxISPConfig)
+class MaxISPNode(object):
     pass

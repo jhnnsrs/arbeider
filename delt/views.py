@@ -12,7 +12,6 @@ import copy
 
 from delt.exceptions import DeltConfigError
 from delt.models import *
-from delt.policies import ExternalAccessPolicy
 from delt.serializers import *
 from due.views import PublishingModelViewSet
 

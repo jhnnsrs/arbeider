@@ -25,8 +25,9 @@ class JobRouter(DefaultRouter):
     def __init__(self, *args, **kwargs):
         try:
             autodiscover_routers(catalog=True,register=True)
-        except ProgrammingError as e:
-            logger.error("Job Router was not able to Setup! Did you run Migrations?")
+        except Exception as e:
+            logger.error(f"Job Router was not able to Setup! Did you run Migrations? {e}")
+            raise e
         super().__init__(*args, **kwargs)
 
         for key, route in get_registry().getViewsetRoutes().items():
