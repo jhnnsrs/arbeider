@@ -4,7 +4,6 @@ import uuid
 
 from guardian.shortcuts import assign_perm
 
-from balder.subscriptions.provision import ProvisionSubscription
 from balder.utils import serializerToDict
 from delt import selector as selectors
 from delt.consumers.job import JobConsumer
@@ -26,10 +25,9 @@ class KanalProvisionConsumer(ProvisionConsumer):
     def get_pod(self, provision):
         logger.info(f"Received {provision}")
 
-        node = provision["node"]
-
-        if selectors.all(provision["subselector"]):
-            pod = KanalPod.objects.filter(node=provision["node"]).first()
+        node = provision.node
+        if selectors.all(provision.subselector):
+            pod = KanalPod.objects.filter(node=provision.node).first()
             if not pod:
                 raise NoMatchablePod(f"Kanal Backend does not know how to provision {str(node)}")
 

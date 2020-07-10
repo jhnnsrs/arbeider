@@ -9,9 +9,9 @@ from delt.consumers.utils import (send_assignation_to_channel,
 from delt.context import Context
 from delt.handlers.base import (BaseHandler, BaseHandlerException,
                                 BaseHandlerSettings)
-from delt.models import Job, Node, Pod
-from delt.serializers import (AssignationSerializer,
-                              JobSerializer, ProvisionSerializer)
+from delt.models import Assignation, Job, Node, Pod, Provision
+from delt.serializers import (AssignationSerializer, JobSerializer,
+                              ProvisionModelSerializer, ProvisionSerializer)
 from delt.settingsregistry import get_settings_registry
 
 logger = logging.getLogger(__name__)
@@ -51,24 +51,10 @@ class ChannelHandler(BaseHandler):
         logger.debug(f"Registering Handler {self.__class__.__name__}")
         super().__init__()
 
-    def on_provide_pod(self, reference: str, node: Node, subselector: str, user):
-        provision = {
-            "reference": reference,
-            "node": node,
-            "subselector": subselector, 
-            "user": user,
-            "provider": self.provider
-            }
+    def on_new_provision(self, provision: Provision):
         channel = self.settings.provisionConsumer
         send_provision_to_channel(channel, provision)
 
-    def on_assign_job(self, reference: str, pod: Pod, inputs: dict, user):
-        assignation = {
-            "reference": reference,
-            "pod": pod,
-            "inputs": inputs,
-            "user": user,
-            "provider": self.provider
-        }
-        channel = self.settings.jobConsumer
+    def on_assign_job(self, assignation: Assignation):
+        channel = self.settings.provisionConsumer
         send_assignation_to_channel(channel, assignation)

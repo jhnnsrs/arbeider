@@ -1,5 +1,8 @@
 import channels_graphql_ws
 
+from delt.bouncers.context import BouncerContext
+
+
 class SubscriptionError(Exception):
     pass
 
@@ -9,8 +12,13 @@ class BaseSubscription(channels_graphql_ws.Subscription):
         abstract = True
 
     @classmethod
+    def accept(cls, context: BouncerContext, root, info, *args, **kwargs) -> [str]:
+        raise NotImplementedError("Please override the accept method in your BaseSubscription")
+
+    @classmethod
     def subscribe(cls, root, info, *args, **kwargs):
-        raise NotImplementedError
+        context = BouncerContext(info=info)
+        return cls.accept(context, root, info, *args, **kwargs)
 
     @classmethod
     def publish(cls, payload, info, *arg, **kwargs):

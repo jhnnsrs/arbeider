@@ -20,7 +20,7 @@ class BasePublisherSettings(object):
     onall = False
     INCLUDE = None
     EXCLUDE = []
-    DEFAULTFIELDS = ["job","pod","model","pod_provisioned","pod_updated","job_assigned"]
+    DEFAULTFIELDS = ["job","pod","model","provision_succeeded","pod_updated","pod_initialized","pod_activated"]
 
     def __init__(self, **kwargs):
         if self.settingsField is None or self.provider is None:

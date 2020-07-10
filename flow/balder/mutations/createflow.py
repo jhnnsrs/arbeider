@@ -19,6 +19,7 @@ class CreateFlowMutation(BaseMutation):
     @staticmethod
     def mutate(root, info, **kwargs):
         diagram = kwargs.get("diagram")
+        print(diagram["id"])
         name = kwargs.get("name")
         version = kwargs.get("version", "1.0")
         description = kwargs.get("description", "Not Set")

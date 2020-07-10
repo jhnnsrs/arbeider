@@ -71,7 +71,7 @@ class Orchestrator():
         if provider in self.providerHandlerMap:
             return self.providerHandlerMap[provider]
         else:
-            raise OrchestratorError("No Handler registered with Provider. Did you register it?")
+            raise OrchestratorError(f"No Handler registered with Provider {provider}. Did you register it?")
 
     def getHandlerForPod(self, pod: Pod) -> BaseHandler:
         return self.getHandlerForProvider(pod.provider)

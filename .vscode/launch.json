@@ -4,15 +4,9 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+
         {
-            "name": "Python: Current File",
-            "type": "python",
-            "request": "launch",
-            "program": "${file}",
-            "console": "integratedTerminal"
-        },
-        {
-            "name": "Python: Django",
+            "name": "Server",
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/manage.py",
@@ -34,10 +28,22 @@
             "django": true
         },
         {
+            "name": "Gateway",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/manage.py",
+            "args": [
+                "rungateway",
+            ],
+            "django": true
+        },
+        {
             "name": "Test",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/tests/test.py",
+            "program": "${workspaceFolder}/tests/serialize.py",
+            "args": [
+            ],
             "django": true
         },
     ]

@@ -4,7 +4,6 @@ import uuid
 
 from guardian.shortcuts import assign_perm
 from delt.pod import PODREADY
-from balder.subscriptions.provision import ProvisionSubscription
 from balder.utils import serializerToDict
 from delt import selector as selectors
 from delt.consumers.job import JobConsumer
@@ -28,6 +27,11 @@ class FremmedProvisionConsumer(ProvisionConsumer):
         logger.info(f"Received {provision}")
 
         if selectors.unique(provision["subselector"]):
+            pod, _ = FrontendPod.objects.get_or_create(node=provision["node"], persistent=False, provider="fremmed", reference=provision["reference"])
+            logger.info("Creating Frontend pod with user Permissions")
+            assign_perm('access_pod', provision["user"], pod)
+
+        if selectors.all(provision["subselector"]):
             pod, _ = FrontendPod.objects.get_or_create(node=provision["node"], persistent=False, provider="fremmed", reference=provision["reference"])
             logger.info("Creating Frontend pod with user Permissions")
             assign_perm('access_pod', provision["user"], pod)

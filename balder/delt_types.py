@@ -2,7 +2,7 @@ from guardian.compat import get_user_model
 
 from balder.types import BalderObjectType
 from balder.delt.types import PortType
-from delt.models import Job, Node, Pod, Route
+from delt.models import Job, Node, Pod, Route, Provision
 import graphene
 
 class PodType(BalderObjectType):
@@ -19,6 +19,13 @@ class NodeType(BalderObjectType):
         filter_fields = {
             'name': ['exact', 'icontains', 'istartswith'],
         }
+
+
+class ProvisionType(BalderObjectType):
+    children = graphene.List(lambda: ProvisionType)
+
+    class Meta:
+        model = Provision
 
 class RouteType(BalderObjectType):
 

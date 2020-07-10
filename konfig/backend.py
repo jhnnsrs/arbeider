@@ -181,9 +181,11 @@ class KonfigBackend(NodeBackendRegister):
         return cls
 
     def register_class(self, cls):
-        get_orchestrator().setValidatorForNodeIdentifier(self.get_node_identifier(), KonfigValidator(self.konfig))
+        pass
 
     def cls_to_be_returned(self, cls):
+        logger.info(f"Registering {cls}")
+        get_orchestrator().setValidatorForNodeIdentifier(self.get_node_identifier(), KonfigValidator(self.konfig))
         return cls
 
 

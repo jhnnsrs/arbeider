@@ -13,4 +13,5 @@
         "pylint_django",
     ],
     "python.jediEnabled": false,
+    "python.languageServer": "Microsoft",
 }

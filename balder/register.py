@@ -8,12 +8,13 @@ from graphene_django.filter.fields import DjangoFilterConnectionField
 from jinja2.utils import object_type_repr
 
 from balder.fields import BalderFilterField
+from balder.queries.base import BaseQuery
 from balder.registry import get_registry
 from balder.subscriptions.base import BaseSubscription
 from balder.subscriptions.job import BaseJobSubscription
 from balder.types import BalderObjectType
 from balder.wrappers import (BalderMutationWrapper, BalderObjectWrapper,
-                             BalderSubscriptionWrapper,
+                             BalderQueryWrapper, BalderSubscriptionWrapper,
                              BaseSubscriptionWrapper, NodeSubscriptionWrapper)
 from delt.node import NodeConfig
 
@@ -93,6 +94,13 @@ class BalderRegister(object):
                     get_registry().setQueryField(self.path, graphene.Field(cls.object_type, description=description, resolver=cls.resolver, **self.kwargs))
                 else:
                     raise BalderRegisterConfigurationError(f"Not sure how to register the Subclass of BalderObjectWrapper: {cls.__name__} no asfield or aslist argument Provided")
+            elif issubclass(cls, BalderQueryWrapper):
+                wrapperinstance = cls(self.path)
+                object_type = wrapperinstance.get_object()
+                if issubclass(object_type, BaseQuery):
+                    wrapperinstance = cls(self.path)
+                    object_type = wrapperinstance.get_object()
+                    get_registry().setQueryField(self.path, object_type.Field())
             else:
                 raise BalderRegisterConfigurationError(f"Not sure how to register the Query {cls.__name__}, as it is not a BalderObjectWrapper")
 

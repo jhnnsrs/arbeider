@@ -7,8 +7,7 @@ from django.db import models
 from delt.fields import (AccessPolicy, ArgsField, InputsField, OutputsField,
                          PublishersField, SelectorField, SettingsField)
 from delt.helpers import get_default_job_settings
-from delt.pod import PODPENDING
-from delt.status import STATUS_PENDING
+from delt.lifecycle import JOB_PENDING, POD_PENDING
 
 
 class Node(models.Model):
@@ -48,7 +47,7 @@ class Route(models.Model):
 class Pod(models.Model):
     node = models.ForeignKey(Node, on_delete=models.CASCADE, help_text="The node this Pod is an instance of", related_name="pods")
     podclass = models.CharField(max_length=400, default="classic-pod")
-    status = models.CharField(max_length=300, default=PODPENDING)
+    status = models.CharField(max_length=300, default= POD_PENDING)
     provider = models.CharField(max_length=1000, help_text="The provisioner that created this Pod")
     unique = models.UUIDField(max_length=1000, unique=True, default=uuid.uuid4, help_text="The Unique identifier of this POD")
     reference = models.CharField(max_length=1000, unique=True, null=True, blank=True,  help_text="The Unique identifier of this POD")
@@ -58,6 +57,7 @@ class Pod(models.Model):
         return f"Pod for node {self.node.name} ( Package: {self.node.package}/{self.node.interface}  ) at {self.provider}"
 
 class Provision(models.Model):
+    parent = models.ForeignKey("self", on_delete=models.CASCADE, null=True, blank=True, help_text="The Provisions parent", related_name="children")
     node = models.ForeignKey(Node, on_delete=models.CASCADE, help_text="The node this provision connects", related_name="provisions")
     pod = models.ForeignKey(Pod, on_delete=models.CASCADE, help_text="The pod this provision connects", related_name="provisions", null=True, blank=True)
     provider = models.CharField(max_length=1000, help_text="The Provider")
@@ -73,8 +73,7 @@ class Job(models.Model):
     inputs = InputsField(blank=True, null=True, help_text="The Inputs")
     outputs = OutputsField(help_text="The Outputs", blank=True, null=True)
     settings = SettingsField(max_length=1000, default=get_default_job_settings) # jsondecoded
-    statuscode = models.IntegerField( default= STATUS_PENDING)
-    statusmessage = models.CharField(max_length=500,  default= "Pending")
+    status = models.CharField(max_length=500,  default= JOB_PENDING)
     creator = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     pod = models.ForeignKey(Pod, on_delete=models.CASCADE, null=True, blank=True, help_text="The Pod this Job lives on")
     reference = models.CharField(max_length=400, default= uuid.uuid4, help_text="The Nodeinstance this Job lives on")
@@ -105,7 +104,7 @@ class Job(models.Model):
 
 class Assignation(models.Model):
     pod = models.ForeignKey(Pod, on_delete=models.CASCADE, help_text="The pod this provision connects", related_name="assignations")
-    job = models.ForeignKey(Node, on_delete=models.CASCADE, help_text="The job this provision connects", related_name="assignations")
+    inputs = InputsField(blank=True, null=True, help_text="The Inputs")
     reference = models.CharField(max_length=1000, unique=True, default=uuid.uuid4, help_text="The Unique identifier of this Provision")
     status = models.CharField(max_length=1000, help_text="This provisions status")
 

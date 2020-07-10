@@ -113,6 +113,7 @@ EXTENSIONS = [
     'fremmed',
     'jobb',
     'balder',
+    'providers.auto',
     'port',
 ]
 
@@ -315,7 +316,7 @@ LOGGING = {
         'console': {
             '()': 'colorlog.ColoredFormatter',  # colored output
             # exact format is not important, this is the minimum information
-            'format': '%(log_color)s[%(levelname)s] %(asctime)s :: %(message)s',
+            'format': '%(log_color)s[%(levelname)s]  %(name)s %(asctime)s :: %(message)s',
             'log_colors': {
                 'DEBUG':    'bold_black',
                 'INFO':     'green',
@@ -366,7 +367,7 @@ OAUTH2_PROVIDER = {
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',
+        #'rest_framework.permissions.IsAuthenticated',
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
@@ -396,6 +397,15 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
+
+# celery
+CELERY_BROKER_URL = 'redis://redis:6379'
+CELERY_RESULT_BACKEND = 'redis://redis:6379'
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TASK_SERIALIZER = 'json'
+
+
 
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'

@@ -18,6 +18,7 @@ SEPERATOR = "/"
 # Statuscodes
 
 PODACTIVE = "active"
+PODINIT = "init"
 PODREADY = "active"
 PODFAILED = "failed"
 PODBUSY = "budy"

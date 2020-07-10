@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 
 class KanalHandlerConfigException(ChannelHandlerConfigException):
     pass
+ 
 
 class KanalHandlerSettings(ChannelHandlerSettings):
     provider = "kanal"

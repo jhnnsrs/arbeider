@@ -38,6 +38,7 @@ from delt.router import router as configrouter
 from delt.settingsregistry import get_settings_registry
 from elements.router import router as elementsrouter
 from fjong.handler import AutoHandler
+from flow.router import router as flowrouter
 from fremmed.handler import FremmedHandler
 from fremmed.publisher import FremmedPublisher
 from herre.router import router as herrerouter
@@ -46,22 +47,39 @@ from jobb.router import router as jobrouter
 from kanal.handler import KanalHandler
 from konfig.backend import KonfigBackend
 from port.handler import PortHandler
-from fjong.handler import AutoHandler
+from port.publisher import PortPublisher
+from providers.auto.handler import AutoProviderHandler
+import logging
 
-get_settings_registry().setPublisher("log", LogPublisher())
-get_settings_registry().setPublisher("balder", BalderPublisher())
-get_settings_registry().setPublisher("fremmed", FremmedPublisher())
+logger = logging.getLogger(__name__)
+
+#get_settings_registry().setPublisher("log", LogPublisher())
+#get_settings_registry().setPublisher("balder", BalderPublisher())
+#get_settings_registry().setPublisher("fremmed", FremmedPublisher())
 
 get_settings_registry().setHandlerForProvider("kanal", KanalHandler())
 get_settings_registry().setHandlerForProvider("fremmed", FremmedHandler())
 get_settings_registry().setHandlerForProvider("port", PortHandler())
-get_settings_registry().setHandlerForProvider("auto", AutoHandler())
+
+try:
+    autodiscover_nodes(catalog=True)
+except:
+    # TODO: For now if we are migrating this returns an error
+    logger.error(f"Could not discover Nodes {e}")
 
 
 orchestrator = get_orchestrator()
+
+
+orchestrator.setPublisher("log", LogPublisher())
+orchestrator.setPublisher("balder", BalderPublisher())
+orchestrator.setPublisher("port", PortPublisher())
+
+
 orchestrator.setHandlerForProvider("kanal", KanalHandler())
 orchestrator.setHandlerForProvider("fremmed", FremmedHandler())
 orchestrator.setHandlerForProvider("port", PortHandler())
+orchestrator.setHandlerForProvider("auto", AutoProviderHandler())
 
 
 orchestrator.setDefaultJobBouncer(AllAccessJobBouncer)
@@ -84,6 +102,7 @@ class DocsView(APIView):
                    'config': request.build_absolute_uri('config/'),
                    'herre': request.build_absolute_uri('herre/'),
                    'jobs': request.build_absolute_uri('jobs/'),
+                   'flows': request.build_absolute_uri('flows/'),
                    }
         return Response(apidocs)
 
@@ -104,5 +123,6 @@ urlpatterns = [
     url(r'^api/herre/', include((herrerouter.urls, 'herrapi'))),
     url(r'^api/config/', include((configrouter.urls, 'configapi'))),
     url(r'^api/jobs/', include((jobrouter.urls, 'jobsapi'))),
+    url(r'^api/flows/', include((flowrouter.urls, 'flowsapi'))),
     path('o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
 ]

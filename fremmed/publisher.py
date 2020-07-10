@@ -2,7 +2,6 @@
 
 import logging
 
-from balder.subscriptions.provision import ProvisionSubscription
 from balder.registry import get_registry
 from delt.models import Job, Pod
 from delt.publishers.base import BasePublisher, BasePublisherSettings
@@ -35,9 +34,7 @@ class FremmedPublisher(BasePublisher):
 
 
     def on_pod_provisioned(self, pod: Pod):
-        serialized = PodSerializer(pod)
-        ProvisionSubscription.broadcast(group=f"provision_{pod.reference}",payload=serialized.data)
+        print("logged")
 
     def on_pod_updated(self, pod: Pod):
-        serialized = PodSerializer(pod)
-        ProvisionSubscription.broadcast(group=f"provision_{pod.reference}",payload=serialized.data)
+        print("logged")

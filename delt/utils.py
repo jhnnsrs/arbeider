@@ -1,5 +1,6 @@
 import inspect
 import logging
+from posix import pipe
 
 from konfig.node import node_identifier
 
@@ -11,6 +12,19 @@ def props(obj):
         if not name.startswith('__') and not inspect.ismethod(value):
             pr[name] = value
     return pr
+
+logger = logging.getLogger(__name__)
+
+def pipe(event="pipe"):
+
+    def real_decorator(function):
+
+        def wrapper(*args, **kwargs):
+            logger.info(f"Pipe: {event} called with {args} and {kwargs}")
+            return function(*args, **kwargs)
+        return wrapper
+
+    return real_decorator
 
 
 def compareNodes(node1, params: dict ):

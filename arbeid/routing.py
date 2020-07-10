@@ -8,6 +8,7 @@ from delt.consumers.gateway import GatewayConsumer
 from delt.registry import get_registry
 from fremmed.consumers import FremmedJobConsumer, FremmedProvisionConsumer
 from kanal.provisioner import KanalProvisionConsumer
+from port.gateway import PortGateway
 from port.provisioner import PortProvision
 
 # The channel routing defines what connections get handled by what consumers,
@@ -37,7 +38,8 @@ application = ProtocolTypeRouter({
         "kanal": KanalProvisionConsumer,
         "fremmedjob": FremmedJobConsumer,
         "port": PortProvision,
-        "gateway": GatewayConsumer
+        "gateway": GatewayConsumer,
+        "portgateway": PortGateway
         }
         ),
 })

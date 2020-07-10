@@ -42,7 +42,7 @@ class Command(BaseCommand):
             raise CommandError("You do not have any CHANNEL_LAYERS configured.")
         # Autodiscover all of the the worker
         # TODO: Register and unregister Providers
-        allchannels = ["gateway"]
+        allchannels = ["gateway","portgateway"]
         logger.info(f"Running worker for providers {allchannels}")
         worker = self.worker_class(
             application=get_default_application(),

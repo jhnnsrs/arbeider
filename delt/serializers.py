@@ -44,14 +44,19 @@ class ProvisionSerializer(serializers.Serializer):
     provider = serializers.CharField(max_length=3000)
     user = serializers.PrimaryKeyRelatedField(queryset=get_user_model().objects.all())
     error = serializers.CharField(max_length=1000, required=False)
-    pod = serializers.PrimaryKeyRelatedField(queryset=Pod.objects.all(), required=False)
+    pod = serializers.PrimaryKeyRelatedField(queryset=Pod.objects.all(), required=False, allow_null=True)
+    children = serializers.PrimaryKeyRelatedField(queryset=Provision.objects.all(), required=False, allow_null=True)
+    parent = serializers.ListField(serializers.PrimaryKeyRelatedField(queryset=Provision.objects.all()), required=False, allow_null=True)
+
+class ProvisionMessageSerializer(serializers.Serializer):
+    provision = serializers.PrimaryKeyRelatedField(queryset=Provision.objects.all())
+
 
 class ProvisionModelSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Provision
         fields = "__all__"
-        read_only_fields = ["reference"]
 
 
 

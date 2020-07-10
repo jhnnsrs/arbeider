@@ -1,6 +1,9 @@
 import logging
+
 from django.conf import settings
-from delt.models import Pod, Node
+
+from delt.models import Assignation, Node, Pod, Provision
+
 logger = logging.getLogger(__name__)
 
 
@@ -37,10 +40,13 @@ class BaseHandler(object):
             raise BaseHandlerConfigException("Please Provide a settingsClass in your Handler")
         super().__init__()
 
-    def on_assign_job(self, reference: str, pod: Pod, inputs: dict, user):
+    def on_assign_job(self, assignation: Assignation):
         raise NotImplementedError
 
     def on_provide_pod(self, reference: str, node: Node, substring: str, user):
+        raise NotImplementedError
+
+    def on_new_provision(self, provision: Provision):
         raise NotImplementedError
 
     def on(self, field):

@@ -3,6 +3,7 @@ from balder.builders.serializer_mutation import \
     genericSerializerMutationBuilder
 from balder.delt_types import PodType
 from balder.mutations.base import BaseMutation
+from balder.queries.base import BaseQuery
 from balder.subscriptions.base import BaseSubscription
 from delt.node import NodeConfig
 from konfig.node import Konfig
@@ -17,6 +18,19 @@ class BalderObjectWrapper(object):
     aslist = False
     asfield = False
     withfilter = False
+
+
+class BalderQueryWrapper(object):
+    query = None
+
+    def __init__(self, *args, **kwargs):
+        if self.query is None or not issubclass(self.query, BaseQuery):
+            raise WrappingError("BalderQueryWrapper must provide a BaseQuery as field: subscription")
+        
+        self._type = self.query
+
+    def get_object(self):
+        return self._type
 
 
 class BaseSubscriptionWrapper(object):

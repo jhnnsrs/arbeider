@@ -28,11 +28,13 @@ services:
         - mytest:/export
   redis:
     image: redis:latest
+    ports:
+      - 6379:6379
 
 networks:
   default:
     external:
-      name: bergen_default
+      name: dev
 
 volumes:
   mytest:

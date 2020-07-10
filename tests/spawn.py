@@ -1,10 +1,12 @@
-import docker
-import django
+import os
 import sys
-import os 
+from pdb import run
+
+import django
+import docker
 
 nodename = "fr"
-reference = "sofinosinfosineofisneofinsoeifnsoienf"
+reference = "sofinosincvdfvdfvfosidfdfneofisneofinsoeifnsoienf"
 
 def spawn():
     
@@ -33,7 +35,7 @@ def spawn():
     
     print(provision)
 
-    pod = provision.pod.flowly
+    pod = provision.pod
     if pod is None:
         print("There was no Pod for this provision yet. Creating one!")
         container = client.containers.run("jhnnsrs/flowly", detach=True)
@@ -47,7 +49,6 @@ def spawn():
         provision.save()
 
     print(pod)
-    print(pod.container_id)
 
     
 

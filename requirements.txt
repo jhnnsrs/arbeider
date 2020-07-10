@@ -35,6 +35,10 @@ Markdown
 # For port provision
 docker
 
+# For Local/Medium
+celery[redis]
+flower
+
 # Testing and Linting
 ptvsd
 pytest-django 

@@ -1,9 +1,13 @@
-from delt.settingsregistry import get_settings_registry
 import logging
+
+from delt.orchestrator import get_orchestrator
+from delt.settingsregistry import get_settings_registry
 
 logger = logging.getLogger(__name__)
 
 def publish_to_event(event: str, *args, **kwargs):
-    for publisher in get_settings_registry().getPublishersForEvent(event):
+
+    orchestrator = get_orchestrator()
+    for publisher in orchestrator.getPublishersForEvent(event):
         logger.info(f"Publishing to {publisher.__class__.__name__} on event {event}")
         publisher.on(event)(*args, **kwargs)

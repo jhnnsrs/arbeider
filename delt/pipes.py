@@ -1,21 +1,27 @@
 
 import logging
 
+from django.forms.models import model_to_dict
+
 from delt import publishers
 from delt.bouncers.context import BouncerContext
 from delt.bouncers.job.base import BaseJobBouncer
 from delt.bouncers.node.base import BaseNodeBouncer
 from delt.bouncers.pod.base import BasePodBouncer
 from delt.context import Context
-from delt.models import Job, Node, Pod
+from delt.lifecycle import PROVISION_PENDING
+from delt.models import Assignation, Job, Node, Pod, Provision
 from delt.orchestrator import get_orchestrator
 from delt.pod import PODFAILED, PODPENDING, PODREADY
 from delt.publishers.base import BasePublisher
 from delt.publishers.utils import publish_to_event
 from delt.selector import get_handler_for_selector, get_provider_for_selector
 from delt.settingsregistry import get_settings_registry
+from delt.utils import pipe
 
 logger = logging.getLogger(__name__)
+
+
 
 
 def publishToPodEvents(pod: Pod):
@@ -51,11 +57,9 @@ def provision_failed_pipe(provision):
     publish_to_event("provision_failed",provision)
 
 def provision_succeeded_pipe(provision):
-    
     # A Successfull provision will results in a Pod that is either Active or Pending by default
     # Therefore we can always publish it
     publish_to_event("provision_succeeded",provision)
-    publishToPodEvents(provision["pod"])
     
 
 
@@ -65,49 +69,103 @@ def unprovision_failed_pipe(provision):
 def unprovision_succeeded_pipe(provision):
     logger.info("Provision succeeded")
 
-# INCOMING PIPES
+# Pod Lifecycle Pipes
+
+@pipe("pod_initializing")
+def pod_initializing_pipe(pod: Pod):
+    publish_to_event("pod_initializing",pod)
+
+
+@pipe("pod_initialized")
+def pod_initialized_pipe(pod: Pod):
+    publish_to_event("pod_initialized",pod)
+
+@pipe("pod_activated")
+def pod_activated_pipe(pod: Pod):
+    publish_to_event("pod_activated",pod)
 
 
 
-def provision_pod_pipe(reference, node: Node, selector: str, context: BouncerContext):
+# Provision Pod
 
-    orchestrator = get_orchestrator()
-
-    # We check for the Permissions to provision Pods on this NodePod
-    bouncer: BaseNodeBouncer = orchestrator.getBouncerForNodeAndContext(node, context)
-    bouncer.can_provision_pods()
-
-    #Check were we will Provide
-    provider, subselector = get_provider_for_selector(selector)
+@pipe("provision_pod")
+def provision_pod_pipe(context: BouncerContext, reference, node: Node, selector: str, parent):
+    ''' Make sure the reference here is unique'''
     
-    # Check permissions of user to provide on this Node and this Provider
-    bouncer.can_provide_on(provider)
+    #Check if a Provsion already exists under this reference
+    try:
+        provision = Provision.objects.get(reference=reference)
+        if provision.node != node:
+            raise Exception("This provision already exists is another configuration. Cannot re-assign! Please use different reference (UUID)")
+    except Provision.DoesNotExist as e:
+        orchestrator = get_orchestrator()
 
-    user = bouncer.user
-    # Send to Provisioner
-    handler = orchestrator.getHandlerForProvider(provider)
+        # We check for the Permissions to provision Pods on this NodePod
+        bouncer: BaseNodeBouncer = orchestrator.getBouncerForNodeAndContext(node, context)
+        bouncer.can_provision_pods()
+
+        #Check were we will Provide
+        provider, subselector = get_provider_for_selector(selector)
+        
+        # Check permissions of user to provide on this Node and this Provider
+        bouncer.can_provide_on(provider)
+
+        user = bouncer.user
+
+        # If we reached here without exceptions our Pod is able to be Provisioned
+        provision = Provision.objects.create(
+            reference=reference,
+            node=node,
+            provider=provider,
+            subselector= subselector,
+            status= PROVISION_PENDING,
+            user=user,
+            parent=parent,
+        )
+
+        
+        
+        handler = orchestrator.getHandlerForProvider(provider)
+        logger.info(f"Send to Provisioner {handler.__class__.__name__}")
+        handler.on_new_provision(provision)
 
     # Pods are assigned to a Node and a creating User, the provision substring helps identifying the right entitiy
-    handler.on_provide_pod(reference, node, subselector, user)
-    logger.info("Send to Provisioner")
-
-
-def assign_job_pipe(reference, pod: Pod, inputs: dict, context: BouncerContext):
-
-    orchestrator = get_orchestrator()
-
-    # We check for the Permissions to assign to this Pod
-    bouncer: BasePodBouncer = orchestrator.getBouncerForPodAndContext(pod, context)
-    bouncer.can_assign_job()
-
-    #We get the user from the bouncer
-    user = bouncer.user
-
-    # We are validating the inputs according to the Node Specifications
-    validator = orchestrator.getValidatorForNode(pod.node)
-    validator.validateInputs(inputs)
-
-    # We assign the Pod to the Handler
     
-    # Jobs are assigned to a Pod with the Inputs and linked to a User, and a unique Reference
-    orchestrator.getHandlerForPod(pod).on_assign_job(reference, pod, inputs, user)
+    return provision
+
+
+def assign_job_pipe(context: BouncerContext, reference, pod: Pod, inputs: dict):
+
+    #Check if a Provsion already exists under this reference
+    try:
+        assignation = Assignation.objects.get(reference=reference)
+        if assignation.pod != pod:
+            raise Exception("This assignation already exists is another configuration. Cannot re-assign! Please use different reference (UUID)")
+    except Assignation.DoesNotExist as e:
+
+        orchestrator = get_orchestrator()
+
+        # We check for the Permissions to assign to this Pod
+        bouncer: BasePodBouncer = orchestrator.getBouncerForPodAndContext(pod, context)
+        bouncer.can_assign_job()
+
+        #We get the user from the bouncer
+        user = bouncer.user
+
+        # We are validating the inputs according to the Node Specifications
+        validator = orchestrator.getValidatorForNode(pod.node)
+        validator.validateInputs(inputs)
+
+        # We assign the Pod to the Handler
+        assignation = Assignation.objects.create(
+            reference=reference,
+            pod=pod,
+            inputs=inputs,
+            status="pending",
+        )
+        
+        print("Hallo")
+        # Jobs are assigned to a Pod with the Inputs and linked to a User, and a unique Reference
+        orchestrator.getHandlerForPod(pod).on_assign_job(assignation)
+
+    return assignation
