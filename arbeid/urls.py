@@ -13,6 +13,8 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+import logging
+
 from django.conf.urls import url
 from django.contrib import admin
 from django.contrib.auth.decorators import login_required
@@ -36,6 +38,7 @@ from delt.orchestrator import get_orchestrator
 from delt.publishers.log import LogPublisher
 from delt.router import router as configrouter
 from delt.settingsregistry import get_settings_registry
+from delt.validators.alwaystrue import AlwaysTrueValidator
 from elements.router import router as elementsrouter
 from fjong.handler import AutoHandler
 from flow.router import router as flowrouter
@@ -49,7 +52,6 @@ from konfig.backend import KonfigBackend
 from port.handler import PortHandler
 from port.publisher import PortPublisher
 from providers.auto.handler import AutoProviderHandler
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -80,6 +82,9 @@ orchestrator.setHandlerForProvider("kanal", KanalHandler())
 orchestrator.setHandlerForProvider("fremmed", FremmedHandler())
 orchestrator.setHandlerForProvider("port", PortHandler())
 orchestrator.setHandlerForProvider("auto", AutoProviderHandler())
+
+
+orchestrator.setDefaultValidator(AlwaysTrueValidator())
 
 
 orchestrator.setDefaultJobBouncer(AllAccessJobBouncer)

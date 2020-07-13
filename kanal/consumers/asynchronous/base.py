@@ -9,7 +9,6 @@ from rest_framework import serializers
 from delt.models import Job
 from delt.node import NodeConfig
 from delt.serializers import JobSerializer
-from delt.status import JobStatus, buildProgressStatus
 from kanal.exceptions import (KanalConsumerConfigException,
                               KanalConsumerMinorException)
 

@@ -8,6 +8,7 @@ from delt.bouncers.context import BouncerContext
 from delt.bouncers.job.base import BaseJobBouncer
 from delt.bouncers.node.base import BaseNodeBouncer
 from delt.bouncers.pod.base import BasePodBouncer
+from delt.consumers.utils import send_provision_to_gateway
 from delt.context import Context
 from delt.lifecycle import PROVISION_PENDING
 from delt.models import Assignation, Job, Node, Pod, Provision
@@ -61,6 +62,15 @@ def provision_succeeded_pipe(provision):
     # Therefore we can always publish it
     publish_to_event("provision_succeeded",provision)
     
+def assignation_succeeded_pipe(assignation):
+    # A Successfull provision will results in a Pod that is either Active or Pending by default
+    # Therefore we can always publish it
+    publish_to_event("assingation_succeeded",assignation)
+
+def assignation_failed_pipe(assignation):
+    # A Successfull provision will results in a Pod that is either Active or Pending by default
+    # Therefore we can always publish it
+    publish_to_event("assignation_failed",assignation)
 
 
 def unprovision_failed_pipe(provision):
@@ -87,6 +97,21 @@ def pod_activated_pipe(pod: Pod):
 
 
 # Provision Pod
+
+# We need this ugly ping pong because of how Graphene and Django Channels handle subscriptions.
+# Possibly a new mechanism for confirmation is a good idea.
+
+
+#ping
+@pipe("republish_provision")
+def republish_provision_pipe(provision: Provision):
+    send_provision_to_gateway(provision, "republish_provision")
+
+#pong
+@pipe("republished_provision")
+def republished_provision_pipe(provision: Provision):
+    publish_to_event("republished_provision", provision)
+
 
 @pipe("provision_pod")
 def provision_pod_pipe(context: BouncerContext, reference, node: Node, selector: str, parent):
@@ -133,14 +158,14 @@ def provision_pod_pipe(context: BouncerContext, reference, node: Node, selector:
     
     return provision
 
-
-def assign_job_pipe(context: BouncerContext, reference, pod: Pod, inputs: dict):
+@pipe("assign_inputs")
+def assign_inputs_pipe(context: BouncerContext, reference, pod: Pod, inputs: dict):
 
     #Check if a Provsion already exists under this reference
     try:
         assignation = Assignation.objects.get(reference=reference)
         if assignation.pod != pod:
-            raise Exception("This assignation already exists is another configuration. Cannot re-assign! Please use different reference (UUID)")
+            raise Exception("This Job already exists is another configuration. Cannot re-assign! Please use different reference (UUID)")
     except Assignation.DoesNotExist as e:
 
         orchestrator = get_orchestrator()
@@ -156,10 +181,11 @@ def assign_job_pipe(context: BouncerContext, reference, pod: Pod, inputs: dict):
         validator = orchestrator.getValidatorForNode(pod.node)
         validator.validateInputs(inputs)
 
-        # We assign the Pod to the Handler
+        # We assign the Job to the Handler
         assignation = Assignation.objects.create(
             reference=reference,
             pod=pod,
+            creator=user,
             inputs=inputs,
             status="pending",
         )

@@ -51,6 +51,11 @@ class ProvisionSerializer(serializers.Serializer):
 class ProvisionMessageSerializer(serializers.Serializer):
     provision = serializers.PrimaryKeyRelatedField(queryset=Provision.objects.all())
 
+class JobMessageSerializer(serializers.Serializer):
+    job = serializers.PrimaryKeyRelatedField(queryset=Job.objects.all())
+
+class AssignationMessageSerializer(serializers.Serializer):
+    assignation = serializers.PrimaryKeyRelatedField(queryset=Assignation.objects.all())
 
 class ProvisionModelSerializer(serializers.ModelSerializer):
     

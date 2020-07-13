@@ -9,7 +9,8 @@ from delt.consumers.config import (CONSUMER_ASSIGNATION_ACTION,
                                    GATEWAY_POD_PROVISION_FAILURE_ACTION,
                                    GATEWAY_POD_PROVISION_SUCCESS_ACTION,
                                    GATEWAY_PROVISION_UPDATE)
-from delt.serializers import (AssignationSerializer,
+from delt.serializers import (AssignationMessageSerializer,
+                              AssignationSerializer,
                               ProvisionMessageSerializer,
                               ProvisionModelSerializer, ProvisionSerializer)
 
@@ -38,14 +39,17 @@ def send_provision_to_gateway(provision, stream):
     serialized = ProvisionMessageSerializer({"provision":provision})
     async_to_sync(channel_layer.send)(GATEWAY_CHANNEL, {"type": stream, "data": serialized.data})
 
+def send_assignation_to_gateway(assignation, stream):
+    logger.debug(f"Received assignation result from. Sending to stream {stream}: {assignation}")
+    serialized = AssignationMessageSerializer({"assignation":assignation})
+    async_to_sync(channel_layer.send)(GATEWAY_CHANNEL, {"type": stream, "data": serialized.data})
 
 def send_provision_to_channel(consumer, provision):
     logger.info(f"Sending provision to Consumer at channel {consumer}: {provision}")
     serialized = ProvisionMessageSerializer({"provision":provision})
     async_to_sync(channel_layer.send)(consumer, {"type": CONSUMER_PROVISION_ACTION, "data": serialized.data})
 
-
 def send_assignation_to_channel(channel, assignation):
     logger.info(f"Sending assignation to Consumer at channel {channel}: {assignation}")
-    serialized = AssignationSerializer(assignation)
+    serialized = AssignationMessageSerializer({"assignation": assignation})
     async_to_sync(channel_layer.send)(channel, {"type": CONSUMER_ASSIGNATION_ACTION, "data": serialized.data})

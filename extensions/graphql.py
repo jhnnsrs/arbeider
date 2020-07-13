@@ -9,6 +9,8 @@ from balder.queries.provisions.monitor import MonitorQuery
 from balder.register import (register_mutation, register_query,
                              register_subscription)
 from balder.subscriptions.provisions.monitor import MonitorSubscription
+from balder.subscriptions.jobs.assign import AssignSubscription
+from balder.subscriptions.jobs.check import CheckSubscription
 from balder.subscriptions.provisions.provide import ProvideSubscription
 from balder.wrappers import (BalderMutationWrapper, BalderObjectWrapper,
                              BalderQueryWrapper, BalderSubscriptionWrapper)
@@ -89,13 +91,21 @@ class MonitorSubscriptionWrapper(BalderSubscriptionWrapper):
     ''' This provides a fast way to provide a node though a provision and moniters it on the way, violates CQRS patterns'''
     subscription = MonitorSubscription
 
-@register_query("monitor2", description="Get the current state of a provision")
-class MonitorQueryWrapper(BalderQueryWrapper):
-    ''' This provides a fast way to provide a node though a provision and moniters it on the way, violates CQRS patterns'''
-    query = MonitorQuery
-
-
 
 @register_subscription("gate", description="Gate Way")
 class Gate(BalderSubscriptionWrapper):
     subscription = GateSubscription
+
+
+
+# ASSIGNATION SHIT
+
+@register_subscription("assign", description="Assign Jobs for a Pod (in one go)")
+class AssignSubscriptionWrapper(BalderSubscriptionWrapper):
+    ''' This provides a fast way to provide a node though a provision and moniters it on the way, violates CQRS patterns'''
+    subscription = AssignSubscription
+
+@register_subscription("check", description="Monitor a Job for changes")
+class MonitorSubscriptionWrapper(BalderSubscriptionWrapper):
+    ''' This provides a fast way to provide a node though a provision and moniters it on the way, violates CQRS patterns'''
+    subscription = CheckSubscription

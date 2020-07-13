@@ -1,9 +1,12 @@
-import graphene
 import logging
 import uuid
+
+import graphene
+
 from balder.subscriptions.provisions.base import BaseProvisionSubscription
 from delt.models import Node, Provision
-from delt.pipes import provision_pod_pipe
+from delt.pipes import provision_pod_pipe, republish_provision_pipe
+
 logger = logging.getLogger(__name__)
 
 class ProvideSubscription(BaseProvisionSubscription):
@@ -31,6 +34,7 @@ class ProvideSubscription(BaseProvisionSubscription):
             provision = Provision.objects.get(reference=reference)
             if provision.node == node:
                 logger.info("Reconnecting to already configured Provision")
+                republish_provision_pipe(provision)
                 return [f'{reference}']
             else:
                 raise Exception("This provision already exists is another configuration. Cannot re-assign! Please use different refernce (UUID)")

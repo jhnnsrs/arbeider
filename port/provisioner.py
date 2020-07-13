@@ -30,16 +30,12 @@ class FakeContainer(object):
     def __init__(self, id = "nananana"):
         self.id = id
 
-def spawnContainerForPod(pod: Pod) -> str:
+def spawnContainerForProvision(provision: Provision) -> str:
     client = docker.from_env()
     logger.info("Trying to spawn a docker container")
 
-    if DRYRUN:
-        container = FakeContainer("nanana")
-        logger.info(f"Creating a POD with ID: {container.id}")
+    container = client.containers.run("jhnnsrs/flowango", detach=True, environment={"PROVISION_ID": provision.id }, network="dev")
 
-
-    #TODO: container = client.containers.run("jhnnsrs/flowly", detach=True)
     return container
 
 
@@ -68,7 +64,9 @@ class PortProvision(ProvisionConsumer):
                         persistent = False
                     )
 
-                    container = spawnContainerForPod(pod)
+                    provision.pod = pod
+
+                    container = spawnContainerForProvision(provision)
                     pod.container_id = container.id
                     pod.save()
                 else:
@@ -84,8 +82,10 @@ class PortProvision(ProvisionConsumer):
                         provider = self.provider,
                         persistent = False
                     )
+                    
+                    provision.pod = pod
 
-                    container = spawnContainerForPod(pod)
+                    container = spawnContainerForProvision(provision)
                     pod.container_id = container.id
                     pod.save()
             else:

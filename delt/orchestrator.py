@@ -23,11 +23,16 @@ class Orchestrator():
         self.defaultJobBouncer = None
         self.defaultPodBouncer = None
         self.defaultNodeBouncer = None
+        self.defaultValidator = None
         self.identifierValidatorMap = {}
 
     def setDefaultJobBouncer(self, bouncer):
         assert issubclass(bouncer, BaseJobBouncer), "You must provide a Valid JobBouncer class"
         self.defaultJobBouncer = bouncer
+
+    def setDefaultValidator(self, validator):
+        assert isinstance(validator, BaseValidator), "You must provide a Valid JobBouncer class"
+        self.defaultValidator = validator
 
     def setDefaultPodBouncer(self, bouncer):
         assert issubclass(bouncer, BasePodBouncer), "You must provide a Valid PodBouncer class"
@@ -53,8 +58,10 @@ class Orchestrator():
         self.identifierValidatorMap[identifier] = validator
 
     def getValidatorForNodeIdentifier(self, identifier):
-        assert identifier in self.identifierValidatorMap, "There is no Validator registered for this Node"
-        return self.identifierValidatorMap[identifier]
+        if identifier in self.identifierValidatorMap:
+            return self.identifierValidatorMap[identifier]
+        else:
+            return self.defaultValidator
 
     def getValidatorForNode(self, node: Node):
         return self.getValidatorForNodeIdentifier(node.identifier)

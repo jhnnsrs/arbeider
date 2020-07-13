@@ -26,10 +26,11 @@ def modelToDict(model, exclude_fields=[]):
     for f in opts:
         if f.name in exclude_fields: continue
         if f.one_to_many:
-            print(f"{f.name} is many to one")
             data[f.name]= list(getattr(model, f.name).all())
         else:
-            data[f.name]= getattr(model, f.name)
+            # check if "ID is set from serialize" and change to pk:
+            field = f.name  #if f.name != "id" else "pk"
+            data[field]= getattr(model, f.name)
 
     return data
 

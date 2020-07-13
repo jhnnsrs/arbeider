@@ -9,7 +9,6 @@ from rest_framework import serializers
 from delt.models import Job
 from delt.node import NodeConfig
 from delt.serializers import JobSerializer
-from delt.status import buildProgressStatus, JobStatus
 from kanal.exceptions import KanalConsumerConfigException, KanalConsumerMinorException
 
 logger = logging.getLogger(__name__)
@@ -18,9 +17,8 @@ channel_layer = get_channel_layer()
 def getJob(id, model):
     return model.objects.get(id=id)
 
-def updateJob(job: Job, status: JobStatus):
-    job.statuscode = status.statuscode
-    job.statusmessage = status.message
+def updateJob(job: Job, message):
+    job.statusmessage = message
     job.save()
     return job
 
@@ -36,7 +34,7 @@ class KanalSyncConsumer(SyncConsumer):
 
 
     def progress(self, message):
-        self.updateJob(buildProgressStatus(message))
+        self.updateJob(message)
 
     def getSettings(self):
         """Returns the update settings dict, where defaultsettings where updated with user
@@ -56,9 +54,9 @@ class KanalSyncConsumer(SyncConsumer):
         raise NotImplementedError("This is not yet supported")
 
 
-    def updateJob(self, status: JobStatus):
+    def updateJob(self, message):
         # Classic Update Circle
-        self.job = updateJob(self.job, status)
+        self.job = updateJob(self.job, message)
         self.publish(self.job, self.jobSerializer, update=True)
 
 

@@ -14,7 +14,7 @@ from balder.utils import modelToKwargs, serializerToDict
 from delt.bouncers.context import BouncerContext
 from delt.context import Context
 from delt.models import Node, Pod, Provision
-from delt.pipes import assign_job_pipe, provision_pod_pipe
+from delt.pipes import assign_inputs_pipe, provision_pod_pipe
 from delt.serializers import (PodSerializer, ProvisionModelSerializer,
                               ProvisionSerializer)
 
@@ -44,7 +44,7 @@ class AssignMutation(BaseMutation, ProvisionFieldsMixin):
         except:
             raise NoPodFoundError("Please specifiy a correct NodeID")
         
-        assignation = assign_job_pipe(context, reference, pod, inputs)
+        assignation = assign_inputs_pipe(context, reference, pod, inputs)
 
         kwargs = modelToKwargs(assignation)
         kwargs.pop("id")

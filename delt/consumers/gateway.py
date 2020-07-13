@@ -1,19 +1,26 @@
 import logging
 
+from asgiref.sync import async_to_sync
 from channels.consumer import SyncConsumer
+from channels.layers import get_channel_layer
 
 from balder.utils import serializerToDict
 from delt.consumers.utils import deserialized
 from delt.models import Job, Pod
-from delt.pipes import (job_assigned_pipe, pod_provisioned_pipe,
+from delt.pipes import (assignation_failed_pipe, assignation_succeeded_pipe,
+                        job_assigned_pipe, pod_provisioned_pipe,
                         pod_updated_pipe, provision_failed_pipe,
-                        provision_succeeded_pipe, unprovision_failed_pipe,
-                        unprovision_succeeded_pipe)
-from delt.serializers import (AssignationSerializer, JobSerializer,
+                        provision_succeeded_pipe, republished_provision_pipe,
+                        unprovision_failed_pipe, unprovision_succeeded_pipe)
+from delt.serializers import (AssignationMessageSerializer,
+                              AssignationSerializer, JobSerializer,
                               PodSerializer, ProvisionMessageSerializer,
                               ProvisionSerializer)
 
 logger = logging.getLogger(__name__)
+
+
+channel_layer = get_channel_layer()
 
 class GatewayConsumer(SyncConsumer):
 
@@ -35,11 +42,34 @@ class GatewayConsumer(SyncConsumer):
         logger.info(f"Provision Succeed {provision}")
         provision_succeeded_pipe(provision)
 
+    @deserialized(AssignationMessageSerializer)
+    def assignation_success(self, message):
+        assignation = message["assignation"]
+        logger.info(f"Assignation Succeed {assignation}")
+        assignation_succeeded_pipe(assignation)
+
+
+    @deserialized(AssignationMessageSerializer)
+    def assignation_failed(self, message):
+        assignation = message["assignation"]
+        logger.info(f"Provision Succeed {assignation}")
+        assignation_failed_pipe(assignation)
+
     @deserialized(ProvisionMessageSerializer)
-    def provision_failed(self, message):
+    def provision_error(self, message):
         provision = message["provision"]
-        logger.error(f"Provision Failed {provision}")
+        logger.error(f"Provision error received {provision}")
         provision_failed_pipe(provision)
+
+    # ping of Provision for provide initial payload
+    @deserialized(ProvisionMessageSerializer)
+    def republish_provision(self, message):
+        provision = message["provision"]
+        logger.error(f"Provision Republish {provision}")
+        #pong of provision
+        async_to_sync(channel_layer.send)("assignation-13",{"type": "on_init_acknowledged", "data" : {}})
+        print("OISNOEINFOISNEFOINSOEIFNOSIENFOPSIENF")
+        republished_provision_pipe(provision)
     
     def pod_updated(self, message: dict):
         data = message["data"]

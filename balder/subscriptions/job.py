@@ -6,7 +6,7 @@ from delt.bouncers.context import BouncerContext
 from delt.models import Job, Pod
 from delt.node import NodeConfig
 from delt.orchestrator import get_orchestrator
-from delt.pipes import assign_job_pipe
+from delt.pipes import assign_inputs_pipe
 from delt.serializers import JobSerializer
 
 logger = logging.getLogger(__name__)
@@ -43,7 +43,7 @@ class BaseJobSubscription(BaseSubscription):
                     if pod.node == node:
                         context = BouncerContext(info=info)
                         logger.info("Pod exists, continue to assigning")
-                        assign_job_pipe(reference, pod, kwargs, context)
+                        assign_inputs_pipe(reference, pod, kwargs, context)
                         return [f"job_{reference}"]
                     else:
                         raise Exception("This pod belongs not to this node!")

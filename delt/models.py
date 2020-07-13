@@ -105,8 +105,10 @@ class Job(models.Model):
 class Assignation(models.Model):
     pod = models.ForeignKey(Pod, on_delete=models.CASCADE, help_text="The pod this provision connects", related_name="assignations")
     inputs = InputsField(blank=True, null=True, help_text="The Inputs")
+    outputs = OutputsField(help_text="The Outputs", blank=True, null=True)
     reference = models.CharField(max_length=1000, unique=True, default=uuid.uuid4, help_text="The Unique identifier of this Provision")
     status = models.CharField(max_length=1000, help_text="This provisions status")
+    creator = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, null=True, blank=True)
 
     
 # Layout and Flow for construction of Graphs

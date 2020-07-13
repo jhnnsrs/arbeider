@@ -13,7 +13,7 @@ GATEWAY_CHANNEL = "gateway"
 GATEWAY_PROVISION_UPDATE = "provision_updated"
 # JOB Settings
 
-CONSUMER_ASSIGNATION_ACTION = "assign_job"
+CONSUMER_ASSIGNATION_ACTION = "on_assign_job"
 
 
 

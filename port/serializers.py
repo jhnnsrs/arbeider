@@ -13,8 +13,8 @@ class ProvisionRequestSerializer(serializers.Serializer):
 
 
 class InitRequestSerializer(serializers.Serializer):
-    container_id = serializers.CharField(max_length=1000)
+    pod = serializers.PrimaryKeyRelatedField(queryset=Pod.objects.all())
 
 
 class ActivationRequestSerializer(serializers.Serializer):
-    container_id = serializers.CharField(max_length=1000)
+    pod = serializers.PrimaryKeyRelatedField(queryset=Pod.objects.all())

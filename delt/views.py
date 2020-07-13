@@ -20,8 +20,10 @@ class NodeViewSet(PublishingModelViewSet):
     API endpoint that allows users to be viewed or edited.
     """
     filter_backends = (DjangoFilterBackend,)
+    filter_fields = ("package", "interface")
     queryset = Node.objects.all()
     serializer_class = NodeSerializer
+        
 
 
 class JobViewSet(PublishingModelViewSet):
@@ -42,6 +44,15 @@ class PodViewSet(PublishingModelViewSet):
     filter_fields = ("node",)
     queryset = Pod.objects.all()
     serializer_class = PodSerializer
+
+
+
+class ProvisionViewSet(PublishingModelViewSet):
+    """
+    API endpoint that allows users to be viewed or edited.
+    """
+    queryset = Provision.objects.all()
+    serializer_class = ProvisionModelSerializer
 
 class FlowViewSet(PublishingModelViewSet):
     # MAKE THIS AN ACTION PUBLISHER THAT WILL PIPE IT THROUGH A META OBJECT CREATOR

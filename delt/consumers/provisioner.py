@@ -5,7 +5,10 @@ from channels.consumer import SyncConsumer
 from channels.layers import get_channel_layer
 from django.conf import settings
 
-from delt.consumers.utils import deserialized, send_provision_to_gateway
+from balder.mutations import assignations
+from delt.consumers.utils import (AssignationMessageSerializer, deserialized,
+                                  send_assignation_to_channel, send_assignation_to_gateway, 
+                                  send_provision_to_gateway)
 from delt.context import Context
 from delt.lifecycle import PROVISION_DENIED_CREATION, PROVISION_SUCCESS_CREATED
 from delt.models import Node, Pod, Provision
@@ -35,7 +38,6 @@ class ProvisionConsumer(SyncConsumer):
             logger.info(f"We have provisioned a Pod, waiting for it to become ready {provision.pod}")
             send_provision_to_gateway(success_provision, "provision_success")
         except Exception as e:
-            if settings.DEBUG: raise e
             logger.error(f"Error on Provision {provision}, {str(e)}")
             failed_provision = Provision.objects.get(reference=provision.reference)
             failed_provision.status = PROVISION_DENIED_CREATION + f"Error on Provision {provision}, {str(e)}"
@@ -43,8 +45,22 @@ class ProvisionConsumer(SyncConsumer):
             
             send_provision_to_gateway(failed_provision, "provision_error")
 
-    def provision_pod(self, reference, node: Node, subselector: str, user):
-        raise NotImplementedError("Please derived a provision_pod class in your consumer")
+    def get_pod(self, provision):
+        raise NotImplementedError("Please derived a get_pod class in your consumer")
+
+    def assign_inputs(self, assignation):
+        raise NotImplementedError("Please derived a assign_inputs class in your consumer")
+
+
+    @deserialized(AssignationMessageSerializer)
+    def on_assign_job(self, message):
+        assignation = message["assignation"]
+        print(assignation)
+        try:
+            job = self.assign_inputs(assignation)
+            send_assignation_to_gateway(assignation, "assignation_success")
+        except Exception as e:
+            send_assignation_to_gateway(assignation, "assignation_failed")
 
 
     def on_pod_failure(self, pod):

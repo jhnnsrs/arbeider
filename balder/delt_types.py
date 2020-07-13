@@ -2,7 +2,7 @@ from guardian.compat import get_user_model
 
 from balder.types import BalderObjectType
 from balder.delt.types import PortType
-from delt.models import Job, Node, Pod, Route, Provision
+from delt.models import Job, Node, Pod, Route, Provision, Assignation
 import graphene
 
 class PodType(BalderObjectType):
@@ -21,8 +21,12 @@ class NodeType(BalderObjectType):
         }
 
 
+class AssignationType(BalderObjectType):
+
+    class Meta:
+        model = Assignation
+
 class ProvisionType(BalderObjectType):
-    children = graphene.List(lambda: ProvisionType)
 
     class Meta:
         model = Provision
