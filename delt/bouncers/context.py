@@ -1,12 +1,20 @@
+from datetime import timedelta, datetime
 from django.contrib.auth import get_user_model
 from guardian.utils import get_anonymous_user
 from rest_framework.request import Request
 from rest_framework.settings import api_settings
 from django.test import RequestFactory
+from oauth2_provider.models import AccessToken, Application
 import logging
+from oauth2_provider.settings import oauth2_settings
+
 
 logger = logging.getLogger(__name__)
 
+try:
+    application = Application.objects.get(name="Trontheim")
+except:
+    pass
 
 class BouncerContext(object):
 
@@ -14,6 +22,7 @@ class BouncerContext(object):
 
         self._authorized = None
         self._scopes = None
+        self._token = None
         if request is not None:
             
             logger.info("Provided through preauthenticated Request")
@@ -32,6 +41,8 @@ class BouncerContext(object):
         if token is not None:
             #TODO: Very very hacky
             # compatibility with rest framework
+            self._token = token
+
 
             rf = RequestFactory()
             get_request = rf.get('/api/comments/')
@@ -46,6 +57,7 @@ class BouncerContext(object):
                 if user_auth_tuple is not None:
                     logger.info("Provided through OAuth2 Token")
                     self._user, self._auth = user_auth_tuple
+                    
                 else:
                     self._user = get_anonymous_user()
 
@@ -69,3 +81,18 @@ class BouncerContext(object):
             self._user = get_anonymous_user()
         logger.info(f"User is {self._user}")
         return self._user
+
+
+    @property
+    def token(self):
+        # TODO: HORROUNDOUS
+        if self._token is None:
+            try:
+                self._token = AccessToken.objects.filter(user = self.user, application = application).first()
+            except AccessToken.DoesNotExist as e:
+                logger.info("Creating new Access Token for this")
+                max_caching_time = datetime.now() + timedelta(
+                    seconds=oauth2_settings.RESOURCE_SERVER_TOKEN_CACHING_SECONDS
+                )
+                self._token =  AccessToken.objects.create(user= self.user, application= application, expires= max_caching_time)
+        return self._token

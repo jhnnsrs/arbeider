@@ -9,11 +9,11 @@ from delt.bouncers.context import BouncerContext
 from delt.consumers.utils import deserialized, send_provision_to_gateway
 from delt.context import Context
 from delt.models import Node, Pod, Provision
-from delt.pipes import (pod_activated_pipe, pod_initialized_pipe,
+from delt.pipes import (assign_inputs_pipe, pod_activated_pipe, pod_initialized_pipe,
                         provision_pod_pipe)
 from delt.pod import PODACTIVE, PODINIT
 from port.models import Flowly
-from port.serializers import (ActivationRequestSerializer,
+from port.serializers import (ActivationRequestSerializer, AssignationRequestSerializer,
                               InitRequestSerializer,
                               ProvisionRequestSerializer)
 from port.utils import provision_channel_from_id, assignation_channel_from_id
@@ -44,7 +44,7 @@ class PortGateway(SyncConsumer):
             provision = provision_pod_pipe(context, reference, node, selector, parent)
             logger.info(f"We have request to Provision a Pod, waiting for it to become procesed py provider {provision.provider}")
         except Exception as e:
-            logger.error(f"Error on Provision {provision}, {str(e)}")
+            logger.error(f"Error on ProvisionRequest {message}, {str(e)}")
             self.provision_request_failed(e)
 
 
@@ -76,6 +76,20 @@ class PortGateway(SyncConsumer):
             pod.save()
             logger.info(f"Acknowledging activation of Pod {pod}")
             pod_activated_pipe(pod)
+        except Exception as e:
+            raise e
+
+
+    @deserialized(AssignationRequestSerializer)
+    def on_assign_request(self, message):
+        pod = message["pod"]
+        try:
+            logger.info(f"Tryin to Assign Inputs to Pod {pod}")
+            token = message["token"]
+            reference = message["reference"]
+            inputs = message["inputs"]
+            context = BouncerContext(token=token)
+            assign_inputs_pipe(context, reference, pod, inputs)
         except Exception as e:
             raise e
 

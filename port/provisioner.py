@@ -1,4 +1,9 @@
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
+from delt.consumers.gateway import channel_layer
 import logging
+from port.utils import assignation_channel_from_id
+from port.handler import PortHandlerSettings
 import re
 import uuid
 
@@ -9,15 +14,17 @@ from delt.consumers.exceptions import NoMatchablePod
 from delt.consumers.job import JobConsumer
 from delt.consumers.provisioner import ProvisionConsumer
 from delt.consumers.utils import deserialized
-from delt.models import Job, Provision, Pod
+from delt.models import Assignation, Job, Provision, Pod
 from delt.pod import PODPENDING
-from delt.serializers import JobSerializer, PodSerializer
+from delt.serializers import AssignationModelSerializer, JobSerializer, PodSerializer
 from delt.settingsregistry import get_settings_registry
 from extensions.fremmed.subscriptions import GateSubscription
 from port.models import Flowly
 import docker 
 
 logger = logging.getLogger(__name__)
+channel_layer = get_channel_layer()
+
 
 class PortProvisionError(Exception):
     pass
@@ -34,12 +41,17 @@ def spawnContainerForProvision(provision: Provision) -> str:
     client = docker.from_env()
     logger.info("Trying to spawn a docker container")
 
-    container = client.containers.run("jhnnsrs/flowango", detach=True, environment={"PROVISION_ID": provision.id }, network="dev")
+    if not DRYRUN:
+        container = client.containers.run("jhnnsrs/flowango", detach=True, environment={"PROVISION_ID": provision.id }, network="dev")
+    else:
+        logger.warn(f" Port Provisioner is in DRYRUN mode and will not Create: Make Sure you create {provision.id}")
+        container = FakeContainer()
 
     return container
 
 
 class PortProvision(ProvisionConsumer):
+    settings = PortHandlerSettings()
     provider = "port"
 
     def get_pod(self, provision):
@@ -95,3 +107,14 @@ class PortProvision(ProvisionConsumer):
         logger.info(f"Created POD with FLOW: {pod.node_id}")
         logger.info(f"Created POD with PROVISION: {provision.id}")
         return pod
+
+
+    def assign_inputs(self, assignation: Assignation):
+
+        pod = assignation.pod
+        assignation_channel= assignation_channel_from_id(pod.id)
+        serialized = AssignationModelSerializer(assignation)
+        logger.info(f"Sending Assignation: {assignation_channel}")
+        async_to_sync(channel_layer.send)(assignation_channel,{"type": "assign", "data" : serialized.data})
+
+        

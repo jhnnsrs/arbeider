@@ -45,6 +45,7 @@ class Route(models.Model):
 
 
 class Pod(models.Model):
+    """ A Pod is Arnheims Representation of an Instance of an Implementation of a Node"""
     node = models.ForeignKey(Node, on_delete=models.CASCADE, help_text="The node this Pod is an instance of", related_name="pods")
     podclass = models.CharField(max_length=400, default="classic-pod")
     status = models.CharField(max_length=300, default= POD_PENDING)
@@ -57,11 +58,13 @@ class Pod(models.Model):
         return f"Pod for node {self.node.name} ( Package: {self.node.package}/{self.node.interface}  ) at {self.provider}"
 
 class Provision(models.Model):
+    """ A Provision constitutes a way of providing an Instance of an Implementation """
     parent = models.ForeignKey("self", on_delete=models.CASCADE, null=True, blank=True, help_text="The Provisions parent", related_name="children")
     node = models.ForeignKey(Node, on_delete=models.CASCADE, help_text="The node this provision connects", related_name="provisions")
     pod = models.ForeignKey(Pod, on_delete=models.CASCADE, help_text="The pod this provision connects", related_name="provisions", null=True, blank=True)
     provider = models.CharField(max_length=1000, help_text="The Provider")
     subselector = models.CharField(max_length=1000, help_text="The selector")
+    token = models.CharField(max_length=1000, blank=True, default=uuid.uuid4(), help_text="The Token that created this Provision")
     reference = models.CharField(max_length=1000, unique=True, default=uuid.uuid4, help_text="The Unique identifier of this Provision")
     status = models.CharField(max_length=1000, blank=True, help_text="This provisions status")
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, max_length=1000, help_text="This provision creator")
@@ -109,6 +112,7 @@ class Assignation(models.Model):
     reference = models.CharField(max_length=1000, unique=True, default=uuid.uuid4, help_text="The Unique identifier of this Provision")
     status = models.CharField(max_length=1000, help_text="This provisions status")
     creator = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, null=True, blank=True)
+    token = models.CharField(max_length=1000, blank=True, default=uuid.uuid4(), help_text="The Token that created this Provision")
 
     
 # Layout and Flow for construction of Graphs

@@ -1,3 +1,4 @@
+from delt.handlers.base import BaseHandlerSettings
 import logging
 
 from asgiref.sync import async_to_sync
@@ -11,7 +12,7 @@ from delt.consumers.utils import (AssignationMessageSerializer, deserialized,
                                   send_provision_to_gateway)
 from delt.context import Context
 from delt.lifecycle import PROVISION_DENIED_CREATION, PROVISION_SUCCESS_CREATED
-from delt.models import Node, Pod, Provision
+from delt.models import Assignation, Node, Pod, Provision
 from delt.pod import PODACTIVE
 from delt.serializers import (PodSerializer, ProvisionMessageSerializer,
                               ProvisionSerializer)
@@ -21,7 +22,20 @@ logger = logging.getLogger(__name__)
 channel_layer = get_channel_layer()
 
 
+class ProvisionConsumerException(Exception):
+    pass
+
+
 class ProvisionConsumer(SyncConsumer):
+    settings = None
+
+    def __init__(self, scope) -> None:
+        logger.warn("CALLLEd")
+        if self.settings is None or not isinstance(self.settings, BaseHandlerSettings):
+            logger.error(f"Provision Consumer of Class {self.__class__.__name__} does not have a valid settings handler!")
+            raise ProvisionConsumerException("You must provide a valid BaseHandlerSettings class to your Provision Consumer")
+        super().__init__(scope)
+
 
     @deserialized(ProvisionMessageSerializer)
     def on_provision_pod(self, message):
@@ -45,10 +59,10 @@ class ProvisionConsumer(SyncConsumer):
             
             send_provision_to_gateway(failed_provision, "provision_error")
 
-    def get_pod(self, provision):
+    def get_pod(self, provision: Provision):
         raise NotImplementedError("Please derived a get_pod class in your consumer")
 
-    def assign_inputs(self, assignation):
+    def assign_inputs(self, assignation: Assignation):
         raise NotImplementedError("Please derived a assign_inputs class in your consumer")
 
 

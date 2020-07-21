@@ -146,6 +146,7 @@ def provision_pod_pipe(context: BouncerContext, reference, node: Node, selector:
             status= PROVISION_PENDING,
             user=user,
             parent=parent,
+            token= context.token
         )
 
         
@@ -158,7 +159,7 @@ def provision_pod_pipe(context: BouncerContext, reference, node: Node, selector:
     
     return provision
 
-@pipe("assign_inputs")
+#@pipe("assign_inputs")
 def assign_inputs_pipe(context: BouncerContext, reference, pod: Pod, inputs: dict):
 
     #Check if a Provsion already exists under this reference
@@ -188,9 +189,10 @@ def assign_inputs_pipe(context: BouncerContext, reference, pod: Pod, inputs: dic
             creator=user,
             inputs=inputs,
             status="pending",
+            token= context.token
         )
         
-        print("Hallo")
+        print()
         # Jobs are assigned to a Pod with the Inputs and linked to a User, and a unique Reference
         orchestrator.getHandlerForPod(pod).on_assign_job(assignation)
 

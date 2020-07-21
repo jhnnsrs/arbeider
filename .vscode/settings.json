@@ -12,6 +12,5 @@
         "--load-plugins",
         "pylint_django",
     ],
-    "python.jediEnabled": false,
-    "python.languageServer": "Microsoft",
+    "python.languageServer": "Pylance",
 }

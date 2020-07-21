@@ -63,6 +63,12 @@ class ProvisionModelSerializer(serializers.ModelSerializer):
         model = Provision
         fields = "__all__"
 
+class AssignationModelSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Assignation
+        fields = "__all__"
+
 
 
 class AssignationSerializer(serializers.Serializer):

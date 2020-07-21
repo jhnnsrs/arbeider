@@ -2,12 +2,12 @@
 // https://github.com/microsoft/vscode-dev-containers/tree/v0.106.0/containers/docker-existing-docker-compose
 // If you want to run as a non-root user in the container, see .devcontainer/docker-compose.yml.
 {
-	"name": "Arbeider DevContainer",
+	"name": "Arbeider Docker",
 
 	// Update the 'dockerComposeFile' list if you have more compose files or use different names.
 	// The .devcontainer/docker-compose.yml file contains any overrides you need/want to make.
 	"dockerComposeFile": [
-		"..\\docker-compose.yaml",
+		"../docker-compose.yaml",
 		"docker-compose.yml"
 	],
 
@@ -27,10 +27,8 @@
 	// Add the IDs of extensions you want installed when the container is created.
 	"extensions": [
 		"ms-python.python",
-		"donjayamanne.python-extension-pack",
-		"brainfit.vscode-importmagic",
-		"njpwerner.autodocstring"
-
+		"njpwerner.autodocstring",
+		"ms-python.vscode-pylance"
 	]
 
 	// Uncomment the next line if you want start specific services in your Docker Compose config.

@@ -40,7 +40,6 @@ from delt.router import router as configrouter
 from delt.settingsregistry import get_settings_registry
 from delt.validators.alwaystrue import AlwaysTrueValidator
 from elements.router import router as elementsrouter
-from fjong.handler import AutoHandler
 from flow.router import router as flowrouter
 from fremmed.handler import FremmedHandler
 from fremmed.publisher import FremmedPublisher
@@ -65,7 +64,7 @@ get_settings_registry().setHandlerForProvider("port", PortHandler())
 
 try:
     autodiscover_nodes(catalog=True)
-except:
+except Exception as e:
     # TODO: For now if we are migrating this returns an error
     logger.error(f"Could not discover Nodes {e}")
 
