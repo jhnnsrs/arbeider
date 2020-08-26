@@ -16,11 +16,29 @@ class BasePublisherConfigError(BasePublisherError):
 
 class BasePublisherSettings(object):
     settingsField = "PUBLISHERS"
+    universal = False
     provider = None
     onall = False
     INCLUDE = None
     EXCLUDE = []
-    DEFAULTFIELDS = ["job","pod","model","provision_succeeded","provision_failed","pod_updated","pod_initialized","pod_activated", "republished_provision", "assignation_failed", "assignation_succeeded"]
+    DEFAULTFIELDS = ["job",
+    "pod",
+    "model",
+    # Provision Specific
+    "provision_succeeded",
+    "provision_failed",
+
+    # Pod Lifecycle Specific
+    "pod_updated",
+    "pod_initialized",
+    "pod_activated", 
+    "republished_provision", 
+
+    # Assignation specific
+    "assignation_failed",
+    "assignation_succeeded",
+    "assignation_progress",
+    "assignation_done"]
 
     def __init__(self, **kwargs):
         if self.settingsField is None or self.provider is None:
@@ -55,7 +73,8 @@ class BasePublisher(object):
             assert callable(method)
             return method
         except AttributeError:
-            logger.error(f"{self.__class__.__name__} doesnt know how to handle this event, please provide 'on_{field}' Method")
+            if self.universal:
+                logger.error(f"{self.__class__.__name__} doesnt know how to handle this event, please provide 'on_{field}' Method")
             return lambda *arg, **kwargs: True
 
     @property

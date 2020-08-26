@@ -90,7 +90,10 @@ class BouncerContext(object):
             try:
                 self._token = AccessToken.objects.filter(user = self.user, application = application).first()
             except AccessToken.DoesNotExist as e:
+                self._token = None
                 logger.info("Creating new Access Token for this")
+
+            if self._token is None: #Either we were login in anonymously or no token exists yet for this sort of applicatoin
                 max_caching_time = datetime.now() + timedelta(
                     seconds=oauth2_settings.RESOURCE_SERVER_TOKEN_CACHING_SECONDS
                 )

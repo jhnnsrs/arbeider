@@ -9,10 +9,10 @@ class BaseFilterInputs(Inputs):
     rep = ModelField(Representation, info="The Incoming Representation", description="This Representation will be <b>filtered</b>", label="Representation")
 
 class BaseFilterOutputs(Outputs):
-    rep = RepresentationSerializer(help_text="The Outgoing Representation (with altered dimensions)", label="Representation")
+    rep = ModelField(Representation, info="The Outgoing Representation", description="The Representation that was be <b>filtered</b>", label="Representation")
 
 
-class BaseFilterConfig(Konfig):
+class BaseFilterKonfig(Konfig):
     package = "@canoncial/generic/filters"
     inputs = BaseFilterInputs
     outputs = BaseFilterOutputs

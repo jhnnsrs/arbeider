@@ -90,9 +90,9 @@ class JobbRegister(RouterRegister):
 
     def cls_to_be_returned(self, cls):
         logger.debug(f"Setting Config and Doc Property on Class {cls.__name__}")
-        cls.config = self.config
+        cls.konfig = self.konfig
         cls.node = self._node
-        cls.__doc__ = self.config.__doc__
+        cls.__doc__ = self.konfig.__doc__
         return cls
 
     def catalog_class(self, cls, **kwargs):

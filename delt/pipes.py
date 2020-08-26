@@ -65,7 +65,18 @@ def provision_succeeded_pipe(provision):
 def assignation_succeeded_pipe(assignation):
     # A Successfull provision will results in a Pod that is either Active or Pending by default
     # Therefore we can always publish it
-    publish_to_event("assingation_succeeded",assignation)
+    publish_to_event("assignation_succeeded",assignation)
+
+
+def assignation_done_pipe(assignation):
+    # A Successfull provision will results in a Pod that is either Active or Pending by default
+    # Therefore we can always publish it
+    publish_to_event("assignation_done",assignation)
+
+
+def assignation_progress_pipe(assignation):
+    print("CALLLED BAYED")
+    publish_to_event("assignation_progress", assignation)
 
 def assignation_failed_pipe(assignation):
     # A Successfull provision will results in a Pod that is either Active or Pending by default
@@ -136,6 +147,8 @@ def provision_pod_pipe(context: BouncerContext, reference, node: Node, selector:
         bouncer.can_provide_on(provider)
 
         user = bouncer.user
+
+    
 
         # If we reached here without exceptions our Pod is able to be Provisioned
         provision = Provision.objects.create(

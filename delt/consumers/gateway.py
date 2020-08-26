@@ -7,7 +7,7 @@ from channels.layers import get_channel_layer
 from balder.utils import serializerToDict
 from delt.consumers.utils import deserialized
 from delt.models import Job, Pod
-from delt.pipes import (assignation_failed_pipe, assignation_succeeded_pipe,
+from delt.pipes import (assignation_done_pipe, assignation_failed_pipe, assignation_progress_pipe, assignation_succeeded_pipe,
                         job_assigned_pipe, pod_provisioned_pipe,
                         pod_updated_pipe, provision_failed_pipe,
                         provision_succeeded_pipe, republished_provision_pipe,
@@ -47,6 +47,19 @@ class GatewayConsumer(SyncConsumer):
         assignation = message["assignation"]
         logger.info(f"Assignation Succeed {assignation}")
         assignation_succeeded_pipe(assignation)
+
+
+    @deserialized(AssignationMessageSerializer)
+    def assignation_done(self, message):
+        assignation = message["assignation"]
+        logger.info(f"Assignation Succeed {assignation}")
+        assignation_done_pipe(assignation)
+
+    @deserialized(AssignationMessageSerializer)
+    def assignation_progress(self, message):
+        assignation = message["assignation"]
+        logger.info(f"Assignation Progress {assignation}")
+        assignation_progress_pipe(assignation)
 
 
     @deserialized(AssignationMessageSerializer)

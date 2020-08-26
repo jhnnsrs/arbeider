@@ -151,11 +151,11 @@ class KanalRegistry(PodBackendRegister):
             return self._channel
 
     def cls_to_be_registered(self,cls):
-        if issubclass(cls, KanalSyncConsumer) or issubclass(cls, KanalAsyncConsumer):
+        if not issubclass(cls, KanalSyncConsumer) and not issubclass(cls, KanalAsyncConsumer):
             raise IsNotConsumer(f"{cls.__name__} does not inherit from BaseConsumer. Cannot Register!")
             #TODO: Find inheritance for all Consumers
 
-        cls.config = self.config
+        cls.konfig = self.konfig
         cls.channel = self.get_channel()
         return cls
 
@@ -165,7 +165,7 @@ class KanalRegistry(PodBackendRegister):
     def cls_to_be_returned(self, cls):
         logger.debug(f"Setting Channel and Config Property on Class {cls.__name__}")
         channel = self.get_channel()
-        cls.config = self.config
+        cls.konfig = self.konfig
         cls.channel = channel
         return cls
 

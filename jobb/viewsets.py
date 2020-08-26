@@ -1,3 +1,4 @@
+from delt.pipes import assign_inputs_pipe
 import logging
 
 from oauth2_provider.contrib.rest_framework import (TokenHasReadWriteScope,
@@ -11,7 +12,7 @@ from delt.job import JobConfig, job_config_builder
 from delt.message import send_to_backend
 from delt.models import Job
 from delt.context import Context
-from delt.node import NodeConfig
+from konfig.node import Konfig
 from delt.params import Inputs
 from delt.serializers import JobSerializer
 
@@ -49,7 +50,7 @@ class JobRouteViewSet(viewsets.ModelViewSet):
         [type] -- [description]
     """
     queryset = Job.objects.all()
-    config = None
+    konfig = None
     node = None
     inputs_class = None
     settings_class = None
@@ -61,14 +62,14 @@ class JobRouteViewSet(viewsets.ModelViewSet):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)#
-        self.name = self.config.name
+        self.name = self.konfig.name
     
 
     @property
     def created_serializer(self):
-        if self.config and issubclass(self.config, NodeConfig):
+        if self.konfig and issubclass(self.konfig, Konfig):
 
-            return job_config_builder(self.node, self.config.inputs)
+            return job_config_builder(self.node, self.konfig.inputs)
 
         if not self.inputs_class or not issubclass(self.inputs_class, Inputs):
             raise NotImplementedError("Please specifiy inputs as Subclass of Inputs")
@@ -99,24 +100,14 @@ class JobRouteViewSet(viewsets.ModelViewSet):
 
             inputs = serializer.data["inputs"]
             pod = serializer.validated_data["pod"]
-            instance = serializer.validated_data["instance"]
-            
-            job = Job.objects.create(
-                args=inputs,
-                creator= request.user,
-                node = self.node,
-                pod = pod,
-                instance= serializer.validated_data["instance"],
-                )
-
-            serialized = JobSerializer(job)
+            reference = serializer.validated_data["instance"]
 
             try:
-                new_job_pipe(job, context)
-            except BaseProvisionerError as e:
+                assign_inputs_pipe(context, reference, pod, inputs)
+            except Exception as e:
                 raise APIException(detail=f"{e}")
 
-            return Response(serialized.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         else:
             raise APIException(detail="Wrong")

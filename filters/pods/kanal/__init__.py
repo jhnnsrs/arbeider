@@ -1,2 +1,2 @@
-from .filters import blur
+from .filters import blur, sleep
 from .projections import maxisp

@@ -41,9 +41,9 @@ class KanalProvisionConsumer(ProvisionConsumer):
 
 
     def assign_inputs(self, assignation: Assignation):
-        assignation_channel= assignation.pod.kanalpod.channel
-        serialized = AssignationModelSerializer(assignation)
-        logger.info(f"Sending Assignation: {assignation_channel}")
-        async_to_sync(channel_layer.send)(assignation_channel,{"type": "assign", "data" : serialized.data})
+        try:
+            assignation.pod.kanalpod.assign(assignation)
+        except Exception as e:
+            print(e)
 
 

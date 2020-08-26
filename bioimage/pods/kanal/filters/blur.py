@@ -1,10 +1,10 @@
 from kanal.registry import register_with_kanal_backend
 from filters.pods.kanal.base import FilterConsumer
-from filters.configs.filters.blur import BlurFilterConfig
+from filters.configs.filters.blur import BlurFilterKonfig
 import xarray as xr
 
 
-@register_with_kanal_backend(BlurFilterConfig)
+@register_with_kanal_backend(BlurFilterKonfig)
 class BlurConsumer(FilterConsumer):
     """This is a Maximum Projection
 

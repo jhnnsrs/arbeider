@@ -1,3 +1,8 @@
+from delt.utils import gateway_send
+from delt.consumers import gateway
+from kanal.utils import layer_send
+from konfig.node import Konfig
+from delt.consumers.utils import deserialized
 import logging
 
 from channels.consumer import SyncConsumer
@@ -8,7 +13,7 @@ from rest_framework import serializers
 
 from delt.models import Job
 from delt.node import NodeConfig
-from delt.serializers import JobSerializer
+from delt.serializers import AssignationMessageSerializer, JobSerializer
 from kanal.exceptions import KanalConsumerConfigException, KanalConsumerMinorException
 
 logger = logging.getLogger(__name__)
@@ -23,18 +28,46 @@ def updateJob(job: Job, message):
     return job
 
 class KanalSyncConsumer(SyncConsumer):
-    config: NodeConfig  = None
+    konfig: NodeConfig  = None
     jobSerializer = JobSerializer
 
     def __init__(self, scope):
-        if self.config is None or not issubclass(self.config, NodeConfig):
+        if self.konfig is None or not issubclass(self.konfig, Konfig):
+            print("Something going wrong")
             raise KanalConsumerConfigException(f"{self.__class__.__name__} was not registered with a Node")
 
         super().__init__(scope)
 
 
     def progress(self, message):
-        self.updateJob(message)
+        logger.info("Progress", message)
+        self.assignation.status = f"progress: {message}"
+        self.assignation.save()
+
+        serialized = AssignationMessageSerializer({"assignation": self.assignation})
+        gateway_send("assignation_progress")(serialized.data)
+
+    @deserialized(AssignationMessageSerializer)
+    def assign(self, message ):
+        self.assignation = message["assignation"]
+        inputs: serializers.Serializer = self.konfig.inputs(data=self.assignation.inputs)
+        if inputs.is_valid(raise_exception=True):
+            try:
+                outputdict = self.start(inputs.validated_data)
+
+                # Serialize the outputs
+                outputs = self.konfig.outputs(outputdict)
+                self.assignation.status = "done"
+                self.assignation.outputs = outputs.data
+                self.assignation.save()
+                # Send them Back
+                serialized = AssignationMessageSerializer({"assignation": self.assignation})
+                gateway_send("assignation_done")(serialized.data)
+            except KanalConsumerMinorException as e:
+                logger.error(e)
+                if settings.DEBUG:
+                    raise e
+        
 
     def getSettings(self):
         """Returns the update settings dict, where defaultsettings where updated with user
@@ -67,21 +100,6 @@ class KanalSyncConsumer(SyncConsumer):
         """
         raise NotImplementedError
 
-
-    def emit_job(self, signal):
-        logger.info(f"Received Data on {self.__class__.__name__}")
-        data = signal["data"]
-        inputs: serializers.Serializer = self.config.inputs(data=data["args"])
-        if inputs.is_valid(raise_exception=True):
-            try:
-                outputdict = self.start(inputs.validated_data)
-            except KanalConsumerMinorException as e:
-                logger.error(e)
-                if settings.DEBUG:
-                    raise e
-        
-        outputs = self.config.outputs(outputdict)
-        print(outputs.data)
 
     @property
     def settings(self):

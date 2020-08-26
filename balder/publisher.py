@@ -20,9 +20,8 @@ class BalderPublisherSettings(BasePublisherSettings):
     onall=True
 
 
-
-
 class BalderPublisher(BasePublisher):
+    universal = True
     settingsClass = BalderPublisherSettings
 
     def __init_(self):
@@ -47,6 +46,13 @@ class BalderPublisher(BasePublisher):
         to_balder_assignation_listeners(assignation)
 
     def on_assignation_failed(self, assignation):
+        to_balder_assignation_listeners(assignation)
+
+    def on_assignation_done(self, assignation):
+        to_balder_assignation_listeners(assignation)
+
+    def on_assignation_progress(self, assignation):
+        print("CALLED")
         to_balder_assignation_listeners(assignation)
 
     def on_provision_failed(self, provision):

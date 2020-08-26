@@ -57,6 +57,10 @@ class Pod(models.Model):
     def __str__(self):
         return f"Pod for node {self.node.name} ( Package: {self.node.package}/{self.node.interface}  ) at {self.provider}"
 
+
+    def assign(self, assignation):
+        raise NotImplementedError("Your Pod must provide a interface how to assign a Job to It")
+
 class Provision(models.Model):
     """ A Provision constitutes a way of providing an Instance of an Implementation """
     parent = models.ForeignKey("self", on_delete=models.CASCADE, null=True, blank=True, help_text="The Provisions parent", related_name="children")
@@ -112,8 +116,10 @@ class Assignation(models.Model):
     reference = models.CharField(max_length=1000, unique=True, default=uuid.uuid4, help_text="The Unique identifier of this Provision")
     status = models.CharField(max_length=1000, help_text="This provisions status")
     creator = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, null=True, blank=True)
-    token = models.CharField(max_length=1000, blank=True, default=uuid.uuid4(), help_text="The Token that created this Provision")
+    token = models.CharField(max_length=1000, blank=True, default=uuid.uuid4(), null=True, help_text="The Token that created this Provision")
 
+    def __str__(self) -> str:
+        return f"Assignation (ref: {self.reference}) for {self.pod} "
     
 # Layout and Flow for construction of Graphs
 class Flow(models.Model):

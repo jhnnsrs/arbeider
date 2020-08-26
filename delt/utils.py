@@ -1,9 +1,13 @@
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 import inspect
 import logging
 from posix import pipe
 
 from konfig.node import node_identifier
 
+
+channel_layer = get_channel_layer()
 
 def props(obj):
     pr = {}
@@ -42,3 +46,12 @@ def compareNodes(node1, params: dict ):
             old.update({k: v})
     
     return new
+
+
+
+def channel_layer_send(channel, method, layer = channel_layer):
+    return lambda x: async_to_sync(layer.send)(channel,{"type": method, "data" : x})
+
+def gateway_send(method):
+    return channel_layer_send("gateway", method)
+

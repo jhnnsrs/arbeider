@@ -52,8 +52,7 @@ class PortPublisher(BasePublisher):
 
     def on_provision_succeeded(self, provision: Provision):
         if self.is_responsible(provision):
-           self.send_provision_to_portlayer(provision, "on_provision_succeeded")
-        
+           self.send_provision_to_portlayer(provision, "on_provision_succeeded")   
 
     def on_provision_failed(self, provision):
         if self.is_responsible(provision):
