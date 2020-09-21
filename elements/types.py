@@ -4,6 +4,7 @@ from elements.models import ROI, Representation, Sample
 
 class RepresentationType(BalderObjectType):
     """ A Representation is a multi-dimensional Array that can do what ever it wants """
+
     class Meta:
         model = Representation
         description = Representation.__doc__

@@ -10,7 +10,7 @@ class FilterConsumer(KanalSyncConsumer):
 
         filtered = self.run(array, inputs)
 
-        repout, graph = Representation.delayed.from_xarray(filtered, name=f"{self.konfig.name} of {rep.name}", sample=rep.sample, creator=rep.creator,
+        repout, graph = Representation.delayed.from_xarray(filtered, name=f"{self.konfig.name} of {rep.name}", sample=rep.sample, creator=self.assignation.creator,
                                                                            type=self.konfig.interface,
                                                                            chain=f'{rep.chain}|{self.konfig.interface}')
 

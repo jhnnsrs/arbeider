@@ -22,7 +22,7 @@ class BaseAssignationSubscription(BaseSubscription):
     Output = AssignationType
 
     @classmethod
-    def publish(cls, payload, info, *arg, **kwargs):
+    def announce(cls, context, payload, *arg, **kwargs):
         logger.info("Publishing it to the Consumer")
         serializer = AssignationMessageSerializer(data=payload)
         if serializer.is_valid():

@@ -59,7 +59,7 @@ class AssignationSubscription(BaseSubscription):
         return [f"provision_{reference}"]
 
     @classmethod
-    def publish(cls, payload, info, *arg, **kwargs):
+    def announce(cls, context, payload, info, *arg, **kwargs):
         serializer = PodSerializer(data=payload)
         kwargs = serializerToDict(serializer)
         return cls(**kwargs)

@@ -4,7 +4,10 @@ import channels_graphql_ws
 from aiohttp import payload
 from asgiref.sync import async_to_sync
 from channels.auth import login
+from oauth2_provider.models import AccessToken
 from rest_framework.settings import api_settings
+from channels.db import database_sync_to_async
+
 
 from balder.schema import graphql_schema
 
@@ -14,12 +17,17 @@ class MyGraphqlWsConsumer(channels_graphql_ws.GraphqlWsConsumer):
     """Channels WebSocket consumer which provides GraphQL API."""
     schema = graphql_schema
     # Uncomment to send keepalive message every 42 seconds.
-    # send_keepalive_every = 42
+    send_keepalive_every = 15
 
     # Uncomment to process requests sequentially (useful for tests).
     # strict_ordering = True
 
+    def get_token(self, token):
+        return AccessToken.objects.get(token=token)
+
     async def on_connect(self, payload):
         """New client connection handler."""
         # You can `raise` from here to reject the connection.
+        user = self.scope.get('user')
+
         logger.info(f"New client connected with user {self.scope.get('user')}")

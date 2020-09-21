@@ -148,7 +148,6 @@ def provision_pod_pipe(context: BouncerContext, reference, node: Node, selector:
 
         user = bouncer.user
 
-    
 
         # If we reached here without exceptions our Pod is able to be Provisioned
         provision = Provision.objects.create(
@@ -159,7 +158,8 @@ def provision_pod_pipe(context: BouncerContext, reference, node: Node, selector:
             status= PROVISION_PENDING,
             user=user,
             parent=parent,
-            token= context.token
+            token= context.token,
+            active=True
         )
 
         

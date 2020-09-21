@@ -78,7 +78,7 @@ MEDIA_ROOT = str(defaults.media_path)
 # S3 Settings
 
 #S3 Settings
-S3_PUBLIC_DOMAIN = defaults.s3_public_domain
+S3_PUBLIC_DOMAIN = "10.0.2.2:9000" #TODO: FIx
 AWS_ACCESS_KEY_ID = defaults.s3_key
 AWS_SECRET_ACCESS_KEY = defaults.s3_secret
 AWS_S3_ENDPOINT_URL  = str(defaults.s3_endpointurl)
@@ -152,7 +152,9 @@ INSTALLED_APPS = [
 
 
 GRAPHENE = {
-    'SCHEMA': 'balder.schema.graphql_schema' # Where your Graphene schema lives
+    'SCHEMA': 'balder.schema.graphql_schema', # Where your Graphene schema lives
+    'SCHEMA_OUTPUT': 'schema.json',  # defaults to schema.json,
+    'SCHEMA_INDENT': 2,  # Defaults to None (displays all data on a single line)
 }
 
 
@@ -361,7 +363,8 @@ OAUTH2_PROVIDER = {
         'can_start_job': "Can start Nodes",
         'profile': 'Access to your Profile (including Email, Name and Address',
         **DELTSCOPES
-        }
+        },
+    'ALLOWED_REDIRECT_URI_SCHEMES': ["http","https","com.example.hunger"]
 
 }
 

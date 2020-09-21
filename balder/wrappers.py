@@ -33,8 +33,15 @@ class BalderQueryWrapper(object):
         return self._type
 
 
+    def get_description(self):
+        return None
+
+
 class BaseSubscriptionWrapper(object):
     pass
+
+    def get_description(self):
+        return None
 
 
 class BalderSubscriptionWrapper(BaseSubscriptionWrapper):
@@ -75,6 +82,9 @@ class NodeSubscriptionWrapper(BalderBuildableSubscriptionWrapper):
     def get_object(self):
         return self._type
 
+    def get_description(self):
+        return self.config.__doc__
+
 
 
 
@@ -89,6 +99,9 @@ class BalderMutationWrapper(object):
 
     def get_object(self):
         return self._type
+
+    def get_description(self):
+        return None
 
 class BalderBuildableMutationWrapper(object):
     mutationBuilder = None

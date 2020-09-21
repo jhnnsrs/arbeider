@@ -1,8 +1,10 @@
+from balder.subscriptions.helpers.myprovisions import MyProvisionsSubscription, MyProvisions
+from delt.bouncers.context import BouncerContext
 import graphene
 from django.forms.models import model_to_dict
 from graphene.types.generic import GenericScalar
 
-from balder.delt_types import JobType, NodeType, PodType, ProvisionType
+from balder.delt_types import JobType, NodeType, PodType, ProvisionType, UserType
 from balder.mutations.assignations.assign import AssignMutation
 from balder.mutations.provisions.provide import ProvideMutation
 from balder.queries.provisions.monitor import MonitorQuery
@@ -29,13 +31,37 @@ class NodeListWrapper(BalderObjectWrapper):
     resolver = lambda root, info: Node.objects.all()
     aslist = True
 
+
+@register_query("latestnodes", description="Get your recently used nodes")
+class NodeListWrapper(BalderObjectWrapper):
+    object_type = NodeType
+    aslist = True
+
+    @staticmethod
+    def resolver(root, context):
+        #TODO: Implement the proper 
+        return Node.objects.exclude(variety="output").exclude(variety="input")[:10]
+
+
+@register_query("podsformodel", model= graphene.String(description="The pods model"), description="Gets all running pods for the Model")
+class NodeWrapper(BalderObjectWrapper):
+    object_type = PodType
+    aslist = True
+
+    @staticmethod
+    def resolver(root, context, model):
+        #TODO: Implement check before this
+        return Pod.objects.accessible(context.user).filter(node__inputs__contains=[{"identifier": model}])
+
+
+
 @register_query("node", id= graphene.ID(description="The node's ID"), description="Get a nodes in this bergen instance")
 class NodeWrapper(BalderObjectWrapper):
     object_type = NodeType
     asfield = True
 
     @staticmethod
-    def resolver(root, info, id):
+    def resolver(root, context, id):
         return Node.objects.get(id=id)
 
 
@@ -45,7 +71,7 @@ class MonitorQueryWrapper(BalderObjectWrapper):
     asfield = True
 
     @staticmethod
-    def resolver(root, info, reference):
+    def resolver(root, context, reference):
         return Provision.objects.get(reference=reference)
 
 
@@ -53,6 +79,36 @@ class MonitorQueryWrapper(BalderObjectWrapper):
 @register_mutation("slot", description="Input for a Node")
 class Slot(BalderMutationWrapper):
     mutation = SlotMutation
+
+
+
+
+@register_query("me", description="Show the currently logged in user")
+class MeQueryWrapper(BalderObjectWrapper):
+    object_type = UserType
+    asfield = True
+
+    @staticmethod
+    def resolver(root, context: BouncerContext):
+        return context.user
+
+@register_query("myprovisions", description="Show the currently provisions for the user")
+class MeQueryWrapper(BalderObjectWrapper):
+    object_type = ProvisionType
+    aslist = True
+
+    @staticmethod
+    def resolver(root, context):
+        print(context)
+        return MyProvisions(context.user)
+
+
+
+
+@register_subscription("myprovisions", description="Show Provisions for the currently logged in users")
+class MyProvisionSubscriptionWrapper(BalderSubscriptionWrapper):
+    ''' This provides a fast way to provide a node though a provision and moniters it on the way, violates CQRS patterns'''
+    subscription = MyProvisionsSubscription
     
 
 #    _____  _____   ______      _______  _____ _____ ____  _   _ 

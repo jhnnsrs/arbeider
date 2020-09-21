@@ -21,7 +21,7 @@ class BaseProvisionSubscription(BaseSubscription):
     Output = ProvisionType
 
     @classmethod
-    def publish(cls, payload, info, *arg, **kwargs):
+    def announce(cls, context, payload, *arg, **kwargs):
         logger.info("Publishing it to the Consumer")
         serializer = ProvisionMessageSerializer(data=payload)
         if serializer.is_valid():

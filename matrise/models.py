@@ -4,6 +4,7 @@ import uuid
 from json import JSONEncoder
 
 import dask
+from django.db.models.fields import BLANK_CHOICE_DASH
 import xarray
 import zarr as zr
 from django.conf import settings
@@ -17,6 +18,7 @@ from matrise.defaults import default_zarr_storage, get_default_file_version
 # Create your models here.
 from matrise.fields import DimsField, ShapeField, StoreField
 from matrise.managers import DelayedMatriseManager, MatriseManager
+from django.core.files.uploadedfile import InMemoryUploadedFile
 
 logger = logging.getLogger(__name__)
 
@@ -92,7 +94,6 @@ class MatriseBase(models.Model):
 
     def _repr_html_(self):
         return "<h1>" + f'Matrise at {str(self.name)} in {self.store}' + "</h1>"
-
 
 
 

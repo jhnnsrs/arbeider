@@ -48,7 +48,7 @@ class Command(BaseCommand):
                 runningchannels.append(value.settings.provisionConsumer)
 
 
-        allchannels = runningchannels + ["gateway", "portgateway"]
+        allchannels = runningchannels + ["gateway", "portgateway","thenotifier"]
         logger.info(f"Running worker for providers {allchannels}")
         worker = self.worker_class(
             application=get_default_application(),

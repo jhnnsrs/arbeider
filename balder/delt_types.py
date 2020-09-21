@@ -5,6 +5,17 @@ from balder.delt.types import PortType
 from delt.models import Job, Node, Pod, Route, Provision, Assignation
 import graphene
 
+from graphene_django.converter import convert_django_field
+
+from balder.fields import Inputs, Outputs, Image
+from delt.fields import InputsField, OutputsField
+from django.db.models import ImageField
+
+@convert_django_field.register(ImageField)
+def convert_field_to_string(field, registry=None):
+    return Image(field, description=field.help_text, required=not field.null)
+
+
 class PodType(BalderObjectType):
 
     class Meta:

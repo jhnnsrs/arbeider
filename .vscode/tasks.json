@@ -5,21 +5,24 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Start Server",
+            "label": "Serve",
             "type": "shell",
             "command": "python manage.py runserver 0.0.0.0:8000"
         },
         {
-            "label": "Start Gateway",
+            "label": "Gateway",
             "type": "shell",
-            "command": "python manage.py rungateway"
+            "command": "python manage.py runall"
         },
         {
-            "label": "Start Providers",
+            "label": "Providers",
             "type": "shell",
             "command": "python manage.py runproviders"
         }
-    ]
-    ]
+        {
+            "label": "Schema",
+            "type": "shell",
+            "command": "python manage.py makemigrations && python manage.py migrate"
+        }
     ]
 }

@@ -32,12 +32,15 @@ class BouncerContext(object):
             
             try:
                 self._user = info.context._scope["user"]
+                self._auth = info.context._scope["auth"]
                 logger.info("Provided through preauthenticated Context _scope")
             except:
                 self._user = info.context.user
+                self._auth = None
                 logger.info("Provided through preauthenticated Context")
-            self._auth = None
+
             #TODO: Impelement oauth thingy dingy
+
         if token is not None:
             #TODO: Very very hacky
             # compatibility with rest framework
@@ -66,6 +69,7 @@ class BouncerContext(object):
             if hasattr(self, key):
                 setattr(self, key, value)
 
+
     @property
     def scopes(self):
         if self._scopes is None:
@@ -88,7 +92,7 @@ class BouncerContext(object):
         # TODO: HORROUNDOUS
         if self._token is None:
             try:
-                self._token = AccessToken.objects.filter(user = self.user, application = application).first()
+                self._token = AccessToken.objects.filter(user = self.user).first()
             except AccessToken.DoesNotExist as e:
                 self._token = None
                 logger.info("Creating new Access Token for this")

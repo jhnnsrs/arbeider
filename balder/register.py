@@ -1,3 +1,4 @@
+from delt.bouncers.context import BouncerContext
 import logging
 
 import graphene
@@ -53,6 +54,15 @@ class BalderSettings(object):
 
 
 
+def bounced_root_info(resolver):
+    ''' Replaced the info object with a bounced context object'''
+    def bounced(root, info, *args, **kwargs):
+        context = BouncerContext(info=info)
+        return resolver(root, context, *args, **kwargs)
+
+    return bounced
+
+
 
 class BalderRegister(object):
     type = None
@@ -88,10 +98,10 @@ class BalderRegister(object):
                         get_registry().setQueryField(self.path, BalderFilterField(cls.object_type, description=description, **self.kwargs))
                     else:
                         logger.info(f"Registering {cls.object_type.__name__} as ListQuery")
-                        get_registry().setQueryField(self.path, graphene.List(cls.object_type, description=description, resolver=cls.resolver, **self.kwargs))
+                        get_registry().setQueryField(self.path, graphene.List(cls.object_type, description=description, resolver=bounced_root_info(cls.resolver), **self.kwargs))
                 elif cls.asfield or asfield:
                     logger.info(f"Registering {cls.object_type.__name__} as ListQuery")
-                    get_registry().setQueryField(self.path, graphene.Field(cls.object_type, description=description, resolver=cls.resolver, **self.kwargs))
+                    get_registry().setQueryField(self.path, graphene.Field(cls.object_type, description=description, resolver=bounced_root_info(cls.resolver), **self.kwargs))
                 else:
                     raise BalderRegisterConfigurationError(f"Not sure how to register the Subclass of BalderObjectWrapper: {cls.__name__} no asfield or aslist argument Provided")
             elif issubclass(cls, BalderQueryWrapper):
@@ -111,7 +121,7 @@ class BalderRegister(object):
                 if issubclass(object_type, BaseJobSubscription):
                     config: NodeConfig = cls.config
                     object_type.config = config
-                    get_registry().setSubscriptionField(self.path, object_type.Field())
+                    get_registry().setSubscriptionField(self.path, object_type.Field(description=cls.config.__doc__))
                     get_registry().setSubscriptionForNode(config.get_node(), object_type)
                     logger.info(f"Registering {object_type.__name__} as JobSubscription")
                 elif issubclass(object_type, BaseSubscription):

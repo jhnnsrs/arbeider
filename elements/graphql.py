@@ -20,8 +20,20 @@ class SampleWrapper(BalderObjectWrapper):
     aslist = True
 
 
-@register_query("Representation", description="Representations by ID", id = Int(required=True))
+@register_query("representation", description="Representations by ID", id = Int(required=True))
 class RepresentationWrapper(BalderObjectWrapper):
     object_type = RepresentationType
     resolver = lambda root, info, id: Representation.objects.get(id=id)
     asfield = True
+
+
+
+
+@register_query("mypresentations", description="Show the latest representations for the user")
+class MeQueryWrapper(BalderObjectWrapper):
+    object_type = RepresentationType
+    aslist = True
+
+    @staticmethod
+    def resolver(root, context):
+        return Representation.objects.filter(creator=context.user).order_by("-created_at")[:5]

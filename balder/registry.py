@@ -1,9 +1,13 @@
+from django.db.models.fields.files import ImageField
 import graphene
 from django.contrib.postgres.fields.jsonb import JSONField
 from graphene_django.converter import convert_django_field
 
-from balder.fields import Inputs, Outputs
+from balder.fields import Inputs, Outputs, Image
 from delt.fields import InputsField, OutputsField
+from django.db.models import ImageField
+
+
 
 
 @convert_django_field.register(OutputsField)
@@ -13,6 +17,10 @@ def convert_json_field_to_string(field, registry=None):
 @convert_django_field.register(InputsField)
 def convert_json_field_to_string(field, registry=None):
     return Outputs()
+
+@convert_django_field.register(ImageField)
+def convert_field_to_string(field, registry=None):
+    return Image(field, description=field.help_text, required=not field.null)
 
 class Registry():
 

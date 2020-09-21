@@ -21,7 +21,7 @@ class BaseJobSubscription(BaseSubscription):
         abstract = True
 
     @classmethod
-    def subscribe(cls, root, info, *args, **kwargs):
+    def accept(cls, context, root, info, *args, **kwargs):
         """Called when user subscribes."""
         reference = kwargs.pop("reference") if "reference" in kwargs else uuid.uuid4()
         pod = kwargs.pop("pod") if "pod" in kwargs else None
@@ -41,7 +41,6 @@ class BaseJobSubscription(BaseSubscription):
                 try:
                     pod = Pod.objects.get(id=pod)
                     if pod.node == node:
-                        context = BouncerContext(info=info)
                         logger.info("Pod exists, continue to assigning")
                         assign_inputs_pipe(reference, pod, kwargs, context)
                         return [f"job_{reference}"]
@@ -53,7 +52,7 @@ class BaseJobSubscription(BaseSubscription):
         
 
     @classmethod
-    def publish(cls, payload, info, *arg, **kwargs):
+    def announce(cls, context, payload, info, *arg, **kwargs):
         """Called to notify the client."""
         # Here `payload` contains the `payload` from the `broadcast()`
         # invocation (see below). You can return `MySubscription.SKIP`

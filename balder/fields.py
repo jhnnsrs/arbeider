@@ -1,8 +1,11 @@
 from functools import partial
+from os import stat
 from graphene.types.generic import GenericScalar
+from graphene.types import String
 from graphene import Field, List
 from graphene_django.filter.utils import (get_filtering_args_from_filterset,
                                           get_filterset_class)
+from pandas.core.tools.datetimes import Scalar
 
 
 
@@ -13,6 +16,20 @@ class Inputs(GenericScalar):
 
 class Outputs(GenericScalar):
     """ This is the Nodes Outputs """
+
+class Image(Field):
+    ''' This is the Image field '''
+    def __init__(self, imagefield, *args, **kwargs) -> None:
+        self.imagefield = imagefield
+        super().__init__(String, *args, **kwargs)
+
+    @staticmethod
+    def url_resolver(field, root, info, *args, **kwargs):
+        instance = getattr(root, field.attname)
+        return instance.url if instance else None
+
+    def get_resolver(self, parent_resolver):
+        return partial(self.url_resolver, self.imagefield)
 
 
 

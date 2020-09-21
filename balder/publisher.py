@@ -1,5 +1,6 @@
 
 
+from balder.subscriptions.helpers.myprovisions import to_balder_myprovisions
 import logging
 
 from balder.registry import get_registry
@@ -41,6 +42,7 @@ class BalderPublisher(BasePublisher):
 
     def on_provision_succeeded(self, provision):
         to_balder_provision_listeners(provision)
+        to_balder_myprovisions(provision)
 
     def on_assignation_succeeded(self, assignation):
         to_balder_assignation_listeners(assignation)

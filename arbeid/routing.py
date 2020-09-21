@@ -1,3 +1,4 @@
+from balder.notifier.consumer import NotifyConsumer
 from channels.auth import AuthMiddlewareStack
 from channels.routing import ChannelNameRouter, ProtocolTypeRouter, URLRouter
 from django.urls import path
@@ -39,7 +40,8 @@ application = ProtocolTypeRouter({
         "fremmedjob": FremmedJobConsumer,
         "port": PortProvision,
         "gateway": GatewayConsumer,
-        "portgateway": PortGateway
+        "portgateway": PortGateway,
+        "thenotifier": NotifyConsumer,
         }
         ),
 })

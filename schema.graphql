@@ -1,0 +1,435 @@
+schema {
+  query: Query
+  mutation: Mutation
+  subscription: Subscription
+}
+
+input ArgumentsSlice {
+  upper: Int!
+  lower: Int!
+}
+
+type AssignMutation {
+  id: ID
+  node: NodeType
+  pod: PodType
+  error: String
+  status: String
+  reference: String
+  subselector: String
+  user: UserType
+  provider: String
+  children: [ProvisionType]
+  parent: ProvisionType
+}
+
+type AssignationType {
+  id: ID!
+  pod: PodType!
+  inputs: Outputs
+  outputs: Inputs
+  reference: String!
+  status: String!
+  creator: UserType
+  token: String
+}
+
+type BasePortType {
+  key: String
+  name: String
+  default: String
+  description: String
+  required: Boolean!
+}
+
+type BoolPortType {
+  key: String
+  name: String
+  default: String
+  description: String
+  required: Boolean!
+}
+
+type CharPortType {
+  key: String
+  name: String
+  default: String
+  description: String
+  required: Boolean!
+}
+
+type CreateFlowMutation {
+  status: String
+  graph: GraphType
+}
+
+scalar DateTime
+
+type DrawerInputs {
+  rep: RepresentationType!
+}
+
+type DrawerJob {
+  id: ID!
+  settings: JSONString!
+  status: String!
+  creator: UserType!
+  pod: PodType
+  reference: String!
+  selector: String!
+  unique: UUID!
+  outputs: DrawerOutputs
+  inputs: DrawerInputs
+}
+
+type DrawerOutputs {
+  vectors: Vectors
+}
+
+type FilePortType {
+  key: String
+  name: String
+  default: String
+  description: String
+  required: Boolean!
+}
+
+type FlowNodeType {
+  id: ID!
+  identifier: String!
+  variety: String!
+  realm: String!
+  package: String!
+  interface: String!
+  publishers: JSONString!
+  name: String!
+  description: String!
+  inputs: [PortType]
+  outputs: [PortType]
+  nodeclass: String!
+  nodePtr: NodeType!
+  graph: GraphType
+}
+
+type FrontendPodType {
+  id: ID!
+  node: NodeType!
+  podclass: String!
+  status: String!
+  provider: String!
+  unique: UUID!
+  reference: String
+  persistent: Boolean!
+  podPtr: PodType!
+  gate: String!
+  access: JSONString!
+}
+
+type GateSubscription {
+  inputs: GenericScalar
+  outputs: GenericScalar
+  reference: String
+  selector: String
+  pod: PodType
+  creator: UserType
+  settings: GenericScalar
+  id: ID
+  unique: String
+  statusmessage: String
+  statuscode: Int
+}
+
+scalar GenericScalar
+
+type GraphType {
+  id: ID!
+  creator: UserType
+  version: String!
+  name: String
+  diagram: GenericScalar
+  description: String!
+  flownodeSet: [FlowNodeType!]!
+}
+
+scalar Inputs
+
+type IntPortType {
+  key: String
+  name: String
+  default: String
+  description: String
+  required: Boolean!
+}
+
+scalar JSONString
+
+type JobType {
+  id: ID!
+  inputs: Outputs
+  outputs: Inputs
+  settings: JSONString!
+  status: String!
+  creator: UserType!
+  pod: PodType
+  reference: String!
+  selector: String!
+  unique: UUID!
+}
+
+type ListPortType {
+  key: String
+  name: String
+  default: String
+  description: String
+  required: Boolean!
+}
+
+type MaxispInputs {
+  rep: RepresentationType!
+  slice: Slice
+}
+
+type MaxispJob {
+  id: ID!
+  settings: JSONString!
+  status: String!
+  creator: UserType!
+  pod: PodType
+  reference: String!
+  selector: String!
+  unique: UUID!
+  outputs: MaxispOutputs
+  inputs: MaxispInputs
+}
+
+type MaxispOutputs {
+  rep: RepresentationType!
+}
+
+type ModelPortType {
+  key: String
+  name: String
+  default: String
+  description: String
+  required: Boolean!
+  identifier: String
+}
+
+type Mutation {
+  slot(gate: String!, job: String!, outputs: GenericScalar): SlotMutation
+  provide(node: ID!, parent: String, reference: String, selector: String): ProvisionType
+  assign(inputs: GenericScalar!, pod: ID!, reference: String): AssignMutation
+  createGraph(description: String, diagram: GenericScalar, name: String!, version: String): CreateFlowMutation
+  toFlow(graph: ID!): ToFlowMutation
+}
+
+type NodeType {
+  id: ID!
+  identifier: String!
+  variety: String!
+  realm: String!
+  package: String!
+  interface: String!
+  publishers: JSONString!
+  name: String!
+  description: String!
+  inputs: [PortType]
+  outputs: [PortType]
+  nodeclass: String!
+  routes: [RouteType!]!
+  pods: [PodType!]!
+  provisions: [ProvisionType!]!
+  flownode: FlowNodeType
+}
+
+type ObjectPortType {
+  key: String
+  name: String
+  default: String
+  description: String
+  required: Boolean!
+  ports: [PortType]
+  identifier: String
+}
+
+scalar Outputs
+
+type PodType {
+  id: ID!
+  node: NodeType!
+  podclass: String!
+  status: String!
+  provider: String!
+  unique: UUID!
+  reference: String
+  persistent: Boolean!
+  provisions: [ProvisionType!]!
+  jobSet: [JobType!]!
+  assignations: [AssignationType!]!
+  frontendpod: FrontendPodType
+}
+
+union PortType = BoolPortType | CharPortType | IntPortType | FilePortType | ListPortType | UUIDPortType | ModelPortType | ObjectPortType | BasePortType
+
+type PrewittInputs {
+  rep: RepresentationType!
+  sigma: Int
+  title: String
+}
+
+type PrewittJob {
+  id: ID!
+  settings: JSONString!
+  status: String!
+  creator: UserType!
+  pod: PodType
+  reference: String!
+  selector: String!
+  unique: UUID!
+  outputs: PrewittOutputs
+  inputs: PrewittInputs
+}
+
+type PrewittOutputs {
+  rep: RepresentationType!
+}
+
+type ProvisionType {
+  id: ID!
+  parent: ProvisionType
+  node: NodeType!
+  pod: PodType
+  active: Boolean!
+  provider: String!
+  subselector: String!
+  token: String!
+  reference: String!
+  status: String!
+  user: UserType!
+  children: [ProvisionType!]!
+}
+
+type Query {
+  nodes(name: String, name_Icontains: String, name_Istartswith: String): [NodeType]
+  node(id: ID): NodeType
+  me: UserType
+  myprovisions: [ProvisionType]
+  monitor(reference: String): ProvisionType
+  allRepresentation: [RepresentationType]
+  allSamples: [SampleType]
+  Representation(id: Int!): RepresentationType
+  graph(id: ID!): GraphType
+  allFlows(name: String, name_Icontains: String, name_Istartswith: String): [FlowNodeType]
+  flow(id: ID!): FlowNodeType
+}
+
+type ROIType {
+  id: ID!
+  nodeid: String
+  creator: UserType!
+  vectors: String!
+  color: String
+  signature: String
+  createdAt: DateTime!
+  representation: RepresentationType
+}
+
+type RepresentationType {
+  id: ID!
+  store: String
+  shape: [Int!]!
+  dims: [String!]!
+  name: String
+  signature: String
+  unique: UUID!
+  fileversion: String!
+  creator: UserType!
+  origin: RepresentationType
+  sample: SampleType!
+  type: String
+  chain: String
+  nodeid: String
+  derived: [RepresentationType!]!
+  rois: [ROIType!]!
+}
+
+type RouteType {
+  id: ID!
+  identifier: String!
+  url: String!
+  package: String!
+  provider: String!
+  interface: String!
+  name: String!
+  description: String!
+  node: NodeType
+}
+
+type SampleType {
+  id: ID!
+  creator: UserType!
+  name: String!
+  nodeid: String
+  representations: [RepresentationType!]!
+}
+
+type Slice {
+  upper: Int!
+  lower: Int!
+}
+
+type SlotMutation {
+  status: String
+}
+
+type Subscription {
+  myprovisions: [ProvisionType]
+  provide(node: ID!, parent: String, reference: String, selector: String): ProvisionType
+  monitor(reference: String!): ProvisionType
+  gate(unique: String!): GateSubscription
+  assign(inputs: GenericScalar!, pod: ID!, reference: String): AssignationType
+  check(reference: String!): AssignationType
+  maxisp(pod: ID!, reference: String, rep: ID!, slice: ArgumentsSlice): MaxispJob
+  prewitt(pod: ID!, reference: String, rep: ID!, sigma: Int, title: String): PrewittJob
+  drawer(pod: ID!, reference: String, rep: ID!): DrawerJob
+}
+
+type ToFlowMutation {
+  status: String
+  node: FlowNodeType
+}
+
+scalar UUID
+
+type UUIDPortType {
+  key: String
+  name: String
+  default: String
+  description: String
+  required: Boolean!
+}
+
+type UserType {
+  id: ID!
+  lastLogin: DateTime
+  isSuperuser: Boolean!
+  username: String!
+  firstName: String!
+  lastName: String!
+  email: String!
+  isStaff: Boolean!
+  isActive: Boolean!
+  dateJoined: DateTime!
+  provisionSet: [ProvisionType!]!
+  jobSet: [JobType!]!
+  assignationSet: [AssignationType!]!
+  sampleSet: [SampleType!]!
+  representationSet: [RepresentationType!]!
+  roiSet: [ROIType!]!
+  graphSet: [GraphType!]!
+}
+
+type Vectors {
+  x: [Float]!
+  y: [Float]!
+}

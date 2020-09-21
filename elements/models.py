@@ -11,7 +11,8 @@ from elements.managers import (DelayedRepresentationManager,
                                DelayedTransformationManager,
                                RepresentationManager, TableManager,
                                TransformationManager)
-from matrise.models import Matrise
+from matrise.models import  Matrise
+from matrise.mixins import AutoGenerateImageFromArrayMixin
 
 from elements.getters import get_all_access_groups
 
@@ -130,7 +131,7 @@ class Table(models.Model):
                 store.delete(path)
                 logger.info("Deleted Dataframe with VID {1} from file {0}".format(self.filepath, self.vid))
 
-        super(Pandas, self).delete(*args, **kwargs)
+        super(Table, self).delete(*args, **kwargs)
 
     def __str__(self):
         return "Pandas with VID " + str(self.vid) + " at " + str(self.filepath)
@@ -151,7 +152,7 @@ class ChannelMap(object):
     pass
 
 
-class Representation(Matrise):
+class Representation(AutoGenerateImageFromArrayMixin, Matrise):
     ''' A Representation is 5-dimensional representation of a microscopic image '''
     creator = models.ForeignKey(User, on_delete=models.CASCADE, help_text="The Person that created this representation")
     origin = models.ForeignKey('self', on_delete=models.SET_NULL, blank=True, null= True, related_name="derived", related_query_name="derived")
@@ -159,6 +160,7 @@ class Representation(Matrise):
     type = models.CharField(max_length=400, blank=True, null=True, help_text="The Representation can have varying types, consult your API")
     chain = models.CharField(max_length=9000, blank=True, null=True)
     nodeid = models.CharField(max_length=400, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     objects = RepresentationManager()
     delayed = DelayedRepresentationManager()
@@ -169,6 +171,9 @@ class Representation(Matrise):
         ]
         base_manager_name = "objects"
         default_manager_name = "objects"
+        max = False
+        slicefunction = lambda x: x/2
+        rescale= True
 
     def __str__(self):
         return f'Representation of {self.name}'

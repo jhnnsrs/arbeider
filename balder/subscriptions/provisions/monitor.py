@@ -1,3 +1,4 @@
+from balder.notifier.utils import initialPayload
 import logging
 
 import graphene
@@ -10,6 +11,8 @@ import uuid
 
 logger = logging.getLogger(__name__)
 
+
+@initialPayload(lambda context, info, *args, **kwargs: Provision.objects.get(reference=kwargs["reference"]))
 class MonitorSubscription(BaseProvisionSubscription):
 
     class Arguments:

@@ -150,7 +150,7 @@ class ArnheimDefaults:
             self.zarr_storage = 'herre.storage.s3.ZarrStorage'
             self.files_storage = 'herre.storage.s3.FilesStorage'
             self.media_storage = 'herre.storage.s3.MediaStorage'
-            self.s3_public_domain = os.environ.get("S3_PUBLIC_DOMAIN", "minio.localhost")
+            self.s3_public_domain = os.environ.get("S3_PUBLIC_DOMAIN", "localhost:9000")
             self.s3_host = os.environ.get("MINIO_SERVICE_HOST", "minio")
             self.s3_port = os.environ.get("MINIO_SERVICE_PORT", 9000)
             self.s3_key = os.environ.get("MINIO_ACCESS_KEY", "weak_access_key")

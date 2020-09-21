@@ -95,4 +95,4 @@ def genericJobSubscriptionBuilder(wrapper, config: NodeConfig, path, *args, **kw
     if inputs is not None:
         subscriptionFields["inputs"] =  graphene.Field(inputs, required=False, description="The inputs of this Job")
 
-    return type(name+"Job", (BaseJobSubscription,), {**subscriptionFields, "input_serializer_class" : config.inputs})
+    return type(name+"Job", (BaseJobSubscription,), {**subscriptionFields, "input_serializer_class" : config.inputs, "__doc__": config.__doc__})

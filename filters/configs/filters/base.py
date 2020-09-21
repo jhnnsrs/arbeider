@@ -6,10 +6,10 @@ from konfig.node import Konfig
 
 
 class BaseFilterInputs(Inputs):
-    rep = ModelField(Representation, info="The Incoming Representation", description="This Representation will be <b>filtered</b>", label="Representation")
+    rep = ModelField(Representation, description="The Incoming Representation", label="Representation")
 
 class BaseFilterOutputs(Outputs):
-    rep = ModelField(Representation, info="The Outgoing Representation", description="The Representation that was be <b>filtered</b>", label="Representation")
+    rep = ModelField(Representation, description="The Outgoing Representation", label="Representation")
 
 
 class BaseFilterKonfig(Konfig):
