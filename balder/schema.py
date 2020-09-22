@@ -1,3 +1,4 @@
+from balder.delt.types import BoolPortType, FilePortType, ListPortType, PortType, CharPortType, IntPortType, ModelPortType, ObjectPortType, UUIDPortType
 import channels_graphql_ws
 import graphene
 from graphene import Dynamic
@@ -54,4 +55,5 @@ graphql_schema = graphene.Schema(
     query=buildRootQuery(),
     subscription=buildRootSubscription(),
     mutation=buildRootMutation(),
+    types= [PortType, IntPortType, ModelPortType, ObjectPortType, IntPortType, CharPortType, UUIDPortType, BoolPortType, ListPortType, FilePortType]
 )

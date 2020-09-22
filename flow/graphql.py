@@ -1,5 +1,4 @@
 import graphene
-from docutils.nodes import description
 
 from balder.register import register_mutation, register_query
 from balder.wrappers import BalderMutationWrapper, BalderObjectWrapper

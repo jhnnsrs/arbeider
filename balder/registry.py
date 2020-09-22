@@ -29,6 +29,10 @@ class Registry():
         self.fieldSubscriptionMap = {}
         self.fieldMutationMap = {}
         self.nodeSubscriptionMap = {}
+        self.fieldTypes = {}
+
+    def getTypeFields(self):
+        return self.fieldTypes
 
     def getQueryFields(self):
         return self.fieldQueryMap
@@ -56,6 +60,10 @@ class Registry():
     
     def setMutationField(self, field, value):
         self.fieldMutationMap[field] = value
+
+    def setTypeField(self, field, value):
+        self.fieldTypes[field] = value
+
 
 
 registry = None

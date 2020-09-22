@@ -31,6 +31,11 @@ class NodeListWrapper(BalderObjectWrapper):
     resolver = lambda root, info: Node.objects.all()
     aslist = True
 
+@register_query("pod", description="Get all nodes in this bergen instance", id = graphene.ID(description="The Pods ID"))
+class NodeListWrapper(BalderObjectWrapper):
+    object_type = PodType
+    resolver = lambda root, context, id: Pod.objects.get(id=id)
+    asfield = True
 
 @register_query("latestnodes", description="Get your recently used nodes")
 class NodeListWrapper(BalderObjectWrapper):

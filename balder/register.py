@@ -27,6 +27,7 @@ BALDER_SETTINGS_FIELD = "BALDER_SETTINGS"
 SUBSCRIPTION = "SUBSCRIPTION"
 QUERY = "QUERY"
 MUTATION = "MUTATION"
+TYPE = "TYPE"
 
 class BalderRegisterException(Exception):
     pass
@@ -86,6 +87,11 @@ class BalderRegister(object):
         aslist = self.kwargs.pop("aslist") if "aslist" in self.kwargs else False
         withfilter = self.kwargs.pop("withfilter") if "withfilter" in self.kwargs else False
         asfield = self.kwargs.pop("asfield") if "asfield" in self.kwargs else False
+
+        if self.type == TYPE:
+            if issubclass(cls, graphene.ObjectType):
+                logger.info(f"Registering Additional Type: {cls.__name__}")
+                get_registry().setTypeField(cls.__name__, cls)
         
         if self.type == QUERY:
             if issubclass(cls, BalderObjectWrapper):
@@ -150,7 +156,9 @@ class BalderRegister(object):
         return cls
 
 
-        
+
+class register_type(BalderRegister):
+    type = TYPE      
 
 class register_subscription(BalderRegister):
     type = SUBSCRIPTION
