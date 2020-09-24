@@ -15,9 +15,8 @@ from delt.consumers.job import JobConsumer
 from delt.consumers.provisioner import ProvisionConsumer
 from delt.consumers.utils import deserialized
 from delt.models import Assignation, Job, Provision, Pod
-from delt.pod import PODPENDING
+from delt.constants.lifecycle import POD_PENDING
 from delt.serializers import AssignationModelSerializer, JobSerializer, PodSerializer
-from delt.settingsregistry import get_settings_registry
 from extensions.fremmed.subscriptions import GateSubscription
 from port.models import Flowly
 import docker 
@@ -71,7 +70,7 @@ class PortProvision(ProvisionConsumer):
                     pod = Flowly.objects.create(
                         node = flow,
                         podclass = "flow",
-                        status = PODPENDING,
+                        status = POD_PENDING,
                         provider = self.provider,
                         persistent = False
                     )
@@ -90,7 +89,7 @@ class PortProvision(ProvisionConsumer):
                     pod = Flowly.objects.create(
                         node = flow,
                         podclass = "flow",
-                        status = PODPENDING,
+                        status = POD_PENDING,
                         provider = self.provider,
                         persistent = False
                     )

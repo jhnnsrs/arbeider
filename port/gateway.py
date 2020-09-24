@@ -7,11 +7,10 @@ from django.conf import settings
 
 from delt.bouncers.context import BouncerContext
 from delt.consumers.utils import deserialized, send_provision_to_gateway
-from delt.context import Context
 from delt.models import Node, Pod, Provision
 from delt.pipes import (assign_inputs_pipe, pod_activated_pipe, pod_initialized_pipe,
                         provision_pod_pipe)
-from delt.pod import PODACTIVE, PODINIT
+from delt.constants.lifecycle import *
 from port.models import Flowly
 from port.serializers import (ActivationRequestSerializer, AssignationRequestSerializer,
                               InitRequestSerializer,
@@ -53,7 +52,7 @@ class PortGateway(SyncConsumer):
         pod = message["pod"]
         try:
             logger.info(f"Acknowledging initialization of Pod {pod}")
-            pod.status = PODINIT
+            pod.status = POD_INITIALIZED
             pod.save()
             pod_initialized_pipe(pod)
             
@@ -72,7 +71,7 @@ class PortGateway(SyncConsumer):
         pod = message["pod"]
         try:
             logger.info(f"Acknowledging Activation of Pod {pod}")
-            pod.status = PODACTIVE
+            pod.status = POD_ACTIVE
             pod.save()
             logger.info(f"Acknowledging activation of Pod {pod}")
             pod_activated_pipe(pod)

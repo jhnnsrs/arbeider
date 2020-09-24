@@ -3,7 +3,7 @@ import logging
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 
-from delt.pod import PODREADY
+from delt.constants.lifecycle import *
 from delt.handlers.base import BaseHandlerConfigException
 from delt.handlers.channels import ChannelHandler, ChannelHandlerSettings
 from delt.models import Job
@@ -33,7 +33,7 @@ class FremmedHandler(ChannelHandler):
     provider = "fremmed"
 
     def on_activate_pod(self, pod, **kwargs):
-        serialized = ActivationSerializer({"pod": pod, "status": PODREADY})
+        serialized = ActivationSerializer({"pod": pod, "status": POD_ACTIVE})
         channel = self.settings.provisionConsumer
         logger.info(f"Sending Activation to Provisioner at {channel}")
         async_to_sync(channel_layer.send)(channel, {"type": "activate_pod", "data": serialized.data})

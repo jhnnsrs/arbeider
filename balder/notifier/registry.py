@@ -12,7 +12,6 @@ class NotifyingRegistry():
 
     
     def setSubscriptionForUUID(self, uuid, subscription):
-        logger.error(f"Making this in {uuid}")
         self.subscriptionUUIDMap[uuid] = subscription
 
     def getSubscriptionForUUID(self, uuid):

@@ -1,10 +1,10 @@
-from filters.configs.filters.sleep import SleepFilter
+from filters.konfigs.filters.sleep import SleepFilter
 from konfig.backend import register_konfig_node
 
 
-from .configs.filters.prewitt import PrewittFilterKonfig
-from .configs.filters.blur import BlurFilterKonfig
-from .configs.projections.maxisp import MaxISPConfig
+from .konfigs.filters.prewitt import PrewittFilterKonfig
+from .konfigs.filters.blur import BlurFilterKonfig
+from .konfigs.projections.maxisp import MaxISPConfig
 
 
 @register_konfig_node(PrewittFilterKonfig)

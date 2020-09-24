@@ -11,7 +11,7 @@ logger = logging.getLogger()
 
 class ApolloAuthTokenMiddleware:
     """
-    Custom middleware (insecure) that takes user IDs from the query string.
+    Custom middleware (insecure) that takes tokens from the query string.
     """
 
     def __init__(self, inner):

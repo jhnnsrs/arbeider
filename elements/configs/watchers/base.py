@@ -1,7 +1,6 @@
 from rest_framework import serializers
 
-from delt.node import NodeConfig
-from delt.params import CharField, Inputs, Outputs
+from konfig.params import CharField, Inputs, Outputs
 from konfig.node import Konfig
 
 

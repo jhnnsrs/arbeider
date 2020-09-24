@@ -9,15 +9,12 @@ from delt.bouncers.job.base import BaseJobBouncer
 from delt.bouncers.node.base import BaseNodeBouncer
 from delt.bouncers.pod.base import BasePodBouncer
 from delt.consumers.utils import send_provision_to_gateway
-from delt.context import Context
-from delt.lifecycle import PROVISION_PENDING
+from delt.constants.lifecycle import *
 from delt.models import Assignation, Job, Node, Pod, Provision
 from delt.orchestrator import get_orchestrator
-from delt.pod import PODFAILED, PODPENDING, PODREADY
 from delt.publishers.base import BasePublisher
 from delt.publishers.utils import publish_to_event
 from delt.selector import get_handler_for_selector, get_provider_for_selector
-from delt.settingsregistry import get_settings_registry
 from delt.utils import pipe
 
 logger = logging.getLogger(__name__)
@@ -31,11 +28,11 @@ def publishToPodEvents(pod: Pod):
     status = pod.status
 
     # Some Pods can be active by default (persistent Pods like Channelworkers, for example), these will get invoked
-    if status == PODREADY:
+    if status == POD_ACTIVE:
         publish_to_event("pod_ready", pod)
-    if status == PODPENDING:
+    if status == POD_PENDING:
         publish_to_event("pod_pending", pod)
-    if status == PODFAILED:
+    if status == POD_FAILURE:
         publish_to_event("pod_failed", pod)
 
 

@@ -8,8 +8,14 @@ from django.db import models
 from delt.fields import (AccessPolicy, ArgsField, InputsField, OutputsField,
                          PublishersField, SelectorField, SettingsField)
 from delt.helpers import get_default_job_settings
-from delt.lifecycle import JOB_PENDING, POD_PENDING
+from delt.constants.lifecycle import JOB_PENDING, POD_PENDING
 
+
+class Repository(models.Model):
+    name = models.CharField(max_length=1000, unique=True, help_text="A unique identifier of this Repository on this Platform, calculated hashing the package and interface")
+
+    def __str__(self) -> str:
+        return self.name
 
 class Node(models.Model):
     identifier = models.CharField(max_length=1000, unique=True, editable=False, help_text="A unique identifier of this Node on this Platform, calculated hashing the package and interface")
@@ -24,6 +30,7 @@ class Node(models.Model):
     inputs = InputsField(default=list)
     outputs = OutputsField(default=list)
     nodeclass = models.CharField(max_length=400, default="classic-node")
+    repository = models.ForeignKey(Repository, null=True, blank=True, on_delete=models.CASCADE)
 
     def get_identifier(self):
         return self.identifier

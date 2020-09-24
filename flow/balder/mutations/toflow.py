@@ -4,7 +4,6 @@ import graphene
 from graphene.types.generic import GenericScalar
 
 from balder.mutations.base import BaseMutation
-from delt.settingsregistry import get_settings_registry
 from flow.balder.types import FlowNodeType
 from flow.models import FlowNode, Graph
 from konfig.node import node_identifier

@@ -6,7 +6,6 @@ from channels.layers import get_channel_layer
 from rest_framework import serializers
 
 from delt.consumers.utils import deserialized
-from delt.context import Context
 from delt.models import Job, Node, Pod
 from delt.serializers import AssignationSerializer
 

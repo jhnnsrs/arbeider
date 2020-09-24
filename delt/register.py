@@ -5,8 +5,6 @@ from django.conf import settings
 
 from delt.discover import (NotDiscoveringError, getCatalog, getDiscover,
                            getRegister)
-from delt.node import NodeConfig
-
 logger = logging.getLogger(__name__)
 
 def props(obj):
@@ -38,7 +36,6 @@ class BaseRegisterConfigurationError(Exception):
     pass
 
 class BaseRegister(object):
-    config: NodeConfig = None
     type = None
     provider = None
     settings: BaseRegisterSettings = None

@@ -6,10 +6,6 @@ from channels.routing import get_default_application
 from channels.worker import Worker
 from django.core.management import BaseCommand, CommandError
 
-from delt.discover import autodiscover_pods
-from delt.handlers.channels import ChannelHandler
-from delt.registry import get_registry
-from delt.settingsregistry import get_settings_registry
 
 logger = logging.getLogger(__name__)
 

@@ -4,7 +4,7 @@ import graphene
 from django.forms.models import model_to_dict
 from graphene.types.generic import GenericScalar
 
-from balder.delt_types import JobType, NodeType, PodType, ProvisionType, UserType
+from balder.delt.models import JobType, NodeType, PodType, ProvisionType, UserType
 from balder.mutations.assignations.assign import AssignMutation
 from balder.mutations.provisions.provide import ProvideMutation
 from balder.queries.provisions.monitor import MonitorQuery
@@ -14,10 +14,8 @@ from balder.subscriptions.provisions.monitor import MonitorSubscription
 from balder.subscriptions.jobs.assign import AssignSubscription
 from balder.subscriptions.jobs.check import CheckSubscription
 from balder.subscriptions.provisions.provide import ProvideSubscription
-from balder.wrappers import (BalderMutationWrapper, BalderObjectWrapper,
-                             BalderQueryWrapper, BalderSubscriptionWrapper)
+from balder.wrappers import (BalderMutationWrapper, BalderObjectWrapper, BalderSubscriptionWrapper)
 from delt.models import Job, Node, Pod, Provision
-from delt.shortcuts import get_pod_for_selector
 from extensions.fremmed.mutations import SlotMutation
 from extensions.fremmed.subscriptions import GateSubscription
 from extensions.types.fremmed import FrontendPodType
@@ -56,7 +54,7 @@ class NodeWrapper(BalderObjectWrapper):
     @staticmethod
     def resolver(root, context, model):
         #TODO: Implement check before this
-        return Pod.objects.accessible(context.user).filter(node__inputs__contains=[{"identifier": model}])
+        return Pod.objects.accessible(context.user).filter(node__inputs__contains=[{"identifier": model}]).filter(node__inputs__contains=[{"primary": True}])
 
 
 
@@ -84,8 +82,6 @@ class MonitorQueryWrapper(BalderObjectWrapper):
 @register_mutation("slot", description="Input for a Node")
 class Slot(BalderMutationWrapper):
     mutation = SlotMutation
-
-
 
 
 @register_query("me", description="Show the currently logged in user")

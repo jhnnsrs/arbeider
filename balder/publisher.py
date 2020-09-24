@@ -3,7 +3,7 @@
 from balder.subscriptions.helpers.myprovisions import to_balder_myprovisions
 import logging
 
-from balder.registry import get_registry
+from balder.registry import get_balder_registry
 from balder.subscriptions.provisions.monitor import MonitorSubscription
 from balder.subscriptions.provisions.provide import ProvideSubscription
 from balder.subscriptions.provisions.utils import to_balder_provision_listeners 
@@ -34,7 +34,7 @@ class BalderPublisher(BasePublisher):
         node = job.pod.node
         reference = job.reference
         serialized = JobSerializer(job)
-        get_registry().getSubscriptionForNode(node).broadcast(group=f"job_{reference}", payload=serialized.data)
+        get_balder_registry().getSubscriptionForNode(node).broadcast(group=f"job_{reference}", payload=serialized.data)
 
 
     def on_job_updated(self, job: Job):

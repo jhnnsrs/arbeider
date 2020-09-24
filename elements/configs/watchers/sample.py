@@ -1,4 +1,4 @@
-from delt.params import BoolField, Inputs, IntField, ModelField
+from konfig.params import BoolField, Inputs, IntField, ModelField
 from elements.models import ROI, Representation, Sample
 from elements.configs.watchers.base import (BaseWatcherConfig,BaseWatcherOutputs,
                                                   BaseWatcherInputs)

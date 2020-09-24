@@ -2,7 +2,6 @@ import graphene
 from graphene.types.generic import GenericScalar
 
 from balder.mutations.base import BaseMutation
-from delt.settingsregistry import get_settings_registry
 from flow.models import Graph
 from flow.balder.types import GraphType
 

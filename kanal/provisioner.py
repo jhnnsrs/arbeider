@@ -16,7 +16,6 @@ from delt.consumers.provisioner import ProvisionConsumer
 from delt.consumers.exceptions import NoMatchablePod
 from delt.models import Assignation, Job, Provision
 from delt.serializers import AssignationModelSerializer, JobSerializer, PodSerializer
-from delt.settingsregistry import get_settings_registry
 from extensions.fremmed.subscriptions import GateSubscription
 from kanal.models import KanalPod
 

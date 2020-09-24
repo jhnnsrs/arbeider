@@ -1,8 +1,7 @@
 from rest_framework import serializers
-from delt.params import Model
 from fremmed.models import FrontendPod
 
-class FrontendPodSerializer(Model):
+class FrontendPodSerializer(serializers.ModelSerializer):
     class Meta:
         model = FrontendPod
         fields = "__all__"

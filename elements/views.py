@@ -16,10 +16,11 @@ from elements.serializers import (AnimalSerializer, AntibodySerializer,
                                   SampleSerializer)
 from matrise.views import MatriseViewsetMixIn
 # Get an instance of a logger
-from due.views import PublishingModelViewSet
+from rest_framework import viewsets
+
 logger = logging.getLogger(__name__)
 
-class AntibodyViewSet(PublishingModelViewSet):
+class AntibodyViewSet(viewsets.ModelViewSet):
     """
     Returns a list of all **active** accounts in the system.
 
@@ -32,7 +33,7 @@ class AntibodyViewSet(PublishingModelViewSet):
     serializer_class = AntibodySerializer
     publishers = [["creator"]]
 
-class FileMatchStringViewSet(PublishingModelViewSet):
+class FileMatchStringViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows users to be viewed or edited.
     """
@@ -41,7 +42,7 @@ class FileMatchStringViewSet(PublishingModelViewSet):
     serializer_class = FileMatchStringSerializer
     publishers = [["creator"]]
 
-class AnimalViewSet(PublishingModelViewSet):
+class AnimalViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows users to be viewed or edited.
     """
@@ -51,7 +52,7 @@ class AnimalViewSet(PublishingModelViewSet):
     publishers = [["creator"],["experiment"]]
     filter_fields = ("creator", "name","experiment","experimentalgroup")
 
-class ExperimentalGroupViewSet(PublishingModelViewSet):
+class ExperimentalGroupViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows users to be viewed or edited.
     """
@@ -63,7 +64,7 @@ class ExperimentalGroupViewSet(PublishingModelViewSet):
 
 
 
-class SampleViewSet(PublishingModelViewSet):
+class SampleViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows users to be viewed or edited.
     """
@@ -75,7 +76,7 @@ class SampleViewSet(PublishingModelViewSet):
     filter_fields = ("creator","experiment","bioseries","experimentalgroup","bioseries__bioimage","bioseries__bioimage__locker")
 
 
-class ExperimentViewSet(PublishingModelViewSet):
+class ExperimentViewSet(viewsets.ModelViewSet):
     queryset = Experiment.objects.all()
     serializer_class = ExperimentSerializer
 
@@ -84,7 +85,7 @@ class ExperimentViewSet(PublishingModelViewSet):
     filter_fields = ("creator",)
 
 
-class RepresentationViewSet(PublishingModelViewSet, MatriseViewsetMixIn):
+class RepresentationViewSet(viewsets.ModelViewSet, MatriseViewsetMixIn):
 
     queryset = Representation.objects.all()
     serializer_class = RepresentationSerializer
@@ -94,7 +95,7 @@ class RepresentationViewSet(PublishingModelViewSet, MatriseViewsetMixIn):
     download_permission = "download_representation"
 
 
-class TransformationViewSet(PublishingModelViewSet, MatriseViewsetMixIn):
+class TransformationViewSet(viewsets.ModelViewSet, MatriseViewsetMixIn):
     """
     API endpoint that allows users to be viewed or edited.
     """
@@ -104,7 +105,7 @@ class TransformationViewSet(PublishingModelViewSet, MatriseViewsetMixIn):
     serializer_class = TransformationSerializer
 
 
-class RoiViewSet(PublishingModelViewSet):
+class RoiViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows users to be viewed or edited.
     """

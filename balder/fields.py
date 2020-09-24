@@ -17,7 +17,8 @@ class Inputs(GenericScalar):
 class Outputs(GenericScalar):
     """ This is the Nodes Outputs """
 
-class Image(Field):
+
+class ImageField(Field):
     ''' This is the Image field '''
     def __init__(self, imagefield, *args, **kwargs) -> None:
         self.imagefield = imagefield

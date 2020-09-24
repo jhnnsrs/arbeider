@@ -1,5 +1,4 @@
 from delt.validators.base import BaseValidator, BaseValidatorSettings
-from delt.node import NodeConfig
 
 class AlwaysTrueValidatorSettings(BaseValidatorSettings):
     provider = "allwaystrue"

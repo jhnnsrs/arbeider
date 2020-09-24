@@ -1,7 +1,8 @@
+from delt.models import Repository
 import logging
 
 from django.utils.html import escape
-from delt.node import node_identifier
+from konfig.node import node_identifier
 from delt.nodes.base import (NodeBackendRegister,
                              NodeBackendRegisterConfigurationError,
                              NodeBackendSettings)
@@ -21,6 +22,11 @@ class KonfigSettings(NodeBackendSettings):
     enforce_catalog = False
     enforce_register = False
     provider = "konfig"
+
+
+def get_konfig_repository():
+    rep, _ = Repository.objects.get_or_create(name="konfig")
+    return rep
 
 
 class KonfigBackend(NodeBackendRegister):
@@ -46,16 +52,6 @@ class KonfigBackend(NodeBackendRegister):
     def get_default_nodetype(self):
         raise NotImplementedError("Please specifiy a default Nodetype to Return")
 
-    def get_node_identifier(self):
-        # Will help to identifiy the Node within the Framework
-        if self._nodeidentifier is None:
-            package = self.get_value_in_derived("package")
-            interface = self.get_value_in_derived("interface")
-            self._nodeidentifier = node_identifier(package, interface)
-            # The Indentifier should be unique for each
-        return self._nodeidentifier
-
-
     def catalog_class(self, cls,**kwargs):
         """Implement your Custom Cataloginc Logic Here
         Hint: 
@@ -71,11 +67,11 @@ class KonfigBackend(NodeBackendRegister):
 
         # Will help to identifiy the Node within the Framework
         realm = self.get_value_in_derived("provider")
-        package = self.get_value_in_derived("package")
-        interface = self.get_value_in_derived("interface")
+        package = self.get_value_in_derived("package", default=self.konfig.__module__)
+        interface = self.get_value_in_derived("interface", default=self.konfig.__name__ )
 
         # The Indentifier should be unique for each
-        identifier = self.get_node_identifier()
+        self.identifier = node_identifier(package, interface)
 
         # General
         name = self.get_value_in_derived("name", default=cls.__name__)
@@ -85,7 +81,7 @@ class KonfigBackend(NodeBackendRegister):
         inputs = parse_inputs(self.konfig)
         outputs = parse_outputs(self.konfig)
         nodeclass = self.get_value_in_derived("nodeclass", default=self.get_default_nodetype())
-        variety = self.get_value_in_derived("variety")
+        variety = self.get_value_in_derived("variety", default="unknown")
 
         # Publishers
         publishers = self.get_value_in_derived("publishers", default=self.settings.defaultPublishers)
@@ -102,10 +98,11 @@ class KonfigBackend(NodeBackendRegister):
             "outputs" : outputs,
             "nodeclass" : nodeclass,
             "variety" : variety,
+            "repository": get_konfig_repository(),
         }
 
         nodeUniques = {
-            "identifier" : identifier,
+            "identifier" : self.identifier,
 
         }
 
@@ -132,13 +129,13 @@ class KonfigBackend(NodeBackendRegister):
                 for key, value in nodeDefaults.items():
                     setattr(node, key, value)
                 node.save()
-                logger.debug(f"Updated {package}/{interface} on Identifier: {identifier}")
+                logger.debug(f"Updated {package}/{interface} on Identifier: {self.identifier}")
             except KonfigNode.DoesNotExist:
                 combined = {**nodeUniques}
                 combined.update(nodeDefaults)
                 node = register(**combined)
                 node.save()
-                logger.info(f"Created {package}/{interface} on Identifier: {identifier}")
+                logger.info(f"Created {package}/{interface} on Identifier: {self.identifier}")
             logger.debug("Registered succesfully")
         
         else:
@@ -185,7 +182,7 @@ class KonfigBackend(NodeBackendRegister):
 
     def cls_to_be_returned(self, cls):
         logger.info(f"Registering {cls}")
-        get_orchestrator().setValidatorForNodeIdentifier(self.get_node_identifier(), KonfigValidator(self.konfig))
+        get_orchestrator().setValidatorForNodeIdentifier(self.identifier, KonfigValidator(self.konfig))
         return cls
 
 

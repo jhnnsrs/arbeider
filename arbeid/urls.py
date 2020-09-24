@@ -37,7 +37,6 @@ from delt.discover import (autodiscover_nodes, autodiscover_pods,
 from delt.orchestrator import get_orchestrator
 from delt.publishers.log import LogPublisher
 from delt.router import router as configrouter
-from delt.settingsregistry import get_settings_registry
 from delt.validators.alwaystrue import AlwaysTrueValidator
 from elements.router import router as elementsrouter
 from flow.router import router as flowrouter
@@ -53,14 +52,6 @@ from port.publisher import PortPublisher
 from providers.auto.handler import AutoProviderHandler
 
 logger = logging.getLogger(__name__)
-
-#get_settings_registry().setPublisher("log", LogPublisher())
-#get_settings_registry().setPublisher("balder", BalderPublisher())
-#get_settings_registry().setPublisher("fremmed", FremmedPublisher())
-
-get_settings_registry().setHandlerForProvider("kanal", KanalHandler())
-get_settings_registry().setHandlerForProvider("fremmed", FremmedHandler())
-get_settings_registry().setHandlerForProvider("port", PortHandler())
 
 try:
     autodiscover_nodes(catalog=True)

@@ -6,8 +6,6 @@ class BalderObjectType(DjangoObjectType):
     class Meta:
         abstract= True
 
-
-
 class BalderMutationType(graphene.Mutation, abstract=True):
 
     @classmethod

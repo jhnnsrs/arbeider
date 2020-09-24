@@ -4,7 +4,6 @@ import uuid
 from balder.subscriptions.base import BaseSubscription, SubscriptionError
 from delt.bouncers.context import BouncerContext
 from delt.models import Job, Pod
-from delt.node import NodeConfig
 from delt.orchestrator import get_orchestrator
 from delt.pipes import assign_inputs_pipe
 from delt.serializers import JobSerializer
@@ -15,7 +14,6 @@ logger = logging.getLogger(__name__)
 class BaseJobSubscription(BaseSubscription):
     """Simple GraphQL subscription."""
     # Subscription payload.
-    config: NodeConfig = None
 
     class Arguments:
         abstract = True

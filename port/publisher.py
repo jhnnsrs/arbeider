@@ -4,7 +4,7 @@ import logging
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 
-from balder.registry import get_registry
+from balder.registry import get_balder_registry
 from balder.subscriptions.provisions.monitor import MonitorSubscription
 from balder.subscriptions.provisions.provide import ProvideSubscription
 from delt.models import Job, Pod, Provision

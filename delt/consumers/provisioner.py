@@ -10,10 +10,8 @@ from balder.mutations import assignations
 from delt.consumers.utils import (AssignationMessageSerializer, deserialized,
                                   send_assignation_to_channel, send_assignation_to_gateway, 
                                   send_provision_to_gateway)
-from delt.context import Context
-from delt.lifecycle import PROVISION_DENIED_CREATION, PROVISION_SUCCESS_CREATED
+from delt.constants.lifecycle import PROVISION_DENIED_CREATION, PROVISION_SUCCESS_CREATED
 from delt.models import Assignation, Node, Pod, Provision
-from delt.pod import PODACTIVE
 from delt.serializers import (PodSerializer, ProvisionMessageSerializer,
                               ProvisionSerializer)
 
@@ -30,7 +28,6 @@ class ProvisionConsumer(SyncConsumer):
     settings = None
 
     def __init__(self, scope) -> None:
-        logger.warn("CALLLEd")
         if self.settings is None or not isinstance(self.settings, BaseHandlerSettings):
             logger.error(f"Provision Consumer of Class {self.__class__.__name__} does not have a valid settings handler!")
             raise ProvisionConsumerException("You must provide a valid BaseHandlerSettings class to your Provision Consumer")

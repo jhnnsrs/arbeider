@@ -1,3 +1,4 @@
+from delt.bouncers.context import BouncerContext
 from delt.pipes import assign_inputs_pipe
 import logging
 
@@ -7,16 +8,16 @@ from rest_framework import permissions, status, viewsets
 from rest_framework.exceptions import APIException
 from rest_framework.metadata import SimpleMetadata
 from rest_framework.response import Response
+from rest_framework import serializers
 
-from delt.job import JobConfig, job_config_builder
-from delt.message import send_to_backend
 from delt.models import Job
-from delt.context import Context
 from konfig.node import Konfig
-from delt.params import Inputs
 from delt.serializers import JobSerializer
 
 logger = logging.getLogger(__name__)
+
+
+
 
 
 class JobRouteMetadata(SimpleMetadata):
@@ -67,16 +68,18 @@ class JobRouteViewSet(viewsets.ModelViewSet):
 
     @property
     def created_serializer(self):
+        class Parsing(JobConfig):
+            inputs = self.inputs_class()
+
         if self.konfig and issubclass(self.konfig, Konfig):
 
-            return job_config_builder(self.node, self.konfig.inputs)
+            return Parsing
 
         if not self.inputs_class or not issubclass(self.inputs_class, Inputs):
             raise NotImplementedError("Please specifiy inputs as Subclass of Inputs")
         # Again, this is a silly example. Don't worry about it, this is
         #   just an example for clarity.
-        class Parsing(JobConfig):
-            inputs = self.inputs_class()
+        
 
         return Parsing
 
@@ -93,7 +96,7 @@ class JobRouteViewSet(viewsets.ModelViewSet):
         if self.node is None:
             raise APIException(detail="No Node found on any Backend. Have you installed it or restarted the Server after cataloging it?")
 
-        context = Context(request=request)
+        context = BouncerContext(request=request)
         context.is_authorized("")
         serializer = self.created_serializer(data=request.data)
         if serializer.is_valid():

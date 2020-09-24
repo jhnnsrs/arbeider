@@ -4,7 +4,7 @@ import logging
 from django.conf import settings
 from rest_framework.fields import empty
 
-from delt.params import DummyInputs, DummyOutputs
+from konfig.params import DummyInputs, DummyOutputs
 from delt.models import Node
 
 logger = logging.getLogger(__name__)

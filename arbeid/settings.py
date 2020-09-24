@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 import os
 
-from delt.scopes import SCOPES as DELTSCOPES
+from delt.constants.scopes import SCOPELIST as DELTSCOPES
 
 from .modeselektor import ArnheimDefaults
 
@@ -105,7 +105,47 @@ DEBUG = defaults.debug
 SECRET_KEY = defaults.secret_key
 STORAGE_MODE = defaults.storage
 DEFAULT_FILE_STORAGE = defaults.storage_default
+
 # Application definition
+
+BASE_FRAMEWORK = [
+    "delt" # Provides backend specifivy registrys,
+    "auth", #Shoulds provide authentification
+    "herre" # Provides adminstration tasks
+
+]
+
+BASE_EXTENSIONS = [
+    # Routes Extensions
+    "balder", # For the GraphQL Interfaces
+    "rest", #For the REST interfaces
+
+    # Nodes Extendions
+    "konfig",
+    "flow",
+
+    # Pod Extendions,
+    "fremmed",
+    "kanal",
+]
+
+BASE_PARTNER = [
+    # Base Partners Provide common interfaces and models for all subsequent Modules
+    "bord", # For Dataframes a, la Pandas
+    "matrise", # For Np, array
+    "elements", # For Micorscopy Data Specific Types like ROIs, Represenrations,...
+]
+
+# This should be the first Modules that are depending on Framework, Frameworkpartners and base Partners
+INITIAL_SET = [
+    "filters", #Provides an interface to deal with Fremmed Pods (has pods for kanal if needed)
+]
+
+
+
+
+
+
 
 EXTENSIONS = [
     'konfig',
@@ -124,7 +164,8 @@ MODULES = [
     'elements', # Elements is the integral part of the Framework
     'filters',
     'drawing',
-    'flow'
+    'flow',
+    "customdeep",
 ]
 
 
@@ -144,7 +185,6 @@ INSTALLED_APPS = [
     'django_filters',
     'channels',
     'herre',
-    'due',
     'delt',
     'bord',
     'matrise',

@@ -1,12 +1,6 @@
-from balder.builders.job_subscription import genericJobSubscriptionBuilder
-from balder.builders.serializer_mutation import \
-    genericSerializerMutationBuilder
-from balder.delt_types import PodType
 from balder.mutations.base import BaseMutation
 from balder.queries.base import BaseQuery
 from balder.subscriptions.base import BaseSubscription
-from delt.node import NodeConfig
-from konfig.node import Konfig
 
 
 class WrappingError(Exception):
@@ -43,6 +37,9 @@ class BaseSubscriptionWrapper(object):
     def get_description(self):
         return None
 
+    def get_object(self):
+        raise NotImplementedError("BaseSubscriptionWrapper ist an abstract base class. Do Not Implement Directly")
+
 
 class BalderSubscriptionWrapper(BaseSubscriptionWrapper):
     subscription = None
@@ -68,26 +65,6 @@ class BalderBuildableSubscriptionWrapper(BaseSubscriptionWrapper):
     def get_object(self):
         return self._type
 
-
-class NodeSubscriptionWrapper(BalderBuildableSubscriptionWrapper):
-    subscriptionBuilder = genericJobSubscriptionBuilder
-    config: NodeConfig = None
-
-    def __init__(self, path):
-        if self.config is None or not issubclass(self.config, Konfig):
-            raise NotImplementedError("Please specifiy a Node config")
-
-        super().__init__(self.config, path)
-
-    def get_object(self):
-        return self._type
-
-    def get_description(self):
-        return self.config.__doc__
-
-
-
-
 class BalderMutationWrapper(object):
     mutation = None
 
@@ -103,33 +80,4 @@ class BalderMutationWrapper(object):
     def get_description(self):
         return None
 
-class BalderBuildableMutationWrapper(object):
-    mutationBuilder = None
 
-    def __init__(self, *args, **kwargs):
-        if self.mutationBuilder is None or not callable(self.mutationBuilder):
-            raise WrappingError("BuildableSubscpritionWrapper must provide a callable as field: subscription")
-        
-        self._type = self.mutationBuilder(*args, **kwargs)
-
-    def get_object(self):
-        return self._type
-
-
-class BalderSerializerMutationWrapper(BalderBuildableMutationWrapper):
-    serializer_class = None
-    mutationBuilder = genericSerializerMutationBuilder
-    arguments = None
-
-    def __init__(self, path, *args, **kwargs):
-        if self.serializer_class is None:
-            raise WrappingError("Please specifiy a serializer in your Wrapper")
-        if self.arguments is not None and bool(self.arguments) is False:
-            raise WrappingError(f"If you overwrite arguments please provide valid arguments for your MutationWrapper: {self.__class__.__name__}")
-        super().__init__(path, self.serializer_class, self.arguments, *args, **kwargs)
-
-    def get_object(self):
-        return self._type
-
-    def mutate(self, *args, **kwargs):
-        raise NotImplementedError("Please overwrite your Mutater if you want to use it")

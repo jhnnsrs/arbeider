@@ -10,14 +10,12 @@ from jinja2.utils import object_type_repr
 
 from balder.fields import BalderFilterField
 from balder.queries.base import BaseQuery
-from balder.registry import get_registry
+from balder.registry import get_balder_registry
 from balder.subscriptions.base import BaseSubscription
-from balder.subscriptions.job import BaseJobSubscription
 from balder.types import BalderObjectType
 from balder.wrappers import (BalderMutationWrapper, BalderObjectWrapper,
                              BalderQueryWrapper, BalderSubscriptionWrapper,
-                             BaseSubscriptionWrapper, NodeSubscriptionWrapper)
-from delt.node import NodeConfig
+                             BaseSubscriptionWrapper, )
 
 logger = logging.getLogger(__name__)
 
@@ -89,25 +87,28 @@ class BalderRegister(object):
         asfield = self.kwargs.pop("asfield") if "asfield" in self.kwargs else False
 
         if self.type == TYPE:
+            # This will only add the Type to Graphenes Type Definition if it is not referenced by any Query directly
             if issubclass(cls, graphene.ObjectType):
                 logger.info(f"Registering Additional Type: {cls.__name__}")
-                get_registry().setTypeField(cls.__name__, cls)
+                get_balder_registry().setTypeField(cls.__name__, cls)
         
         if self.type == QUERY:
+            # The two options of adding a Query, either by the Object or the Object itself
             if issubclass(cls, BalderObjectWrapper):
+                #TODO: Check if implementation si really necesarry!
                 if cls.object_type is None: raise BalderRegisterConfigurationError(f"Please specify a type in your ObjectWrapper {cls.__name__}")
                 if cls.resolver is None or not callable(cls.resolver): raise BalderRegisterConfigurationError(f"Please specify a callable resolver in your ObjectWrapper {cls.__name__}")
                 assert issubclass(cls.object_type, BalderObjectType)
                 if cls.aslist or aslist:
                     if cls.withfilter or withfilter:
                         logger.info(f"Registering {cls.object_type.__name__} as ListQuery with DjangoFilter")
-                        get_registry().setQueryField(self.path, BalderFilterField(cls.object_type, description=description, **self.kwargs))
+                        get_balder_registry().setQueryField(self.path, BalderFilterField(cls.object_type, description=description, **self.kwargs))
                     else:
                         logger.info(f"Registering {cls.object_type.__name__} as ListQuery")
-                        get_registry().setQueryField(self.path, graphene.List(cls.object_type, description=description, resolver=bounced_root_info(cls.resolver), **self.kwargs))
+                        get_balder_registry().setQueryField(self.path, graphene.List(cls.object_type, description=description, resolver=bounced_root_info(cls.resolver), **self.kwargs))
                 elif cls.asfield or asfield:
                     logger.info(f"Registering {cls.object_type.__name__} as ListQuery")
-                    get_registry().setQueryField(self.path, graphene.Field(cls.object_type, description=description, resolver=bounced_root_info(cls.resolver), **self.kwargs))
+                    get_balder_registry().setQueryField(self.path, graphene.Field(cls.object_type, description=description, resolver=bounced_root_info(cls.resolver), **self.kwargs))
                 else:
                     raise BalderRegisterConfigurationError(f"Not sure how to register the Subclass of BalderObjectWrapper: {cls.__name__} no asfield or aslist argument Provided")
             elif issubclass(cls, BalderQueryWrapper):
@@ -116,26 +117,15 @@ class BalderRegister(object):
                 if issubclass(object_type, BaseQuery):
                     wrapperinstance = cls(self.path)
                     object_type = wrapperinstance.get_object()
-                    get_registry().setQueryField(self.path, object_type.Field())
+                    get_balder_registry().setQueryField(self.path, object_type.Field())
             else:
                 raise BalderRegisterConfigurationError(f"Not sure how to register the Query {cls.__name__}, as it is not a BalderObjectWrapper")
 
         elif self.type == SUBSCRIPTION: 
-            if issubclass(cls, BaseSubscriptionWrapper):
+            if issubclass(cls, BalderSubscriptionWrapper):
                 wrapperinstance = cls(self.path)
                 object_type = wrapperinstance.get_object()
-                if issubclass(object_type, BaseJobSubscription):
-                    config: NodeConfig = cls.config
-                    object_type.config = config
-                    get_registry().setSubscriptionField(self.path, object_type.Field(description=cls.config.__doc__))
-                    get_registry().setSubscriptionForNode(config.get_node(), object_type)
-                    logger.info(f"Registering {object_type.__name__} as JobSubscription")
-                elif issubclass(object_type, BaseSubscription):
-                    wrapperinstance = cls(self.path)
-                    object_type = wrapperinstance.get_object()
-                    get_registry().setSubscriptionField(self.path, object_type.Field())
-                else:
-                    raise BalderRegisterConfigurationError(f"Not sure how to register subscription {cls.__name__}. {object_type.__name__} does not inherit from BaseSubscription")
+                get_balder_registry().setSubscriptionField(self.path, object_type.Field())
             else:
                 raise BalderRegisterConfigurationError(f"Not sure how to Subscription: {cls.__name__}, Not Wrapped")
            
@@ -145,7 +135,7 @@ class BalderRegister(object):
                 wrapperinstance = cls(self.path)
                 object_type = wrapperinstance.get_object()
                 logger.info(f"Registering {object_type.__name__} as Mutation")
-                get_registry().setMutationField(self.path, object_type.Field())
+                get_balder_registry().setMutationField(self.path, object_type.Field())
             else:
                 raise BalderRegisterConfigurationError(f"Not sure how to Mutation: {cls.__name__}, Not Wrapped")
 

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from delt.params import Model
+from konfig.params import Model
 from elements.models import Antibody, Experiment, Sample, ExperimentalGroup, Animal, FileMatchString, Representation, \
     ROI, Transformation
 

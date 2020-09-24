@@ -1,13 +1,13 @@
+from delt.orchestrator import get_orchestrator
+from delt.bouncers.context import BouncerContext
 import graphene
 from graphene.types.generic import GenericScalar
 from guardian.shortcuts import get_perms
-from balder.delt_types import PodType, UserType
+from balder.delt.models import PodType, UserType
 from balder.subscriptions.base import BaseSubscription
 from balder.utils import serializerToDict
-from delt.context import Context
 from delt.models import Pod
 from delt.serializers import JobSerializer, PodSerializer
-from delt.settingsregistry import get_settings_registry
 from fremmed.models import FrontendPod
 
 
@@ -38,12 +38,12 @@ class GateSubscription(BaseSubscription):
 
         # Check If User is authorized
         unique = kwargs["unique"]
-        context = Context(info=info)
+        context = BouncerContext(info=info)
         user = context.user
         pod = FrontendPod.objects.get(unique=unique)
         
         if 'access_pod' in get_perms(user, pod):
-            get_settings_registry().getHandlerForProvider("fremmed").on("activate_pod")(pod)
+            get_orchestrator().getHandlerForProvider("fremmed").on("activate_pod")(pod)
             return [f"gate_{unique}"]
         else:
             raise GateError("User does not have the necessary Permissions")

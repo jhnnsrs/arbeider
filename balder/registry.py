@@ -3,26 +3,13 @@ import graphene
 from django.contrib.postgres.fields.jsonb import JSONField
 from graphene_django.converter import convert_django_field
 
-from balder.fields import Inputs, Outputs, Image
+from balder.fields import Inputs, Outputs, ImageField
 from delt.fields import InputsField, OutputsField
 from django.db.models import ImageField
 
 
 
-
-@convert_django_field.register(OutputsField)
-def convert_json_field_to_string(field, registry=None):
-    return Inputs()
-
-@convert_django_field.register(InputsField)
-def convert_json_field_to_string(field, registry=None):
-    return Outputs()
-
-@convert_django_field.register(ImageField)
-def convert_field_to_string(field, registry=None):
-    return Image(field, description=field.help_text, required=not field.null)
-
-class Registry():
+class BalderRegistry():
 
     def __init__(self):
         self.fieldQueryMap = {}
@@ -68,8 +55,8 @@ class Registry():
 
 registry = None
 
-def get_registry()-> Registry:
+def get_balder_registry()-> BalderRegistry:
     global registry
     if registry is None:
-        registry = Registry()
+        registry = BalderRegistry()
     return registry

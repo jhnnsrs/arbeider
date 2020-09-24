@@ -3,15 +3,13 @@ import re
 import uuid
 
 from guardian.shortcuts import assign_perm
-from delt.pod import PODREADY
+from delt.constants.lifecycle import POD_ACTIVE
 from balder.utils import serializerToDict
 from delt import selector as selectors
 from delt.consumers.job import JobConsumer
 from delt.consumers.utils import deserialized
 from delt.consumers.provisioner import ProvisionConsumer
-from delt.models import Job, Provision
-from delt.serializers import JobSerializer, PodSerializer
-from delt.settingsregistry import get_settings_registry
+from delt.models import Job
 from extensions.fremmed.subscriptions import GateSubscription
 from fremmed.models import FrontendPod
 from fremmed.serializers import ActivationSerializer
@@ -44,7 +42,7 @@ class FremmedProvisionConsumer(ProvisionConsumer):
         
         if pod.frontendpod is None: raise NotImplementedError("You provided the wrong Pod here, this is a unique one")
         
-        pod.status = PODREADY
+        pod.status = POD_ACTIVE
         pod.save()
         for provision in pod.provisions.all():
             self.on_provision_update(provision)

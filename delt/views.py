@@ -8,14 +8,14 @@ from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.serializers import Serializer
+from rest_framework import viewsets
 import copy
 
 from delt.exceptions import DeltConfigError
 from delt.models import *
 from delt.serializers import *
-from due.views import PublishingModelViewSet
 
-class NodeViewSet(PublishingModelViewSet):
+class NodeViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows users to be viewed or edited.
     """
@@ -26,7 +26,7 @@ class NodeViewSet(PublishingModelViewSet):
         
 
 
-class JobViewSet(PublishingModelViewSet):
+class JobViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows users to be viewed or edited.
     """
@@ -36,7 +36,7 @@ class JobViewSet(PublishingModelViewSet):
     serializer_class = JobSerializer
 
 
-class PodViewSet(PublishingModelViewSet):
+class PodViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows users to be viewed or edited.
     """
@@ -47,14 +47,14 @@ class PodViewSet(PublishingModelViewSet):
 
 
 
-class ProvisionViewSet(PublishingModelViewSet):
+class ProvisionViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows users to be viewed or edited.
     """
     queryset = Provision.objects.all()
     serializer_class = ProvisionModelSerializer
 
-class FlowViewSet(PublishingModelViewSet):
+class FlowViewSet(viewsets.ModelViewSet):
     # MAKE THIS AN ACTION PUBLISHER THAT WILL PIPE IT THROUGH A META OBJECT CREATOR
 
     filter_backends = (DjangoFilterBackend,)

@@ -2,7 +2,7 @@
 
 import logging
 
-from balder.registry import get_registry
+from balder.registry import get_balder_registry
 from delt.models import Job, Pod
 from delt.publishers.base import BasePublisher, BasePublisherSettings
 from delt.serializers import JobSerializer, PodSerializer

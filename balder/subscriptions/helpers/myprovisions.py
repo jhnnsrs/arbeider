@@ -3,7 +3,7 @@ from balder.notifier.registry import get_notifying_registry
 from django.contrib.auth import get_user_model, user_logged_out
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from balder.delt_types import ProvisionType, UserType
+from balder.delt.models import ProvisionType, UserType
 from balder.subscriptions.base import BaseSubscription
 import logging
 import uuid

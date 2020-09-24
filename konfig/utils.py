@@ -1,8 +1,10 @@
+from herre.fields import FileField
 from rest_framework import fields, serializers
 
 from delt.nodes.base import NodeBackendRegisterConfigurationError
 from delt.models import Node
 from konfig.node import Konfig
+from konfig.params import *
 
 INPUT_IDENTIFIER = "inputs"
 OUTPUT_IDENTIFIER = "outputs"
@@ -10,28 +12,6 @@ NODE_BACKEND_SETTINGS_FIELD = "NODE_BACKENDS"
 
 class KonfigParsingError(NodeBackendRegisterConfigurationError):
     pass
-
-def parse_port(elements: list):
-    ports = []
-    for el in elements:
-        if isinstance(el, dict):
-            if "model" not in el: raise KonfigParsingError("Your dict does not Provide a model")
-            ports.append( el)
-        elif isinstance(el, str):
-            ports.append({
-                "name": el,
-                "model": str(el).lower(),
-                "map": str(el).lower()
-            })
-        elif issubclass(el, object):
-            ports.append({
-                "name": el.__name__,
-                "model": str(el.__name__).lower(),
-                "map": str(el.__name__).lower()
-            })
-        else:
-            raise KonfigParsingError(f"Unknown Port Type {el}")
-    return ports
 
 def field_name(field, key):
     item = field.label or field.field_name or key
@@ -54,47 +34,20 @@ def generatePort(key, field , depth=0):
     Returns:
         [dict] -- The NodePort dict
     """
-    if depth == 3: raise NotImplementedError("Please do not Nest Serializers in a depth bigger then 3")
-    try:
-        if issubclass(field.default, fields.empty): # Raises exception if not Class
-            default = None
-        else:
-            default = field.default
-    except:
-        default = field.default
+    if depth == 3: raise NotImplementedError("Please do not Nest Serializers in a depth bigger then 3")    
 
-    
-    port = {
-        "name": field_name(field,key),
-        "key": key,
-        "description": field.help_text,
-        "required": field.required,
-        "default": default
-    }
-
-
-    if isinstance(field, serializers.BooleanField):
-        return {**port, "type": "bool"}
-    elif isinstance(field, serializers.IntegerField):
-        return {**port, "type": "int"}
-    elif isinstance(field, serializers.CharField):
-        return {**port, "type": "char"}
-    elif isinstance(field, serializers.FileField):
-        return {**port, "type": "file"}
-    elif isinstance(field, serializers.ListField):
-        return {**port, "type": "list"}
-    elif isinstance(field, serializers.UUIDField):
-        return {**port, "type": "uuid"}
-
-    # Advanced Types
-    elif isinstance(field, serializers.PrimaryKeyRelatedField):
-        return {**port, "type": "model", "identifier": field.queryset.model.__name__}
+    if isinstance(field, PortMixin):
+        # Port Mixins can generate themselves Dynamically
+        return field.build_port(key)
     elif isinstance(field, serializers.Serializer):
         argsfields = field.fields #We are dealing with an Instance
         subports = []
         for subkey, subfield in argsfields.items():
             subports.append(generatePort(subkey, subfield, depth=depth+1))
-        return {**port, "type": "object", "identifier": field.__class__.__name__, "ports": subports}
+        return { "name": field_name(field,key),
+        "key": key,
+        "description": field.help_text,
+        "required": field.required, "default": None, "type": "object", "identifier": field.__class__.__name__, "ports": subports}
     else:
         raise NotImplementedError(f"We dont know how to serialize the {key}: {field}")
 

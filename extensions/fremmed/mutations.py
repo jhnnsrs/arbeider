@@ -1,8 +1,8 @@
+from delt.orchestrator import get_orchestrator
 import graphene
 from graphene.types.generic import GenericScalar
 
 from balder.mutations.base import BaseMutation
-from delt.settingsregistry import get_settings_registry
 
 
 class SlotMutation(BaseMutation):
@@ -15,4 +15,4 @@ class SlotMutation(BaseMutation):
 
     @staticmethod
     def mutate(root, info, **kwargs):
-        get_settings_registry().getHandlerForProvider("fremmed").on("slot_in")(**kwargs)
+        get_orchestrator().getHandlerForProvider("fremmed").on("slot_in")(**kwargs)

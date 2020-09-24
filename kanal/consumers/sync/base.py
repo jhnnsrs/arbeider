@@ -12,7 +12,6 @@ from django.db import models
 from rest_framework import serializers
 
 from delt.models import Job
-from delt.node import NodeConfig
 from delt.serializers import AssignationMessageSerializer, JobSerializer
 from kanal.exceptions import KanalConsumerConfigException, KanalConsumerMinorException
 
@@ -28,7 +27,7 @@ def updateJob(job: Job, message):
     return job
 
 class KanalSyncConsumer(SyncConsumer):
-    konfig: NodeConfig  = None
+    konfig: Konfig  = None
     jobSerializer = JobSerializer
 
     def __init__(self, scope):

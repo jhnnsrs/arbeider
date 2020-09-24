@@ -1,7 +1,6 @@
-from delt.params import CharField, Inputs, Outputs
 from elements.models import Representation
 from konfig.node import Konfig
-from konfig.params import ModelField
+from konfig.params import ModelField, Inputs, Outputs
 
 class ModelOutputKonfig(Konfig):
     package = "@flow/ouputs/model"

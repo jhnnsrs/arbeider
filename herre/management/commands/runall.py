@@ -1,3 +1,4 @@
+from delt.orchestrator import get_orchestrator
 import logging
 
 from channels import DEFAULT_CHANNEL_LAYER
@@ -8,8 +9,6 @@ from django.core.management import BaseCommand, CommandError
 
 from delt.discover import autodiscover_pods
 from delt.handlers.channels import ChannelHandler
-from delt.registry import get_registry
-from delt.settingsregistry import get_settings_registry
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +42,7 @@ class Command(BaseCommand):
         # Autodiscover all of the the worker
         # TODO: Register and unregister Providers
         runningchannels = []
-        for key, value in get_settings_registry().getHandlers().items():
+        for key, value in get_orchestrator().getHandlers().items():
             if isinstance(value,ChannelHandler):
                 runningchannels.append(value.settings.provisionConsumer)
 

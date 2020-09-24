@@ -1,6 +1,6 @@
 from graphene.types.generic import GenericScalar
 
-from balder.delt_types import NodeType
+from balder.delt.models import NodeType
 from balder.types import BalderObjectType
 from flow.models import FlowNode, Graph
 

@@ -2,23 +2,7 @@ from django.forms.models import model_to_dict
 from rest_framework import serializers
 from itertools import chain
 
-def modelToKwargs(model, reverse_fields = []):
-    opts = model._meta
-    data = {}
-    for f in chain(opts.concrete_fields, opts.private_fields):
-        if f.is_relation:
-            foreignkey = getattr(model, f.name)
-            data[f.name] = foreignkey
-            print(f"HERE {f.name}")
-        else:
-            data[f.name] = f.value_from_object(model)
-        print(f"Setting {f.name}")
-    for f in opts.many_to_many:
-        data[f.name] = [i for i in f.value_from_object(model)]
-    for f in reverse_fields:
-        data[f] = getattr(model, f)
 
-    return data
 
 def modelToDict(model, exclude_fields=[]):
     opts = model._meta.get_fields()

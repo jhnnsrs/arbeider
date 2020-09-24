@@ -1,7 +1,6 @@
 import logging
 
 from delt.orchestrator import get_orchestrator
-from delt.settingsregistry import get_settings_registry
 
 logger = logging.getLogger(__name__)
 

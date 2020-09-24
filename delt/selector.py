@@ -1,5 +1,5 @@
+from delt.orchestrator import get_orchestrator
 from delt.handlers.base import BaseHandler
-from delt.settingsregistry import get_settings_registry
 import re
 
 # The Backend Selector
@@ -23,7 +23,7 @@ def get_handler_for_selector(selector: str) -> BaseHandler:
 
     m = provider.match(selector)
     if m:
-        return get_settings_registry().getHandlerForProvider(m.group("provider"))
+        return get_orchestrator().getHandlerForProvider(m.group("provider"))
 
 def get_provider_for_selector(selector: str) -> BaseHandler:
 

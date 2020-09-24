@@ -67,6 +67,10 @@ class Orchestrator():
         return self.getValidatorForNodeIdentifier(node.identifier)
 
 
+    def getHandlers(self):
+        return self.providerHandlerMap
+
+
     def setHandlerForProvider(self, provider, handler):
         if provider in self.providerHandlerMap:
             pass

@@ -13,7 +13,6 @@ from delt.discover import (POD_BACKEND_TYPE, POD_BACKENDS_FIELD,
                            getRegister)
 from delt.exceptions import DeltConfigError
 from delt.models import Node, Pod, models
-from delt.node import NodeConfig, node_identifier
 from delt.pod import pod_identifier
 from delt.register import (BaseRegister, BaseRegisterConfigurationError,
                            BaseRegisterSettings)
@@ -23,6 +22,14 @@ logger = logging.getLogger(__name__)
 INPUT_IDENTIFIER = "inputs"
 OUTPUT_IDENTIFIER = "outputs"
 NODE_BACKEND_SETTINGS_FIELD = "NODE_BACKENDS"
+
+
+def pod_identifier(package, interface, provider,  withsecret= settings.SECRET_KEY):
+    """This function generate 10 character long hash of the package and interface name"""
+    hash = hashlib.sha1()
+    salt = package + interface + provider + withsecret
+    hash.update(salt.encode('utf-8'))
+    return  hash.hexdigest()
 
 class PodBackendRegisterConfigurationError(BaseRegisterConfigurationError):
     pass
@@ -39,6 +46,9 @@ class PodBackendSettings(BaseRegisterSettings):
     enforce_registry = False
     provider = None
     settingsField = POD_BACKENDS_FIELD
+
+
+
 
 
 

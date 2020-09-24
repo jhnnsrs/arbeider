@@ -6,14 +6,11 @@ from channels.layers import get_channel_layer
 from delt.consumers.provisioner import ProvisionConsumer
 from delt.consumers.utils import (send_assignation_to_channel,
                                   send_provision_to_channel)
-from delt.context import Context
 from delt.handlers.base import (BaseHandler, BaseHandlerException,
                                 BaseHandlerSettings)
 from delt.models import Assignation, Job, Node, Pod, Provision
 from delt.serializers import (AssignationSerializer, JobSerializer,
                               ProvisionModelSerializer, ProvisionSerializer)
-from delt.settingsregistry import get_settings_registry
-
 logger = logging.getLogger(__name__)
 
 channel_layer = get_channel_layer()

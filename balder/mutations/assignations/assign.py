@@ -6,13 +6,10 @@ from django.forms.models import model_to_dict
 from graphene.types.generic import GenericScalar
 from rest_framework import serializers
 
-from balder.delt_types import NodeType, PodType, UserType
-from balder.mixins import ProvisionFieldsMixin
+from balder.delt.models import AssignationType, NodeType, PodType, UserType
 from balder.mutations.base import BaseMutation
 from balder.subscriptions.base import BaseSubscription
-from balder.utils import modelToKwargs, serializerToDict
-from delt.bouncers.context import BouncerContext
-from delt.context import Context
+from balder.utils import modelToDict
 from delt.models import Node, Pod, Provision
 from delt.pipes import assign_inputs_pipe, provision_pod_pipe
 from delt.serializers import (PodSerializer, ProvisionModelSerializer,
@@ -24,7 +21,8 @@ logger = logging.getLogger(__name__)
 class NoPodFoundError(Exception):
     pass
 
-class AssignMutation(BaseMutation, ProvisionFieldsMixin):
+class AssignMutation(BaseMutation):
+    Output = AssignationType
 
     class Arguments:
         pod = graphene.ID(required=True, description="The pod's id")
@@ -46,6 +44,5 @@ class AssignMutation(BaseMutation, ProvisionFieldsMixin):
         
         assignation = assign_inputs_pipe(context, reference, pod, inputs)
 
-        kwargs = modelToKwargs(assignation)
-        kwargs.pop("id")
-        return cls(**kwargs)
+        kwargs = modelToDict(assignation)
+        return AssignationType(**kwargs)

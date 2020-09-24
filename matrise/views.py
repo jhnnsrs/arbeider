@@ -12,7 +12,6 @@ from rest_framework.exceptions import APIException
 from rest_framework.schemas.openapi import AutoSchema
 from rest_framework.serializers import Serializer
 from guardian.shortcuts import get_perms
-from delt.shortcuts import is_authorized
 from zarr.storage import (array_meta_key, attrs_key, default_compressor,
                           group_meta_key)
 
@@ -130,8 +129,6 @@ class MatriseViewsetMixIn():
             url_path=f'{api_array}/{zarr_metadata_key}', url_name=f'{api_array}/{zarr_metadata_key}')
     def get_zmetadata(self, request, pk):
         matrise: Matrise = self.get_object()
-        if not is_authorized(self.download_permission, ["can_download"], request=request, instance=matrise):
-            raise APIException(detail={"User has no Download Permission"})
         test = matrise.store.storage.open(f"{matrise.store.name}/{zarr_metadata_key}","r")
         file_content = test.read()
         test.close()
