@@ -3,6 +3,27 @@ import graphene
 from balder.types import BalderObjectType
 from delt.models import *
 
+from balder import fields
+from django.db import models
+from graphene_django.converter import convert_django_field
+from delt.fields import InputsField, OutputsField
+
+print("CALLED")
+# TODO: find a better place to register these fields... they need to be imported before the models are imported
+
+@convert_django_field.register(OutputsField)
+def convert_json_field_to_string(field, registry=None):
+    return fields.Inputs()
+
+@convert_django_field.register(InputsField)
+def convert_json_field_to_string(field, registry=None):
+    return fields.Outputs()
+
+
+@convert_django_field.register(models.ImageField)
+def convert_field_to_string(field, registry=None):
+    return fields.ImageField(field, description=field.help_text, required=not field.null)
+
 
 class RepositoryType(BalderObjectType):
 

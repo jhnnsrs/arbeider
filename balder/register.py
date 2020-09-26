@@ -98,7 +98,7 @@ class BalderRegister(object):
                 #TODO: Check if implementation si really necesarry!
                 if cls.object_type is None: raise BalderRegisterConfigurationError(f"Please specify a type in your ObjectWrapper {cls.__name__}")
                 if cls.resolver is None or not callable(cls.resolver): raise BalderRegisterConfigurationError(f"Please specify a callable resolver in your ObjectWrapper {cls.__name__}")
-                assert issubclass(cls.object_type, BalderObjectType)
+                assert issubclass(cls.object_type, graphene.ObjectType)
                 if cls.aslist or aslist:
                     if cls.withfilter or withfilter:
                         logger.info(f"Registering {cls.object_type.__name__} as ListQuery with DjangoFilter")

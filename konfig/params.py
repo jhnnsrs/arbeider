@@ -1,4 +1,4 @@
-from konfig.widgets import Widget
+from konfig.widgets import CharWidget, FloatWidget, IntWidget, ListWidget, ModelWidget, ObjectWidget, SwitchWidget, UUIDWidget, Widget
 import logging
 import uuid
 
@@ -26,11 +26,10 @@ class PortMixin(object):
 
         super(PortMixin, self).__init__(*args, **kwargs, help_text=help_text)
 
-    
-    def getWidget(self):
-        return self.widget
 
     def build_port(self, key):
+        assert (self.widget is not None and isinstance(self.widget, Widget)), "Problematic Port Setup"
+        params = self.widget.serialize(self) if self.widget else {}
         try:
             if issubclass(self.default, fields.empty): # Raises exception if not Class
                 default = None
@@ -46,7 +45,8 @@ class PortMixin(object):
         "required": self.required,
         "default": default,
         "type": self.type,
-        "primary": self.portprimary
+        "primary": self.portprimary,
+        "widget": params
         }
 
 
@@ -63,43 +63,40 @@ class ModelPortMixin(PortMixin):
         return { **standard, "identifier": self.portidentifer}
 
 
-
-
-    
-
-
 class ModelField(ModelPortMixin, serializers.ModelField):
     type= "model"
+    widget = ModelWidget()
 
 class CharField(PortMixin, serializers.CharField):
     type= "char"
+    widget = CharWidget()
 
 class IntField(PortMixin, serializers.IntegerField):
     type= "int"
+    widget = IntWidget()
 
 class FloatField(PortMixin, serializers.FloatField):
     type= "float"
+    widget = FloatWidget()
 
 class ListField(PortMixin, serializers.ListField):
     type= "list"
+    widget = ListWidget()
 
 class BoolField(PortMixin, serializers.BooleanField):
     type= "bool"
+    widget = SwitchWidget()
 
 class UUIDField(PortMixin, serializers.BooleanField):
     type= "uuid"
+    widget = UUIDWidget()
 
 
 #TODO: Refactor into seperate module
 
-class Model(serializers.ModelSerializer):
-
-    class Meta:
-        abstract= True
-
-
 class Object(serializers.Serializer):
-    pass
+    type = "object"
+    widget = ObjectWidget()
 
 class Inputs(serializers.Serializer):
     pass

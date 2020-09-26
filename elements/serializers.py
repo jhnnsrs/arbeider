@@ -1,54 +1,53 @@
 from rest_framework import serializers
-from konfig.params import Model
 from elements.models import Antibody, Experiment, Sample, ExperimentalGroup, Animal, FileMatchString, Representation, \
     ROI, Transformation
 
 
-class AntibodySerializer(Model):
+class AntibodySerializer(serializers.ModelSerializer):
     class Meta:
         model = Antibody
         fields = "__all__"
 
-class AnimalSerializer(Model):
+class AnimalSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Animal
         fields = "__all__"
 
-class FileMatchStringSerializer(Model):
+class FileMatchStringSerializer(serializers.ModelSerializer):
     class Meta:
         model = FileMatchString
         fields = "__all__"
 
-class ExperimentSerializer(Model):
+class ExperimentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Experiment
         fields = "__all__"
 
-class ExperimentalGroupSerializer(Model):
+class ExperimentalGroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = ExperimentalGroup
         fields = "__all__"
 
-class RepresentationSerializer(Model):
+class RepresentationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Representation
         fields = "__all__"
 
-class TransformationSerializer(Model):
+class TransformationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Transformation
         fields = "__all__"
 
 
-class ROISerializer(Model):
+class ROISerializer(serializers.ModelSerializer):
     class Meta:
         model = ROI
         fields = "__all__"
 
 
 
-class SampleSerializer(Model):
+class SampleSerializer(serializers.ModelSerializer):
     representations = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
     bioseries = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 

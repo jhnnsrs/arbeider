@@ -1,6 +1,5 @@
+from delt.constants.lifecycle import POD_ACTIVE
 import logging
-
-from delt.pod import PODFAILED, PODPENDING, PODREADY
 from delt.pods.base import (PodBackendRegister,
                             PodBackendRegisterConfigurationError,
                             PodBackendSettings)
@@ -71,7 +70,7 @@ class KanalRegistry(PodBackendRegister):
             "persistent":  persistent,
             "podclass" : podclass,
             "provider" : provider,
-            "status": PODREADY
+            "status": POD_ACTIVE
         }
 
         nodeUniques = {

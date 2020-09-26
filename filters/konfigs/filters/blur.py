@@ -1,9 +1,18 @@
-from konfig.params import IntField
+from elements.models import Representation
+from konfig.widgets import QueryWidget, SliderWidget
+from konfig.params import IntField, ModelField
 from .base import BaseFilterOutputs, BaseFilterKonfig, BaseFilterInputs
 
 
 class BlurFilterInputs(BaseFilterInputs):
-    sigma = IntField(allow_null=True, label="Sigma", help_text="Sigma describes a helpful way to ", default=5)
+    sigma = IntField(allow_null=True, label="Sigma", help_text="Sigma describes a helpful way to ", default=5, max_value=12, min_value=1, widget=SliderWidget())
+    channel = IntField(label="The parseable Channel", description="The channel that you want to parse", widget= QueryWidget(query="""
+    query {
+  data: channelsof(rep: {{primary.id}}) {
+    value: index
+    label: name
+  }
+}"""))
 
 class BlurFilterKonfig(BaseFilterKonfig):
     """

@@ -13,7 +13,6 @@ from delt.discover import (POD_BACKEND_TYPE, POD_BACKENDS_FIELD,
                            getRegister)
 from delt.exceptions import DeltConfigError
 from delt.models import Node, Pod, models
-from delt.pod import pod_identifier
 from delt.register import (BaseRegister, BaseRegisterConfigurationError,
                            BaseRegisterSettings)
 from delt.registry import get_registry

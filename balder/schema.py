@@ -1,13 +1,9 @@
-from balder.fields import ImageField
 from delt.nodes.base import NODE_BACKEND_SETTINGS_FIELD
-import channels_graphql_ws
 import graphene
-from graphene import Dynamic
 from graphene.types import generic
 from django.db import models
 from balder.discover import autodiscover_balder
 from balder.registry import get_balder_registry
-from delt.models import Job
 from balder.delt.ports import *
 from balder import fields
 
@@ -18,20 +14,6 @@ rootquery = None
 rootsubscription = None
 rootmutation = None
 roottypes = None
-
-@convert_django_field.register(OutputsField)
-def convert_json_field_to_string(field, registry=None):
-    return fields.Inputs()
-
-@convert_django_field.register(InputsField)
-def convert_json_field_to_string(field, registry=None):
-    return fields.Outputs()
-
-
-@convert_django_field.register(models.ImageField)
-def convert_field_to_string(field, registry=None):
-    return fields.ImageField(field, description=field.help_text, required=not field.null)
-
 
 
 def buildRootMutation():
@@ -66,6 +48,7 @@ def buildRootTypes():
         roottypes = [value for key, value in fields.items()]
 
     roottypes += [PortType, IntPortType, ModelPortType, ObjectPortType, IntPortType, CharPortType, UUIDPortType, BoolPortType, ListPortType, FilePortType]
+    roottypes += [SliderWidgetType, ObjectWidgetType, SwitchWidgetType, CharWidgetType, ModelWidgetType, IntWidgetType, UUIDWidgetType, FileWidgetType, ListWidgetType, QueryWidgetType, FakeWidgetType]
     return roottypes
 
 

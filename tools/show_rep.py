@@ -6,7 +6,8 @@ import django
 def main():
     from elements.models import Representation, Sample
     rep = Representation.objects.first()
-    print(rep.array)
+    import matrise.extenders
+    print(rep.array.biometa.channels.compute().to_dict(orient="records"))
 
 
 

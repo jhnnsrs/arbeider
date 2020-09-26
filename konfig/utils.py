@@ -39,7 +39,7 @@ def generatePort(key, field , depth=0):
     if isinstance(field, PortMixin):
         # Port Mixins can generate themselves Dynamically
         return field.build_port(key)
-    elif isinstance(field, serializers.Serializer):
+    elif isinstance(field, Object):
         argsfields = field.fields #We are dealing with an Instance
         subports = []
         for subkey, subfield in argsfields.items():
@@ -47,7 +47,12 @@ def generatePort(key, field , depth=0):
         return { "name": field_name(field,key),
         "key": key,
         "description": field.help_text,
-        "required": field.required, "default": None, "type": "object", "identifier": field.__class__.__name__, "ports": subports}
+        "required": field.required,
+        "default": None, 
+        "type": "object",
+        "identifier": field.__class__.__name__,
+        "widget": field.widget.serialize(field),
+        "ports": subports}
     else:
         raise NotImplementedError(f"We dont know how to serialize the {key}: {field}")
 

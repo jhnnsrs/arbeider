@@ -1,9 +1,9 @@
 from balder.register import register_query
 from balder.wrappers import BalderObjectWrapper
 from elements.types import SampleType
-from graphene import Int
+import graphene 
 from .models import Representation, Sample
-from .types import RepresentationType, SampleType
+from .types import ChannelType, RepresentationType, SampleType
 
 
 @register_query("allRepresentation", description="All Representations")
@@ -20,12 +20,17 @@ class SampleWrapper(BalderObjectWrapper):
     aslist = True
 
 
-@register_query("representation", description="Representations by ID", id = Int(required=True))
+@register_query("representation", description="Representations by ID", id = graphene.Int(required=True))
 class RepresentationWrapper(BalderObjectWrapper):
     object_type = RepresentationType
     resolver = lambda root, info, id: Representation.objects.get(id=id)
     asfield = True
 
+@register_query("channelsof", description="Channel of a Representation", rep = graphene.Int(required=True, ))
+class ChannelsOfWrapper(BalderObjectWrapper):
+    object_type = ChannelType
+    resolver = lambda root, info, rep: Representation.objects.get(id=rep).channels
+    aslist = True
 
 
 
