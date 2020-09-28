@@ -97,17 +97,17 @@ def discover_path(thepath, backend, base, catalog=False, register=False, type= t
         # Step 2: import the app's nodes file. If this has errors we want them
         # to bubble up.
         try:
-            logger.debug(f"Importing {thepath}")
+            logger.info(f"Importing {thepath}")
             if base is not None:
                 modulepath = f"{app}.{base}.{thepath}"
             else:
                 modulepath = f"{app}.{thepath}"
             import_module(modulepath, package=True)
-            logger.debug(f"Imported {backend} at {app}")
+            logger.info(f"Imported {backend} at {app}")
         except ImportError as e:
             if app in settings.MODULES:
                 if f"No module named '{app}" in str(e):
-                    logger.debug(f"No Modules for {backend} found for {app} at {modulepath} {e}")
+                    logger.info(f"No Modules for {backend} found for {app} at {modulepath} {e}")
                 else:
                     logger.error(f"Unable to import {backend} found for {app} at {modulepath} {e}")
                     raise e
@@ -140,7 +140,7 @@ def autodiscover(member: DiscoverMember, backend = None, catalog = False, regist
 
     backends = getattr(settings, member.field)
     if backend is not None:
-        logger.debug(f"Trying to import {backend}-Pods in all Apps")
+        logger.info(f"Trying to import {member.type}-Pods in all Apps")
         try:
             config = backends[backend]
         except KeyError:
@@ -148,7 +148,7 @@ def autodiscover(member: DiscoverMember, backend = None, catalog = False, regist
         discover_from_config(config, backend, type=member.type , catalog=catalog, register = register,)
           
     else: 
-        logger.debug("Trying to import all Pods in all Apps")
+        logger.info(f"Trying to import all {member.type} in all Apps")
         for backend, config in backends.items():
             discover_from_config(config, backend, type=member.type  , catalog=catalog, register = register,)
 

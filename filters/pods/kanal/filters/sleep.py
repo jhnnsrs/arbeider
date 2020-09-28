@@ -1,6 +1,6 @@
 from kanal.registry import register_with_kanal_backend
 from filters.pods.kanal.base import FilterConsumer
-from filters.configs.filters.sleep import SleepFilter
+from filters.konfigs.filters.sleep import SleepFilter
 import time
 import xarray as xr
 

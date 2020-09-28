@@ -5,6 +5,7 @@ from graphene.types.generic import GenericScalar
 
 class WidgetType(graphene.Interface):
     type = graphene.String()
+    dependencies = graphene.List(graphene.String, description="The set-keys this widget depends on, check *query parameters*")
 
     @classmethod
     def resolve_type(cls, instance, info):

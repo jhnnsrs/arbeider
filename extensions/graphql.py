@@ -1,3 +1,5 @@
+from django.db.models.base import ModelStateFieldsCacheDescriptor
+from rest_framework.serializers import ModelSerializer
 from balder.subscriptions.helpers.myprovisions import MyProvisionsSubscription, MyProvisions
 from delt.bouncers.context import BouncerContext
 import graphene
@@ -46,15 +48,21 @@ class NodeListWrapper(BalderObjectWrapper):
         return Node.objects.exclude(variety="output").exclude(variety="input")[:10]
 
 
-@register_query("podsformodel", model= graphene.String(description="The pods model"), description="Gets all running pods for the Model")
+@register_query("podsformodel", models= graphene.List(graphene.String, description="The pods models (assignable)"), description="Gets all running pods for the Model")
 class NodeWrapper(BalderObjectWrapper):
     object_type = PodType
     aslist = True
 
     @staticmethod
-    def resolver(root, context, model):
+    def resolver(root, context, models):
         #TODO: Implement check before this
-        return Pod.objects.accessible(context.user).filter(node__inputs__contains=[{"identifier": model}]).filter(node__inputs__contains=[{"primary": True}])
+        pods = Pod.objects.accessible(context.user)
+        for model in models:
+            print(model)
+            pods = pods.filter(node__inputs__contains=[{"identifier": model}])
+            print(pods)
+
+        return pods
 
 
 

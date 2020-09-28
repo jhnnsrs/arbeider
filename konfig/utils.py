@@ -50,6 +50,7 @@ def generatePort(key, field , depth=0):
         "required": field.required,
         "default": None, 
         "type": "object",
+        "primary": False,
         "identifier": field.__class__.__name__,
         "widget": field.widget.serialize(field),
         "ports": subports}

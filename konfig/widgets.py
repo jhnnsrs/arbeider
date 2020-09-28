@@ -1,8 +1,11 @@
 class Widget():
     base_template: None;
 
+    def __init__(self, **kwargs) -> None:
+        self.dependencies = kwargs.get("dependencies", [])
+
     def serialize(self, field): 
-        return { "type": self.type, **self.params(field)}
+        return { "type": self.type, "dependencies": self.dependencies, **self.params(field)}
 
     def types(self,):
         return { "type": str, **self.paramTypes()}
@@ -49,10 +52,11 @@ class ObjectWidget(Widget):
 class SliderWidget(Widget):
     type= "slider"
 
-    def __init__(self, lower=None, upper=None, step=None) -> None:
+    def __init__(self, lower=None, upper=None, step=None, **kwargs) -> None:
         self.lower = lower
         self.upper = upper
         self.step = step
+        super().__init__(**kwargs)
 
     def params(self, field):
         return {
@@ -72,8 +76,9 @@ class SliderWidget(Widget):
 class QueryWidget(Widget):
     type= "query"
     
-    def __init__(self, query=None):
+    def __init__(self, query=None, **kwargs):
         self.query = query
+        super().__init__(**kwargs)
 
     def params(self, field):
         return { "query": self.query}

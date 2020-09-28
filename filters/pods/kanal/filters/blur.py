@@ -1,6 +1,6 @@
 from kanal.registry import register_with_kanal_backend
 from filters.pods.kanal.base import FilterConsumer
-from filters.configs.filters.blur import BlurFilterKonfig
+from filters.konfigs.filters.blur import BlurFilterKonfig
 import xarray as xr
 
 

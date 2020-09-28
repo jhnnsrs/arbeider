@@ -11,7 +11,8 @@ class Vectors(params.Object):
     y = params.ListField(child=params.FloatField())
 
 class DrawerInputs(params.Inputs):
-    rep = params.ModelField(Representation)
+    rep = params.ModelField(Representation, primary=True)
+    roi = params.ModelField(ROI, primary=True)
 
 class DrawerOutputs(params.Outputs):
     vectors = Vectors()

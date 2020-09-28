@@ -1,4 +1,5 @@
 import logging
+from typing import List
 
 import channels_graphql_ws
 from asgiref.sync import async_to_sync
@@ -21,7 +22,7 @@ class BaseSubscription(channels_graphql_ws.Subscription):
         abstract = True
 
     @classmethod
-    def accept(cls, context: BouncerContext, root, info, *args, **kwargs) -> [str]:
+    def accept(cls, context: BouncerContext, root, info, *args, **kwargs) -> List[str]:
         raise NotImplementedError("Please override the accept method in your BaseSubscription")
 
     @classmethod

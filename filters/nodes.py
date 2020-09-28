@@ -1,3 +1,4 @@
+from filters.konfigs.tests import TestConfig
 from filters.konfigs.filters.sleep import SleepFilter
 from konfig.backend import register_konfig_node
 
@@ -21,4 +22,8 @@ class SleepFilterNode(object):
 
 @register_konfig_node(MaxISPConfig)
 class MaxISPNode(object):
+    pass
+
+@register_konfig_node(TestConfig)
+class TestNode(object):
     pass

@@ -8,7 +8,7 @@ from django.conf import settings
 from django.core.management import BaseCommand, CommandError
 
 from delt.discover import autodiscover_pods
-from delt.registry import get_registry
+from delt.orchestrator import get_orchestrator
 
 logger = logging.getLogger(__name__)
 
@@ -41,8 +41,8 @@ class Command(BaseCommand):
             raise CommandError("You do not have any CHANNEL_LAYERS configured.")
         # Autodiscover all of the the worker
         registry = autodiscover_pods(backend="kanal", register=True)
-        allchannels = [key for key, _ in get_registry().getConsumersMap().items()]
-        names = "\n".join([f'{consumer.konfig.name} at {key}' for key, consumer in get_registry().getConsumersMap().items()])
+        allchannels = [key for key, _ in get_orchestrator().getConsumersMap().items()]
+        names = "\n".join([f'{consumer.konfig.name} at {key}' for key, consumer in get_orchestrator().getConsumersMap().items()])
         logger.info("Running worker for channels %s", allchannels)
         worker = self.worker_class(
             application=get_default_application(),
