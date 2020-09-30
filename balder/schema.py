@@ -48,7 +48,7 @@ def buildRootTypes():
         roottypes = [value for key, value in fields.items()]
 
     roottypes += [PortType, IntPortType, ModelPortType, ObjectPortType, IntPortType, CharPortType, UUIDPortType, BoolPortType, ListPortType, FilePortType]
-    roottypes += [SliderWidgetType, ObjectWidgetType, SwitchWidgetType, CharWidgetType, ModelWidgetType, IntWidgetType, UUIDWidgetType, FileWidgetType, ListWidgetType, QueryWidgetType, FakeWidgetType]
+    roottypes += [SliderWidgetType, ObjectWidgetType, SwitchWidgetType, CharWidgetType, ModelWidgetType, IntWidgetType, UUIDWidgetType, FileWidgetType, ListWidgetType, QueryWidgetType, SliderQueryWidgetType, FakeWidgetType]
     return roottypes
 
 

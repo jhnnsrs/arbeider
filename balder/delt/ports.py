@@ -1,4 +1,4 @@
-from konfig.widgets import CharWidget, FileWidget, IntWidget, ListWidget, ModelWidget, ObjectWidget, QueryWidget, SliderWidget, SwitchWidget, UUIDWidget
+from konfig.widgets import CharWidget, FileWidget, IntWidget, ListWidget, ModelWidget, ObjectWidget, QueryWidget, SliderQueryWidget, SliderWidget, SwitchWidget, UUIDWidget
 import graphene
 from graphene.types.generic import GenericScalar
 
@@ -20,6 +20,7 @@ class WidgetType(graphene.Interface):
             ListWidget.type: ListWidgetType,
             UUIDWidget.type: UUIDWidgetType,
             QueryWidget.type: QueryWidgetType,
+            SliderQueryWidget.type: SliderQueryWidgetType,
             
         }
         _type = instance.get("type")
@@ -58,6 +59,7 @@ UUIDWidgetType = createWidgetType(UUIDWidget)
 ListWidgetType = createWidgetType(ListWidget)
 FileWidgetType = createWidgetType(FileWidget)
 ObjectWidgetType = createWidgetType(ObjectWidget)
+SliderQueryWidgetType = createWidgetType(SliderQueryWidget)
 
 
 

@@ -19,7 +19,7 @@ from elements.utils import buildRepresentationName, buildTransformationName
 from herre.generators import ArnheimNameGenerator
 from matrise.managers import DelayedMatriseManager, MatriseManager
 from matrise.querysets import MatriseQueryset
-
+from uuid import uuid4
 # Get an instance of a logger}
 logger = logging.getLogger(__name__)
 
@@ -44,7 +44,7 @@ class RepresentationQuerySet(MatriseQueryset):
 class RepresentationGenerator(ArnheimNameGenerator):
 
     def build_name(self):
-        return f"{self.instance.name}"
+        return f"{uuid4()}"
 
 
 

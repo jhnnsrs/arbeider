@@ -4,7 +4,7 @@ import uuid
 import graphene
 from graphene.types.generic import GenericScalar
 
-from balder.subscriptions.jobs.base import BaseAssignationSubscription
+from balder.subscriptions.assignation.base import BaseAssignationSubscription
 from delt.models import Job, Pod, Assignation
 from delt.pipes import (assign_inputs_pipe, provision_pod_pipe,
                         republish_provision_pipe)
@@ -41,7 +41,7 @@ class AssignSubscription(BaseAssignationSubscription):
         except Assignation.DoesNotExist:
 
             logger.info("We are trying to create a new Pod through this Provision")
-            provision = assign_inputs_pipe(context, reference, pod, inputs)
+            assignation = assign_inputs_pipe(context, reference, pod, inputs)
 
         
         return [f"{reference}"]

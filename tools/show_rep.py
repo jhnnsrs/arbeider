@@ -7,7 +7,7 @@ def main():
     from elements.models import Representation, Sample
     rep = Representation.objects.first()
     import matrise.extenders
-    print(rep.array.biometa.channels.compute().to_dict(orient="records"))
+    print(rep.array.biometa.planes.compute().to_dict(orient="records"))
 
 
 

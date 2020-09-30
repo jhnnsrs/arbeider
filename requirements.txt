@@ -1,6 +1,5 @@
-Django>=2.0.0,<3
-channels>=2.0.2
-channels_redis~=2.0
+Django>=3.1
+channels>=2.4.0
 django-registration-redux
 django-extensions
 drf-access-policy
@@ -15,15 +14,17 @@ pytest-asyncio
 django-channels-graphql-ws
 django-guardian
 python-slugify
-s3fs
+s3fs>=0.4.0,<0.5 #TODO: Need to figure out parallel access in the eventloop first, should yield a massive boost in performance
 boto3
 django-storages
 scipy
 graphene-django
+unflatten
+graphql-core<3,>=2.1.0
 
 pandas-profiling
-zarr
-dask[complete]==2.11.0
+zarr>=2.4.0
+dask[complete]>=2.28.0
 lz4
 numcodecs
 xarray

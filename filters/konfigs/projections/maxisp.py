@@ -1,10 +1,23 @@
+from konfig.widgets import SliderQueryWidget
 from konfig.params import Object, IntField
 from .base import BaseProjectorOutputs, BaseProjectorConfig, BaseProjectorInputs
 
+
+PlanesWiget = SliderQueryWidget(query= """query {
+  data: dimsof(rep: {{rep}}){
+    max: z
+  }
+}""", dependencies=["rep"])
+
+
+
+
+
+
 class Slice(Object):
     """ A Slice is an Extension of a Lower and Upper Item"""
-    upper = IntField(allow_null=True, help_text="The Upper Index / The Upper Limit for the Slice")
-    lower = IntField(allow_null=True, help_text="The Lower Index / The Lower Limit for the Slice")
+    upper = IntField(allow_null=True, help_text="The Upper Index / The Upper Limit for the Slice", widget=PlanesWiget)
+    lower = IntField(allow_null=True, help_text="The Lower Index / The Lower Limit for the Slice", widget=PlanesWiget)
 
 class MaxISPInputs(BaseProjectorInputs):
     slice = Slice()

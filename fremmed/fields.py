@@ -1,4 +1,4 @@
-from django.contrib.postgres.fields.jsonb import JSONField
+from django.db.models import JSONField
 
 class AccessPolicy(JSONField):
     pass

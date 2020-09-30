@@ -48,7 +48,6 @@ class ObjectWidget(Widget):
     type="object"
 
 
-
 class SliderWidget(Widget):
     type= "slider"
 
@@ -73,20 +72,29 @@ class SliderWidget(Widget):
         }
 
 
-class QueryWidget(Widget):
-    type= "query"
-    
+
+class QueryMixin(Widget):
+
     def __init__(self, query=None, **kwargs):
         self.query = query
         super().__init__(**kwargs)
 
     def params(self, field):
-        return { "query": self.query}
+        return { "query": self.query, **super().params(field)}
 
 
     def paramTypes(self):
         return {
-            "query": str
+            "query": str,
+            **super().paramTypes()
         }
+
+
+class QueryWidget(QueryMixin, Widget):
+    type= "query"
+
+
+class SliderQueryWidget(QueryMixin, Widget):
+    type= "sliderquery"
 
     

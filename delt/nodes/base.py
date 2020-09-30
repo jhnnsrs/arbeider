@@ -14,7 +14,6 @@ from delt.exceptions import DeltConfigError
 from delt.models import Node
 from delt.register import (BaseRegister, BaseRegisterConfigurationError,
                            BaseRegisterSettings)
-from delt.registry import get_registry
 
 logger = logging.getLogger(__name__)
 

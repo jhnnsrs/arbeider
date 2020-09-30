@@ -12,7 +12,7 @@ from elements.managers import (DelayedRepresentationManager,
                                RepresentationManager, TableManager,
                                TransformationManager)
 from matrise.models import  Matrise
-from matrise.mixins import AutoGenerateImageFromArrayMixin, WithChannel
+from matrise.mixins import AutoGenerateImageFromArrayMixin, WithChannel, WithPlanes
 
 from elements.getters import get_all_access_groups
 
@@ -152,7 +152,7 @@ class ChannelMap(object):
     pass
 
 
-class Representation(WithChannel, AutoGenerateImageFromArrayMixin, Matrise):
+class Representation(WithPlanes, WithChannel, AutoGenerateImageFromArrayMixin, Matrise):
     ''' A Representation is 5-dimensional representation of a microscopic image '''
     creator = models.ForeignKey(User, on_delete=models.CASCADE, help_text="The Person that created this representation")
     origin = models.ForeignKey('self', on_delete=models.SET_NULL, blank=True, null= True, related_name="derived", related_query_name="derived")

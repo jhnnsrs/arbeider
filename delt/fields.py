@@ -1,5 +1,4 @@
-from django.contrib.postgres.fields.jsonb import JSONField
-from django.db.models.fields import CharField
+from django.db.models import CharField, JSONField
 from rest_access_policy.access_policy import AccessPolicy
 
 

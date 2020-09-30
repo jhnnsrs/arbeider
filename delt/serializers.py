@@ -30,12 +30,6 @@ class NodeSerializer(serializers.ModelSerializer):
 
 # FLOW Implementation
 
-class FlowSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Flow
-        fields = "__all__"
-
 
 class ProvisionSerializer(serializers.Serializer):
     node = serializers.PrimaryKeyRelatedField(queryset=Node.objects.all())

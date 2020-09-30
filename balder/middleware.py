@@ -5,13 +5,20 @@ from django.conf import settings
 from django.test.client import RequestFactory 
 import re
 from rest_framework.settings import api_settings
+from channels.db import database_sync_to_async
+
 tokenreg = re.compile(r".*token=(?P<token>.*)\'")
 logger = logging.getLogger()
+
+@database_sync_to_async
+def get_user(authenticator, request):
+    return authenticator.authenticate(request)
+
 
 
 class ApolloAuthTokenMiddleware:
     """
-    Custom middleware (insecure) that takes tokens from the query string.
+    Custom middleware (insecure) that takes user IDs from the query string.
     """
 
     def __init__(self, inner):
@@ -19,18 +26,31 @@ class ApolloAuthTokenMiddleware:
         self.inner = inner
 
     def __call__(self, scope):
+        return ApolloAuthTokenMiddlewareInstance(scope, self)
+
+class ApolloAuthTokenMiddlewareInstance:
+    """
+    Custom middleware (insecure) that takes tokens from the query string.
+    """
+
+    def __init__(self, scope, middleware):
+        # Store the ASGI application we were passed
+        self.middleware = middleware
+        self.scope = dict(scope)
+        self.inner = self.middleware.inner
+
+    async def __call__(self, receive, send):
 
         # Close old database connections to prevent usage of timed out connections
-        close_old_connections()
 
         # Look up user from query string (you should also do things like
         # check it's a valid user ID, or if scope["user"] is already populated)
 
-        user = scope["user"]
+        user = self.scope["user"]
         
         print("Trying to authenticate")
         try:
-            tokenm = tokenreg.match(str(scope["query_string"]))
+            tokenm = tokenreg.match(str(self.scope["query_string"]))
             if tokenm:
                 # compatibility with rest framework
                 auth_token = tokenm.group("token")
@@ -44,11 +64,12 @@ class ApolloAuthTokenMiddleware:
                 authenticators = [auth() for auth in api_settings.DEFAULT_AUTHENTICATION_CLASSES]
                 for authenticator in authenticators:
                     user_auth_tuple = None
-                    user_auth_tuple = authenticator.authenticate(get_request)
+                    user_auth_tuple = await get_user(authenticator, get_request)
                     print(user_auth_tuple)
                     if user_auth_tuple is not None:
                         user, auth = user_auth_tuple
-                        scope["auth"] = auth
+                        self.scope["auth"] = auth
+                        self.scope["user"] = user
                         break
 
         except AttributeError as e:
@@ -56,5 +77,7 @@ class ApolloAuthTokenMiddleware:
             logger.error("No Query String provided")
             pass
 
+
+        inner = self.inner(self.scope)
         # Return the inner application directly and let it run everything else
-        return self.inner(dict(scope, user=user))
+        return await inner(receive, send)

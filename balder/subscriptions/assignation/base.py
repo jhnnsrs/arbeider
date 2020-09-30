@@ -12,7 +12,7 @@ class BaseAssignationSubscription(BaseSubscription):
 
     @classmethod
     def announce(cls, context, payload, *arg, **kwargs):
-        logger.info("Publishing it to the Consumer")
+        logger.info("Publishing it to the Assignation Watchers")
         serializer = AssignationMessageSerializer(data=payload)
         if serializer.is_valid():
             assignation = serializer.validated_data["assignation"]

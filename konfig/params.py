@@ -27,7 +27,7 @@ class PortMixin(object):
         super(PortMixin, self).__init__(*args, **kwargs, help_text=help_text)
 
 
-    def build_port(self, key):
+    def build_port(self, key, depth=0):
         assert (self.widget is not None and isinstance(self.widget, Widget)), "Problematic Port Setup"
         params = self.widget.serialize(self) if self.widget else {}
         try:
@@ -52,18 +52,50 @@ class PortMixin(object):
 
 class ModelPortMixin(PortMixin):
 
-    def __init__(self, model, *args, **kwargs) -> None:
+    def __init__(self, model, *args, querybuilder= lambda x: x.objects.all(), **kwargs) -> None:
         self.portidentifer = model.__name__
-        super().__init__(model, *args, **kwargs)
+        super().__init__(*args, queryset= querybuilder(model),**kwargs)
 
 
-    def build_port(self, key):
+    def build_port(self, key, depth=0):
+        
         standard = super().build_port(key)
         
         return { **standard, "identifier": self.portidentifer}
 
 
-class ModelField(ModelPortMixin, serializers.ModelField):
+
+class ObjectPortMixin(PortMixin):
+    widget= ObjectWidget()
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__( *args, **kwargs)
+
+
+    def build_port(self, key, depth=0):
+        assert (self.widget is not None and isinstance(self.widget, Widget)), "Problematic Port Setup"
+        widgetparams = self.widget.serialize(self) if self.widget else {}
+
+        if (depth >= 3): raise NotImplementedError("Maximum recursion of Objects exceeded")
+        argsfields = self.fields #We are dealing with an Instance
+        subports = []
+        for subkey, subfield in argsfields.items():
+            assert(isinstance(subfield, PortMixin)), "Fiedls of ObjectPort must be implementing PortMixin"
+            subports.append(subfield.build_port(f"{key}.{subkey}", depth=depth+1))
+        return {"name": getattr(self,"name",self.__class__.__name__),
+                "key": key,
+                "description": self.portdescription or self.help_text,
+                "required": self.required,
+                "default": None, 
+                "type": "object",
+                "primary": False,
+                "identifier": self.__class__.__name__,
+                "widget": widgetparams,
+                "ports": subports}
+        
+
+
+class ModelField(ModelPortMixin, PrimaryKeyRelatedField):
     type= "model"
     widget = ModelWidget()
 
@@ -94,9 +126,14 @@ class UUIDField(PortMixin, serializers.BooleanField):
 
 #TODO: Refactor into seperate module
 
-class Object(serializers.Serializer):
+class Object(ObjectPortMixin, serializers.Serializer):
     type = "object"
     widget = ObjectWidget()
+
+
+
+
+
 
 class Inputs(serializers.Serializer):
     pass

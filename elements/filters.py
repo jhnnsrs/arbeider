@@ -1,8 +1,6 @@
 import django_filters
 from django_filters import FilterSet
 
-from bioconverter.models import BioSeries
-
 
 class ExperimentFilter(FilterSet):
     creator = django_filters.NumberFilter(field_name='creator')

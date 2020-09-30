@@ -3,6 +3,7 @@ import logging
 
 from django.forms.models import model_to_dict
 
+import unflatten
 from delt import publishers
 from delt.bouncers.context import BouncerContext
 from delt.bouncers.job.base import BaseJobBouncer
@@ -171,6 +172,9 @@ def provision_pod_pipe(context: BouncerContext, reference, node: Node, selector:
 
 #@pipe("assign_inputs")
 def assign_inputs_pipe(context: BouncerContext, reference, pod: Pod, inputs: dict):
+    print(inputs)
+    inputs = unflatten.unflatten(inputs)
+    print(inputs)
 
     #Check if a Provsion already exists under this reference
     try:

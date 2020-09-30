@@ -54,16 +54,6 @@ class ProvisionViewSet(viewsets.ModelViewSet):
     queryset = Provision.objects.all()
     serializer_class = ProvisionModelSerializer
 
-class FlowViewSet(viewsets.ModelViewSet):
-    # MAKE THIS AN ACTION PUBLISHER THAT WILL PIPE IT THROUGH A META OBJECT CREATOR
-
-    filter_backends = (DjangoFilterBackend,)
-    filter_fields = ("creator", "group", "type")
-    queryset = Flow.objects.all()
-    serializer_class = FlowSerializer
-    publishers = [["creator"]]
-
-
 
 
 

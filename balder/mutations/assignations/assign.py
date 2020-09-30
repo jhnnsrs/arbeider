@@ -44,5 +44,4 @@ class AssignMutation(BaseMutation):
         
         assignation = assign_inputs_pipe(context, reference, pod, inputs)
 
-        kwargs = modelToDict(assignation)
-        return AssignationType(**kwargs)
+        return assignation

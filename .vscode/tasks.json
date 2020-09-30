@@ -18,7 +18,12 @@
             "label": "Providers",
             "type": "shell",
             "command": "python manage.py runproviders"
-        }
+        },
+        {
+            "label": "Kanal",
+            "type": "shell",
+            "command": "python manage.py runkanal"
+        },
         {
             "label": "Schema",
             "type": "shell",

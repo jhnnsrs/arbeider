@@ -63,47 +63,22 @@ class KonfigBackend(NodeBackendRegister):
         logger.debug(f"Evaluating {cls.__name__}")
 
         # The Register as a Subclass of Node
-        register  =  self.register
+        register  = self.register
 
         # Will help to identifiy the Node within the Framework
-        realm = self.get_value_in_derived("provider")
-        package = self.get_value_in_derived("package", default=self.konfig.__module__)
-        interface = self.get_value_in_derived("interface", default=self.konfig.__name__ )
+        realm = self.provider
 
-        # The Indentifier should be unique for each
-        self.identifier = node_identifier(package, interface)
-
-        # General
-        name = self.get_value_in_derived("name", default=cls.__name__)
-        description = escape(self.get_value_in_derived("description", default=self.konfig.__doc__ or "No Description"))
-
-        # Graph Related
-        inputs = parse_inputs(self.konfig)
-        outputs = parse_outputs(self.konfig)
-        nodeclass = self.get_value_in_derived("nodeclass", default=self.get_default_nodetype())
-        variety = self.get_value_in_derived("variety", default="unknown")
-
-        # Publishers
-        publishers = self.get_value_in_derived("publishers", default=self.settings.defaultPublishers)
-
+        self.identifier =  self.konfig.get_node_identifier();
 
         nodeDefaults = {
+            **self.konfig.serialize(),
             "realm": realm,
-            "package" : package,
-            "interface" : interface,
-            "publishers" : publishers,
-            "name":  name,
-            "description" : description,
-            "inputs" : inputs,
-            "outputs" : outputs,
-            "nodeclass" : nodeclass,
-            "variety" : variety,
+            "publishers" : self.settings.defaultPublishers,
             "repository": get_konfig_repository(),
         }
 
         nodeUniques = {
             "identifier" : self.identifier,
-
         }
 
         additionalKwargs = self.get_additional_kwargs()
@@ -112,30 +87,32 @@ class KonfigBackend(NodeBackendRegister):
         nodeDefaults.update(additionalKwargs)
         nodeUniques.update(additionalUniques)
 
+        print(nodeDefaults)
+
 
         # Register With Backend if channel and node
         if issubclass(self.konfig, Konfig): # A Check
-            logger.debug(f"Registering {cls.__name__} wtih {register.__name__}")
+            logger.debug(f"Registering {cls.__name__} with {register.__name__}")
             try:
                 node = register.objects.get(**nodeUniques)
                 updated = compareNodes(node, nodeDefaults)
                 if bool(updated):
                     for key, value in updated.items():
                         if key == "outputs" or key == "inputs":
-                            logger.info(f"Updated {key} on {package}/{interface}")
+                            logger.info(f"Updated {key} on {nodeDefaults['package']}/{nodeDefaults['interface']}")
                         else: 
-                            logger.info(f"Updated {key} to {value} on {package}/{interface}")
+                            logger.info(f"Updated {key} to {value} on {nodeDefaults['package']}/{nodeDefaults['interface']}")
                 
                 for key, value in nodeDefaults.items():
                     setattr(node, key, value)
                 node.save()
-                logger.debug(f"Updated {package}/{interface} on Identifier: {self.identifier}")
+                logger.debug(f"Updated {nodeDefaults['package']}/{nodeDefaults['interface']} on Identifier: {self.identifier}")
             except KonfigNode.DoesNotExist:
                 combined = {**nodeUniques}
                 combined.update(nodeDefaults)
                 node = register(**combined)
                 node.save()
-                logger.info(f"Created {package}/{interface} on Identifier: {self.identifier}")
+                logger.info(f"Created {nodeDefaults['package']}/{nodeDefaults['interface']} on Identifier: {self.identifier}")
             logger.debug("Registered succesfully")
         
         else:
@@ -178,11 +155,11 @@ class KonfigBackend(NodeBackendRegister):
         return cls
 
     def register_class(self, cls):
-        pass
-
-    def cls_to_be_returned(self, cls):
         logger.info(f"Registering {cls}")
         get_orchestrator().setValidatorForNodeIdentifier(self.identifier, KonfigValidator(self.konfig))
+        return cls
+
+    def cls_to_be_returned(self, cls):
         return cls
 
 

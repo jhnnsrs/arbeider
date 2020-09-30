@@ -39,7 +39,7 @@ class KanalSyncConsumer(SyncConsumer):
 
 
     def progress(self, message):
-        logger.info("Progress", message)
+        logger.info(f"Progress {message}")
         self.assignation.status = f"progress: {message}"
         self.assignation.save()
 
@@ -53,7 +53,7 @@ class KanalSyncConsumer(SyncConsumer):
         if inputs.is_valid(raise_exception=True):
             try:
                 outputdict = self.start(inputs.validated_data)
-
+                print(outputdict)
                 # Serialize the outputs
                 outputs = self.konfig.outputs(outputdict)
                 self.assignation.status = "done"

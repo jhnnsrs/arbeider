@@ -13,7 +13,10 @@ from zarr.storage import DirectoryStore
 
 def main():
     from delt.models import Pod
-    pods = Pod.objects.accessible("jonoe").filter(node__inputs__contains=[{"identifier":["Roi","Representation"]}])
+    pod =  Pod.objects.first()
+    print(pod)
+    print(pod.node.inputs)
+    pods = Pod.objects.filter(node__inputs__contains=[{"identifier":"Representation"}]).filter(node__inputs__contains=[{"identifier":"ROI"}])
     print(pods)
 
 

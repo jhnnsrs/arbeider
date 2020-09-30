@@ -1,3 +1,4 @@
+from kanal.registry import get_kanal_registry
 import logging
 
 from channels import DEFAULT_CHANNEL_LAYER
@@ -40,9 +41,11 @@ class Command(BaseCommand):
         if self.channel_layer is None:
             raise CommandError("You do not have any CHANNEL_LAYERS configured.")
         # Autodiscover all of the the worker
-        registry = autodiscover_pods(backend="kanal", register=True)
-        allchannels = [key for key, _ in get_orchestrator().getConsumersMap().items()]
-        names = "\n".join([f'{consumer.konfig.name} at {key}' for key, consumer in get_orchestrator().getConsumersMap().items()])
+        print("Starting")
+        autodiscover_pods(backend="kanal", register=True)
+        print("Ending")
+        allchannels = [key for key, _ in get_kanal_registry().getConsumersMap().items()]
+        names = "\n".join([f'{consumer.konfig.name} at {key}' for key, consumer in get_kanal_registry().getConsumersMap().items()])
         logger.info("Running worker for channels %s", allchannels)
         worker = self.worker_class(
             application=get_default_application(),

@@ -1,9 +1,6 @@
-from herre.fields import FileField
 from rest_framework import fields, serializers
 
 from delt.nodes.base import NodeBackendRegisterConfigurationError
-from delt.models import Node
-from konfig.node import Konfig
 from konfig.params import *
 
 INPUT_IDENTIFIER = "inputs"
@@ -38,27 +35,14 @@ def generatePort(key, field , depth=0):
 
     if isinstance(field, PortMixin):
         # Port Mixins can generate themselves Dynamically
-        return field.build_port(key)
-    elif isinstance(field, Object):
-        argsfields = field.fields #We are dealing with an Instance
-        subports = []
-        for subkey, subfield in argsfields.items():
-            subports.append(generatePort(subkey, subfield, depth=depth+1))
-        return { "name": field_name(field,key),
-        "key": key,
-        "description": field.help_text,
-        "required": field.required,
-        "default": None, 
-        "type": "object",
-        "primary": False,
-        "identifier": field.__class__.__name__,
-        "widget": field.widget.serialize(field),
-        "ports": subports}
+        field = field.build_port(key)
+        print(field)
+        return field
     else:
         raise NotImplementedError(f"We dont know how to serialize the {key}: {field}")
 
 
-def parse_inputs(config: Konfig):
+def parse_inputs(config):
     ports = []
     if hasattr(config, INPUT_IDENTIFIER):
         inputs = getattr(config, INPUT_IDENTIFIER)
@@ -68,7 +52,7 @@ def parse_inputs(config: Konfig):
             ports.append(port)
     return ports
 
-def parse_outputs(config: Konfig):
+def parse_outputs(config):
     ports = []
     if hasattr(config, OUTPUT_IDENTIFIER):
         outputs = getattr(config, OUTPUT_IDENTIFIER)

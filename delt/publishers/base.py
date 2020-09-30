@@ -73,7 +73,7 @@ class BasePublisher(object):
             assert callable(method)
             return method
         except AttributeError:
-            if self.universal:
+            if getattr(self, "universal", False):
                 logger.error(f"{self.__class__.__name__} doesnt know how to handle this event, please provide 'on_{field}' Method")
             return lambda *arg, **kwargs: True
 

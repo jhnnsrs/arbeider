@@ -7,7 +7,7 @@ from balder.registry import get_balder_registry
 from balder.subscriptions.provisions.monitor import MonitorSubscription
 from balder.subscriptions.provisions.provide import ProvideSubscription
 from balder.subscriptions.provisions.utils import to_balder_provision_listeners 
-from balder.subscriptions.jobs.utils import to_balder_assignation_listeners 
+from balder.subscriptions.assignation.utils import to_balder_assignation_listeners 
 from delt.models import Job, Pod
 from delt.publishers.base import BasePublisher, BasePublisherSettings
 from delt.serializers import JobSerializer, PodSerializer, ProvisionSerializer

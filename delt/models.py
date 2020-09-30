@@ -137,9 +137,4 @@ class Assignation(models.Model):
     def __str__(self) -> str:
         return f"Assignation (ref: {self.reference}) for {self.pod} "
     
-# Layout and Flow for construction of Graphs
-class Flow(models.Model):
-    creator = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, null=True, blank=True)
-    name = models.CharField(max_length=100, null=True, default="Not Set")
-    diagram = JSONField(max_length=50000, help_text="The Charted diagram")
-    description = models.CharField(max_length=50000, default="Add a Description")
+    

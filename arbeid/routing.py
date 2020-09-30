@@ -1,3 +1,4 @@
+from kanal.registry import get_kanal_registry
 from balder.notifier.consumer import NotifyConsumer
 from channels.auth import AuthMiddlewareStack
 from channels.routing import ChannelNameRouter, ProtocolTypeRouter, URLRouter
@@ -34,7 +35,8 @@ application = ProtocolTypeRouter({
         path('graphql', MyGraphqlWsConsumer),
     ])),
     "channel": ChannelNameRouter({
-        **get_registry().getConsumersMap(),
+        # If running in KANAL Mode
+        **get_kanal_registry().getConsumersMap(),
         "fremmed": FremmedProvisionConsumer,
         "kanal": KanalProvisionConsumer,
         "fremmedjob": FremmedJobConsumer,

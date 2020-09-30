@@ -15,7 +15,6 @@ from delt.exceptions import DeltConfigError
 from delt.models import Node, Pod, models
 from delt.register import (BaseRegister, BaseRegisterConfigurationError,
                            BaseRegisterSettings)
-from delt.registry import get_registry
 
 logger = logging.getLogger(__name__)
 INPUT_IDENTIFIER = "inputs"

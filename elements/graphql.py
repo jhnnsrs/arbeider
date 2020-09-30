@@ -3,7 +3,7 @@ from balder.wrappers import BalderObjectWrapper
 from elements.types import SampleType
 import graphene 
 from .models import Representation, Sample
-from .types import ChannelType, RepresentationType, SampleType
+from .types import ChannelType, DimsType, RepresentationType, SampleType
 
 
 @register_query("allRepresentation", description="All Representations")
@@ -31,6 +31,12 @@ class ChannelsOfWrapper(BalderObjectWrapper):
     object_type = ChannelType
     resolver = lambda root, info, rep: Representation.objects.get(id=rep).channels
     aslist = True
+
+@register_query("dimsof", description="Channel of a Representation", rep = graphene.Int(required=True, ))
+class ChannelsOfWrapper(BalderObjectWrapper):
+    object_type = DimsType
+    resolver = lambda root, info, rep: dict(zip(Representation.objects.get(id=rep).dims,Representation.objects.get(id=1).shape))
+    asfield = True
 
 
 

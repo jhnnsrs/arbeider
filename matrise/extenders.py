@@ -64,7 +64,7 @@ class MetaAccessor:
         # we can use a cache on our accessor objects, because accessors
         # themselves are cached on instances that access them.
 
-        lala = dd.from_dask_array(self._obj.channels.data.flatten())
+        lala = dd.from_dask_array(self._obj.planes.data.flatten())
         return lala
 
     @property

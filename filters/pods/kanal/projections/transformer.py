@@ -1,5 +1,5 @@
 from filters.konfigs.tests import TestConfig
-from kanal.registry import register_with_kanal_backend
+from kanal.backend import register_with_kanal_backend
 from filters.pods.kanal.base import FilterConsumer
 import xarray as xr
 

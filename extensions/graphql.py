@@ -1,28 +1,20 @@
-from django.db.models.base import ModelStateFieldsCacheDescriptor
-from rest_framework.serializers import ModelSerializer
+from balder.subscriptions.assignation.watch import WatchSubscription
 from balder.subscriptions.helpers.myprovisions import MyProvisionsSubscription, MyProvisions
 from delt.bouncers.context import BouncerContext
 import graphene
-from django.forms.models import model_to_dict
-from graphene.types.generic import GenericScalar
 
-from balder.delt.models import JobType, NodeType, PodType, ProvisionType, UserType
+from balder.delt.models import AssignationType, NodeType, PodType, ProvisionType, UserType
 from balder.mutations.assignations.assign import AssignMutation
 from balder.mutations.provisions.provide import ProvideMutation
-from balder.queries.provisions.monitor import MonitorQuery
 from balder.register import (register_mutation, register_query,
                              register_subscription)
 from balder.subscriptions.provisions.monitor import MonitorSubscription
-from balder.subscriptions.jobs.assign import AssignSubscription
-from balder.subscriptions.jobs.check import CheckSubscription
+from balder.subscriptions.assignation.assign import AssignSubscription
 from balder.subscriptions.provisions.provide import ProvideSubscription
 from balder.wrappers import (BalderMutationWrapper, BalderObjectWrapper, BalderSubscriptionWrapper)
-from delt.models import Job, Node, Pod, Provision
+from delt.models import Assignation, Node, Pod, Provision
 from extensions.fremmed.mutations import SlotMutation
 from extensions.fremmed.subscriptions import GateSubscription
-from extensions.types.fremmed import FrontendPodType
-from fremmed.models import FrontendPod
-from fremmed.serializers import FrontendPodSerializer
 
 
 @register_query("nodes", description="Get all nodes in this bergen instance", withfilter=True)
@@ -133,10 +125,6 @@ class MyProvisionSubscriptionWrapper(BalderSubscriptionWrapper):
 class ProvideMutationWrapper(BalderMutationWrapper):
     mutation = ProvideMutation
 
-@register_mutation("assign", description="Assign Job")
-class AssignMutationWrapper(BalderMutationWrapper):
-    mutation = AssignMutation
-
 @register_query("monitor", reference= graphene.String(description="The monitored Provision"), description="Show the status of a Provision")
 class MonitorQueryWrapper(BalderObjectWrapper):
     object_type = ProvisionType
@@ -165,12 +153,27 @@ class Gate(BalderSubscriptionWrapper):
 
 # ASSIGNATION SHIT
 
+
+
+@register_mutation("assign", description="Assign Job")
+class AssignMutationWrapper(BalderMutationWrapper):
+    mutation = AssignMutation
+
 @register_subscription("assign", description="Assign Jobs for a Pod (in one go)")
 class AssignSubscriptionWrapper(BalderSubscriptionWrapper):
     ''' This provides a fast way to provide a node though a provision and moniters it on the way, violates CQRS patterns'''
     subscription = AssignSubscription
 
-@register_subscription("check", description="Monitor a Job for changes")
+@register_query("watch", reference= graphene.String(description="The monitored assignation"), description="Show the status of a Assignation")
+class MonitorQueryWrapper(BalderObjectWrapper):
+    object_type = AssignationType
+    asfield = True
+
+    @staticmethod
+    def resolver(root, info, reference):
+        return Assignation.objects.get(reference=reference)
+
+@register_subscription("watch", description="Monitor a Job for changes")
 class MonitorSubscriptionWrapper(BalderSubscriptionWrapper):
-    ''' This provides a fast way to provide a node though a provision and moniters it on the way, violates CQRS patterns'''
-    subscription = CheckSubscription
+    ''' The Proper way to watch for changes in an assignation'''
+    subscription = WatchSubscription

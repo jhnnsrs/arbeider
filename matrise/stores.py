@@ -1,4 +1,5 @@
 
+import asyncio
 import s3fs
 import xarray as xr
 import zarr
@@ -67,6 +68,7 @@ class XArrayStore(FieldFile):
 
         try:
             logger.info(f"Saving File with API v.{apiversion}  and File v.{fileversion} ")
+            print(self.connected)
             return dataset.to_zarr(store=self.connected, mode="w", compute=compute, consolidated=True)
         except Exception as e:
             raise e
