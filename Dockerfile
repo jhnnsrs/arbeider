@@ -1,4 +1,4 @@
-FROM python:3.7
+FROM python:3.8
 LABEL maintainer="jhnnsrs@gmail.com"
 
 # Install Minimal Dependencies for Django

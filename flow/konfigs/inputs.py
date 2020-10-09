@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from elements.models import Representation
 from konfig.node import Konfig
-from konfig.params import ModelField, Inputs, Outputs
+from konfig.params import ModelPort, Inputs, Outputs
 
 class ModelInputKonfig(Konfig):
     package = "@flow/inputs/model"
@@ -12,7 +12,7 @@ class RepresentationInput(Inputs):
     pass
 
 class RepresentationOutput(Outputs):
-    rep = ModelField(Representation, label="The Representation", description="This will be the right thing")
+    rep = ModelPort(Representation, label="The Representation", description="This will be the right thing")
 
 
 class RepresentationInputKonfig(ModelInputKonfig):

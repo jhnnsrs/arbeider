@@ -24,8 +24,6 @@ class MyProvisionsMessage(serializers.Serializer):
 MyProvisions = lambda user: Provision.objects.filter(user=user, active=True).order_by("-created_at")[:5]
 
 
-
-@initialPayload(lambda context, *args, **kwargs: MyProvisions(context.user))
 class MyProvisionsSubscription(BaseSubscription):
     Output = graphene.List(ProvisionType)
     

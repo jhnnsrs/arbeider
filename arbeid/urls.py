@@ -58,7 +58,7 @@ try:
 except Exception as e:
     # TODO: For now if we are migrating this returns an error
     logger.error(f"Could not discover Nodes {e}")
-    raise e
+    raise e  
 
 
 orchestrator = get_orchestrator()
@@ -120,5 +120,6 @@ urlpatterns = [
     url(r'^api/config/', include((configrouter.urls, 'configapi'))),
     url(r'^api/jobs/', include((jobrouter.urls, 'jobsapi'))),
     url(r'^api/flows/', include((flowrouter.urls, 'flowsapi'))),
+    url('avatar/', include('avatar.urls')),
     path('o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
 ]

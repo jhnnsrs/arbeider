@@ -1,22 +1,22 @@
+from kanal.consumers.asynchronous.base import KanalAsyncConsumer
 from kanal.consumers.sync.dask import KanalSyncConsumer
 from elements.models import Representation
 import xarray as xr
+
+
 
 class FilterConsumer(KanalSyncConsumer):
 
     def start(self, inputs):
         rep = inputs.pop("rep")
-        array: xr.DataArray = rep.array
+        array = rep.array
+        
+        newarray = self.run(array, {})
 
-        filtered = self.run(array, inputs)
+        newrep, graph  = Representation.delayed.from_xarray(newarray, creator=self.assignation.creator, sample=rep.sample, name= self.konfig.serialize()["name"] + "of" + rep.name, chain=str(rep.chain) + "|" + self.konfig.get_interface())
 
-        repout = Representation.objects.from_xarray(filtered, name=f"{self.konfig.name} of {rep.name}", sample=rep.sample, creator=self.assignation.creator,
-                                                                           type=self.konfig.interface,
-                                                                           chain=f'{rep.chain}|{self.konfig.interface}')
-
-
-        print(repout)
-        return { "rep": repout}
+        graph.compute()
+        return { "rep": newrep}
 
     def run(self, array: xr.DataArray, settings: dict) -> xr.DataArray:
         raise NotImplementedError

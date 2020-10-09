@@ -1,10 +1,10 @@
-from konfig.params import IntField, CharField
+from konfig.params import IntPort, CharPort
 from .base import BaseFilterOutputs, BaseFilterKonfig, BaseFilterInputs
 
 
 class PrewittFilterInputs(BaseFilterInputs):
-    sigma = IntField(allow_null=True, help_text="The Upper Index / The Upper Limit for the Slice", default=5)
-    title = CharField(allow_null=True, help_text=" The title for thisSlice", default=5)
+    sigma = IntPort(allow_null=True, help_text="The Upper Index / The Upper Limit for the Slice", default=5)
+    title = CharPort(allow_null=True, help_text=" The title for thisSlice", default=5)
 
 class PrewittFilterKonfig(BaseFilterKonfig):
     """## Prewitt operator

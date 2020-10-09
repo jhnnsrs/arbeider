@@ -25,7 +25,7 @@ class BouncerContext(object):
         self._token = None
         if request is not None:
             
-            logger.info("Provided through preauthenticated Request")
+            logger.debug("Provided through preauthenticated Request")
             self._user = request.user
             self._auth = request.auth
         if info is not None:
@@ -33,11 +33,11 @@ class BouncerContext(object):
             try:
                 self._user = info.context._scope["user"]
                 self._auth = info.context._scope["auth"]
-                logger.info("Provided through preauthenticated Context _scope")
+                logger.debug("Provided through preauthenticated Context _scope")
             except:
                 self._user = info.context.user
                 self._auth = None
-                logger.info("Provided through preauthenticated Context")
+                logger.debug("Provided through preauthenticated Context")
 
             #TODO: Impelement oauth thingy dingy
 
@@ -58,7 +58,7 @@ class BouncerContext(object):
                 user_auth_tuple = None
                 user_auth_tuple = authenticator.authenticate(get_request)
                 if user_auth_tuple is not None:
-                    logger.info("Provided through OAuth2 Token")
+                    logger.debug("Provided through OAuth2 Token")
                     self._user, self._auth = user_auth_tuple
                     
                 else:
@@ -83,7 +83,7 @@ class BouncerContext(object):
     def user(self):
         if self._user.id is None:
             self._user = get_anonymous_user()
-        logger.info(f"User is {self._user}")
+        logger.debug(f"User is {self._user}")
         return self._user
 
 

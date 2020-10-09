@@ -188,6 +188,7 @@ INSTALLED_APPS = [
     'delt',
     'bord',
     'matrise',
+    'avatar'
 ] + EXTENSIONS + MODULES
 
 

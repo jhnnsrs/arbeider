@@ -1,3 +1,5 @@
+from delt.integrity import node_identifier
+from typing import Iterable, Optional
 from delt.managers import PodManager
 import uuid
 
@@ -9,10 +11,15 @@ from delt.fields import (AccessPolicy, ArgsField, InputsField, OutputsField,
                          PublishersField, SelectorField, SettingsField)
 from delt.helpers import get_default_job_settings
 from delt.constants.lifecycle import JOB_PENDING, POD_PENDING
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 
 class Repository(models.Model):
-    name = models.CharField(max_length=1000, unique=True, help_text="A unique identifier of this Repository on this Platform, calculated hashing the package and interface")
+    creator = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, null=True, blank=True, help_text="The Person that created this repository")
+    name = models.CharField(max_length=1000, help_text="A unique identifier of this Repository on this Platform, calculated hashing the package and interface")
 
     def __str__(self) -> str:
         return self.name
@@ -32,11 +39,23 @@ class Node(models.Model):
     nodeclass = models.CharField(max_length=400, default="classic-node")
     repository = models.ForeignKey(Repository, null=True, blank=True, on_delete=models.CASCADE)
 
+    def save(self,*args, **kwargs) -> None:
+        logger.info(f"Validating Integrity of {str(self)}")
+        if not self.identifier:
+            self.identifier = node_identifier(self.package,self.interface)
+        return super().save(*args, **kwargs)
+
     def get_identifier(self):
         return self.identifier
 
     def __str__(self):
         return f"Node {self.name} ( Package: {self.package}/{self.interface}  ) on Identifier {self.identifier}"
+
+
+class Template(models.Model):
+    creator = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, null=True, blank=True)
+    node = models.ForeignKey(Node, on_delete=models.CASCADE, help_text="The Node this Template Belongs to")
+    name = models.CharField(max_length=1000, help_text="The name of this template")
 
 
 class Route(models.Model):
@@ -135,6 +154,6 @@ class Assignation(models.Model):
     token = models.CharField(max_length=1000, blank=True, default=uuid.uuid4(), null=True, help_text="The Token that created this Provision")
 
     def __str__(self) -> str:
-        return f"Assignation (ref: {self.reference}) for {self.pod} "
+        return f"Assignation {self.id} on (ref: {self.reference}) for {self.pod} "
     
     

@@ -1,18 +1,18 @@
 from elements.models import Representation
 from konfig.widgets import QueryWidget, SliderWidget
-from konfig.params import IntField, ModelField
+from konfig.params import IntPort, ModelPort
 from .base import BaseFilterOutputs, BaseFilterKonfig, BaseFilterInputs
 
 class BlurFilterInputs(BaseFilterInputs):
-    sigma = IntField(allow_null=True, label="Sigma", help_text="Sigma describes a helpful way to ", default=5, max_value=12, min_value=1, widget=SliderWidget())
-    channel = IntField(label="The parseable Channel", description="The channel that you want to parse", widget= QueryWidget(query="""
+    sigma = IntPort(allow_null=True, label="Sigma", help_text="Sigma describes a helpful way to ", default=5, max_value=12, min_value=1, widget=SliderWidget())
+    channel = IntPort(label="The parseable Channel", description="The channel that you want to parse", widget= QueryWidget(query="""
     query {
   data: channelsof(rep: {{rep}}) {
     value: index
     label: name
   }
 }""", dependencies = ["rep"]))
-    planes = IntField(label="The planes that matter", description="The channel that you want to parse", widget= QueryWidget(query="""
+    planes = IntPort(label="The planes that matter", description="The channel that you want to parse", widget= QueryWidget(query="""
     query {
   data: channelsof(rep: {{channel}}) {
     value: index

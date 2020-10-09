@@ -1,4 +1,4 @@
-from konfig.params import IntField
+from konfig.params import IntPort
 from .base import BaseFilterOutputs, BaseFilterKonfig, BaseFilterInputs
 
 

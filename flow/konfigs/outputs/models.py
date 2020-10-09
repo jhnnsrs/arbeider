@@ -1,6 +1,6 @@
 from elements.models import Representation
 from konfig.node import Konfig
-from konfig.params import ModelField, Inputs, Outputs
+from konfig.params import ModelPort, Inputs, Outputs
 
 class ModelOutputKonfig(Konfig):
     package = "@flow/ouputs/model"
@@ -8,7 +8,7 @@ class ModelOutputKonfig(Konfig):
 
 
 class RepresentationInput(Inputs):
-    rep = ModelField(Representation, label="The Representation", description="This will be the right thing")
+    rep = ModelPort(Representation, label="The Representation", description="This will be the right thing")
 
 class RepresentationOutput(Outputs):
     pass

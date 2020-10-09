@@ -9,7 +9,7 @@ class LinerInputs(params.Inputs):
     vectors = Vectors()
 
 class LinerOutputs(params.Outputs):
-    roi = params.ModelField(LineRoi)
+    roi = params.ModelPort(LineRoi)
 
 
 class LinerKonfig(Konfig):

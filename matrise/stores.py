@@ -1,7 +1,9 @@
 
 import asyncio
+from fsspec.asyn import async_wrapper
 import s3fs
 import xarray as xr
+from xarray.core import dataset
 import zarr
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
@@ -9,6 +11,7 @@ from django.db.models.fields.files import FieldFile
 from storages.backends.s3boto3 import S3Boto3Storage
 from zarr import blosc
 import logging
+from asgiref.sync import async_to_sync
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +27,36 @@ class NotCompatibleException(Exception):
 
 
 
+
+async def getDatasetFromStore(store):
+    loop = asyncio.get_running_loop()
+    print(loop)
+    bucket = store.storage.bucket_name
+    location = store.storage.location
+    s3_path = f"{bucket}/{store.name}"
+
+    s3 = s3fs.S3FileSystem(client_kwargs={"endpoint_url": settings.AWS_S3_ENDPOINT_URL}, asynchronous=True, loop=loop)
+    await s3._connect()
+    store = s3.get_mapper(s3_path)
+    return xr.open_zarr(store=store, consolidated=False)
+
+
+async def writeDatasetToStore(store, dataset, compute=True):
+    loop = asyncio.get_running_loop()
+    bucket = store.storage.bucket_name
+    location = store.storage.location
+    s3_path = f"{bucket}/{store.name}"
+
+
+    s3 = s3fs.S3FileSystem(client_kwargs={"endpoint_url": settings.AWS_S3_ENDPOINT_URL}, asynchronous=True, loop=loop)
+    await s3._connect()
+    store = s3.get_mapper(s3_path)
+    return dataset.to_zarr(store=store, mode="w", compute=compute, consolidated=True)
+
+
+
+
+
 class XArrayStore(FieldFile):
 
     def _getStore(self):
@@ -33,9 +66,8 @@ class XArrayStore(FieldFile):
             s3_path = f"{bucket}/{self.name}"
             # Initilize the S3 file system
             logger.info(f"Bucket [{bucket}]: Connecting to {self.name}")
-            s3 = s3fs.S3FileSystem(client_kwargs={"endpoint_url": settings.AWS_S3_ENDPOINT_URL})
-            store = s3fs.S3Map(root=s3_path, s3=s3)
-            return store
+            store = s3fs.S3FileSystem(client_kwargs={"endpoint_url": settings.AWS_S3_ENDPOINT_URL})
+            return store.get_mapper(s3_path)
         if isinstance(self.storage, FileSystemStorage):
             location = self.storage.location
             path = f"{location}/{self.name}"
@@ -50,7 +82,9 @@ class XArrayStore(FieldFile):
     def connected(self):
         return self._getStore()
 
-    def save(self, array, compute=True, apiversion = settings.MATRISE_APIVERSION, fileversion= settings.MATRISE_FILEVERSION):
+
+
+    def save(self, array: xr.DataArray, compute=True, apiversion = settings.MATRISE_APIVERSION, fileversion= settings.MATRISE_FILEVERSION):
         if self.instance.unique is None: raise Exception("Please assign a Unique ID first")
         dataset = None
         if apiversion == "0.1":
@@ -68,7 +102,6 @@ class XArrayStore(FieldFile):
 
         try:
             logger.info(f"Saving File with API v.{apiversion}  and File v.{fileversion} ")
-            print(self.connected)
             return dataset.to_zarr(store=self.connected, mode="w", compute=compute, consolidated=True)
         except Exception as e:
             raise e

@@ -1,5 +1,5 @@
 from konfig.node import Konfig
-from konfig.params import CharField, IntField, Inputs, Outputs
+from konfig.params import CharPort, IntPort, Inputs, Outputs
 
 
 class GenericInputKonfig(Konfig):
@@ -12,7 +12,7 @@ class IntInput(Inputs):
     pass
 
 class IntOutput(Outputs):
-    int = IntField(label="Integer", description="The Input Integer")
+    int = IntPort(label="Integer", description="The Input Integer")
 
 
 class IntInputKonfig(GenericInputKonfig):
@@ -25,7 +25,7 @@ class StrInput(Inputs):
     pass
 
 class StrOutput(Outputs):
-    str = CharField(label="String", description="The Input Characters")
+    str = CharPort(label="String", description="The Input Characters")
 
 
 class StrInputKonfig(GenericInputKonfig):

@@ -1,4 +1,6 @@
-from konfig.widgets import CharWidget, FloatWidget, IntWidget, ListWidget, ModelWidget, ObjectWidget, SwitchWidget, UUIDWidget, Widget
+from typing import List
+import graphene
+from konfig.widgets import Widget, CharWidget, FileWidget, FloatWidget, IntWidget, ListWidget, ModelWidget, ObjectWidget, SwitchWidget, UUIDWidget, Widget
 import logging
 import uuid
 
@@ -26,6 +28,25 @@ class PortMixin(object):
 
         super(PortMixin, self).__init__(*args, **kwargs, help_text=help_text)
 
+    @classmethod
+    def types(cls):
+        return { 
+            "type": str, 
+            "key": str,
+            "name": str,
+            "dependencies": List[str],
+            "description": str,
+            "required": bool,
+            "primary": bool,
+            "widget": Widget,
+        **cls.paramTypes()}
+
+    def params(self, key, depth=0):
+        return {}
+
+    @classmethod
+    def paramTypes(cls):
+        return {}
 
     def build_port(self, key, depth=0):
         assert (self.widget is not None and isinstance(self.widget, Widget)), "Problematic Port Setup"
@@ -46,7 +67,8 @@ class PortMixin(object):
         "default": default,
         "type": self.type,
         "primary": self.portprimary,
-        "widget": params
+        "widget": params,
+        **self.params(key, depth=depth)
         }
 
 
@@ -57,11 +79,17 @@ class ModelPortMixin(PortMixin):
         super().__init__(*args, queryset= querybuilder(model),**kwargs)
 
 
-    def build_port(self, key, depth=0):
-        
-        standard = super().build_port(key)
-        
-        return { **standard, "identifier": self.portidentifer}
+    
+    def params(self, key, depth=0):
+        return {
+            "identifier": self.portidentifer
+        }
+
+    @classmethod
+    def paramTypes(cls):
+        return {
+            "identifier": str
+        }
 
 
 
@@ -72,9 +100,7 @@ class ObjectPortMixin(PortMixin):
         super().__init__( *args, **kwargs)
 
 
-    def build_port(self, key, depth=0):
-        assert (self.widget is not None and isinstance(self.widget, Widget)), "Problematic Port Setup"
-        widgetparams = self.widget.serialize(self) if self.widget else {}
+    def params(self, key, depth=0):
 
         if (depth >= 3): raise NotImplementedError("Maximum recursion of Objects exceeded")
         argsfields = self.fields #We are dealing with an Instance
@@ -82,53 +108,85 @@ class ObjectPortMixin(PortMixin):
         for subkey, subfield in argsfields.items():
             assert(isinstance(subfield, PortMixin)), "Fiedls of ObjectPort must be implementing PortMixin"
             subports.append(subfield.build_port(f"{key}.{subkey}", depth=depth+1))
-        return {"name": getattr(self,"name",self.__class__.__name__),
-                "key": key,
-                "description": self.portdescription or self.help_text,
-                "required": self.required,
-                "default": None, 
-                "type": "object",
-                "primary": False,
-                "identifier": self.__class__.__name__,
-                "widget": widgetparams,
-                "ports": subports}
-        
+        return {
+            "ports": subports
+        }
+
+    
+    @classmethod
+    def paramTypes(cls):
+        return {
+            "ports": List[PortMixin]
+        }
+       
 
 
-class ModelField(ModelPortMixin, PrimaryKeyRelatedField):
+class ModelPort(ModelPortMixin, PrimaryKeyRelatedField):
     type= "model"
     widget = ModelWidget()
+    description="This is a Model Port"
 
-class CharField(PortMixin, serializers.CharField):
+class CharPort(PortMixin, serializers.CharField):
     type= "char"
     widget = CharWidget()
+    description="This is a Model Port"
 
-class IntField(PortMixin, serializers.IntegerField):
+
+class FilePort(PortMixin, serializers.FileField):
+    type= "file"
+    widget = FileWidget()
+    description="This is a Model Port"
+
+class IntPort(PortMixin, serializers.IntegerField):
     type= "int"
     widget = IntWidget()
+    description="This is a Model Port"
 
-class FloatField(PortMixin, serializers.FloatField):
+    @classmethod
+    def paramTypes(cls):
+        return {
+            "default": int
+        }
+
+class FloatPort(PortMixin, serializers.FloatField):
     type= "float"
     widget = FloatWidget()
+    description="This is a Model Port"
 
-class ListField(PortMixin, serializers.ListField):
+    @classmethod
+    def paramTypes(cls):
+        return {
+            "default": float
+        }
+
+class ListPort(PortMixin, serializers.ListField):
     type= "list"
     widget = ListWidget()
+    description="This is a Model Port"
 
-class BoolField(PortMixin, serializers.BooleanField):
+    @classmethod
+    def paramTypes(cls):
+        return {
+            "default": List
+        }
+
+class BoolPort(PortMixin, serializers.BooleanField):
     type= "bool"
     widget = SwitchWidget()
+    description="This is a Model Port"
 
-class UUIDField(PortMixin, serializers.BooleanField):
+class UUIDPort(PortMixin, serializers.BooleanField):
     type= "uuid"
     widget = UUIDWidget()
+    description="This is a Model Port"
 
 
 #TODO: Refactor into seperate module
 
-class Object(ObjectPortMixin, serializers.Serializer):
+class ObjectPort(ObjectPortMixin, serializers.Serializer):
     type = "object"
     widget = ObjectWidget()
+    description="This is a Model Port"
 
 
 
@@ -142,10 +200,10 @@ class Outputs(serializers.Serializer):
     pass
 
 class DummyInputs(serializers.Serializer):
-    dummy = CharField(help_text= "This is just a Dummy")
+    dummy = CharPort(help_text= "This is just a Dummy")
 
 class DummyOutputs(serializers.Serializer):
-    dummy = CharField(help_text= "This is just a Dummy")
+    dummy = CharPort(help_text= "This is just a Dummy")
 
 
 def FilteredModelField(model, filterkwargs, *args, **kwargs):

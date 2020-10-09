@@ -101,6 +101,7 @@ class BalderRegister(object):
                 assert issubclass(cls.object_type, graphene.ObjectType)
                 if cls.aslist or aslist:
                     if cls.withfilter or withfilter:
+                        assert issubclass(cls.object_type, BalderObjectType)
                         logger.info(f"Registering {cls.object_type.__name__} as ListQuery with DjangoFilter")
                         get_balder_registry().setQueryField(self.path, BalderFilterField(cls.object_type, description=description, **self.kwargs))
                     else:

@@ -5,6 +5,8 @@
     "version": "0.2.0",
     "configurations": [
 
+
+
         {
             "name": "Server",
             "type": "python",
@@ -38,10 +40,20 @@
             "django": true
         },
         {
+            "name": "Kanal",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/manage.py",
+            "args": [
+                "runkanal",
+            ],
+            "django": true
+        },
+        {
             "name": "Test",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/tests/serialize.py",
+            "program": "${workspaceFolder}/tools/new_rep.py",
             "args": [
             ],
             "django": true

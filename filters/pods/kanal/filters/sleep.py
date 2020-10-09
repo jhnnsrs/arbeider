@@ -20,8 +20,8 @@ class SleepConsumer(FilterConsumer):
     def project(self, array: xr.DataArray, settings: dict) -> xr.DataArray:
         self.progress("We are sleeping 2 Seconds")
         time.sleep(2)
-        self.progress("We are sleeping 14 Seconds")
-        time.sleep(14)
+        self.progress("We are sleeping 3 Seconds")
+        time.sleep(3)
         self.progress("We are sleeping 4 Seconds")
         time.sleep(4)
         return array.max(axis=3, keep_attrs=True)

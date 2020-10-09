@@ -1,11 +1,11 @@
 from rest_framework import serializers
 
-from konfig.params import CharField, Inputs, Object, Outputs
+from konfig.params import CharPort, Inputs, ObjectPort, Outputs
 from konfig.node import Konfig
 
 
-class Trigger(Object):
-    type = CharField(default="INVOCATION")
+class Trigger(ObjectPort):
+    type = CharPort(default="INVOCATION")
 
 class BaseWatcherInputs(Inputs):
     trigger = Trigger()

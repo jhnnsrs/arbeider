@@ -1,5 +1,6 @@
 Django>=3.1
 channels>=2.4.0
+channels_redis
 django-registration-redux
 django-extensions
 drf-access-policy
@@ -13,8 +14,9 @@ pytest-django
 pytest-asyncio
 django-channels-graphql-ws
 django-guardian
+django-avatar
 python-slugify
-s3fs>=0.4.0,<0.5 #TODO: Need to figure out parallel access in the eventloop first, should yield a massive boost in performance
+s3fs==0.4.2 #TODO: Need to figure out parallel access in the eventloop first, should yield a massive boost in performance
 boto3
 django-storages
 scipy

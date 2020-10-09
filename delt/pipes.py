@@ -172,9 +172,7 @@ def provision_pod_pipe(context: BouncerContext, reference, node: Node, selector:
 
 #@pipe("assign_inputs")
 def assign_inputs_pipe(context: BouncerContext, reference, pod: Pod, inputs: dict):
-    print(inputs)
     inputs = unflatten.unflatten(inputs)
-    print(inputs)
 
     #Check if a Provsion already exists under this reference
     try:
@@ -197,6 +195,9 @@ def assign_inputs_pipe(context: BouncerContext, reference, pod: Pod, inputs: dic
         validator.validateInputs(inputs)
 
         # We assign the Job to the Handler
+
+        
+        logger.info(f"Will Assign a New Job with reference {reference}")
         assignation = Assignation.objects.create(
             reference=reference,
             pod=pod,
@@ -205,8 +206,7 @@ def assign_inputs_pipe(context: BouncerContext, reference, pod: Pod, inputs: dic
             status="pending",
             token= context.token
         )
-        
-        print()
+
         # Jobs are assigned to a Pod with the Inputs and linked to a User, and a unique Reference
         orchestrator.getHandlerForPod(pod).on_assign_job(assignation)
 

@@ -1,6 +1,6 @@
 import logging
 
-from asgiref.sync import async_to_sync
+from asgiref.sync import async_to_sync, sync_to_async
 from channels.layers import get_channel_layer
 from rest_framework import serializers
 
@@ -29,6 +29,30 @@ def deserialized(serializer: serializers.Serializer, raise_exception=True):
             if serialized.is_valid(raise_exception=raise_exception):
                 data = serialized.validated_data
                 function(self, data)
+        return wrapper
+
+    return real_decorator
+
+
+
+def asyncdeserialized(serializer: serializers.Serializer, raise_exception=True):
+
+    @sync_to_async
+    def get_data(data):
+        serialized = serializer(data=data)
+        if serialized.is_valid(raise_exception=raise_exception):
+            return serialized.validated_data          
+
+
+
+    def real_decorator(function):
+
+        async def wrapper(self, message):
+            print(message["data"])
+            data = await get_data(message["data"])
+            await function(self, data)
+
+            
         return wrapper
 
     return real_decorator

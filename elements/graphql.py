@@ -35,7 +35,7 @@ class ChannelsOfWrapper(BalderObjectWrapper):
 @register_query("dimsof", description="Channel of a Representation", rep = graphene.Int(required=True, ))
 class ChannelsOfWrapper(BalderObjectWrapper):
     object_type = DimsType
-    resolver = lambda root, info, rep: dict(zip(Representation.objects.get(id=rep).dims,Representation.objects.get(id=1).shape))
+    resolver = lambda root, info, rep: dict(zip(Representation.objects.get(id=rep).dims,Representation.objects.get(id=rep).shape))
     asfield = True
 
 

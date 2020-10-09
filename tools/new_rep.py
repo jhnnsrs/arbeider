@@ -13,8 +13,8 @@ from zarr.storage import DirectoryStore
 
 def main():
     from elements.models import Representation, Sample
-    samp, created = Sample.objects.get_or_create(name="vevesesfee-test",creator_id=1)
-    store = DirectoryStore("test")
+    samp, created = Sample.objects.get_or_create(name="TestSample",creator_id=1)
+    store = DirectoryStore("/arbeider/tools/test")
     array = xr.open_zarr(store)["data"]
     Representation.objects.from_xarray(array, sample=samp, creator_id=1, name="maxisp")
 

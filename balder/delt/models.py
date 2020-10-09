@@ -1,8 +1,9 @@
+import avatar
 from balder.delt.ports import PortType
 import graphene
 from balder.types import BalderObjectType
 from delt.models import *
-
+from avatar.models import Avatar
 from balder import fields
 from django.db import models
 from graphene_django.converter import convert_django_field
@@ -23,6 +24,12 @@ def convert_json_field_to_string(field, registry=None):
 @convert_django_field.register(models.ImageField)
 def convert_field_to_string(field, registry=None):
     return fields.ImageField(field, description=field.help_text, required=not field.null)
+
+
+class AvatarType(BalderObjectType):
+
+    class Meta:
+        model = Avatar
 
 
 class RepositoryType(BalderObjectType):
@@ -70,7 +77,12 @@ class JobType(BalderObjectType):
         model = Job
 
 class UserType(BalderObjectType):
+    avatar = graphene.Field(AvatarType)
 
     class Meta:
         model = get_user_model()
         exclude = ("password",)
+
+    def resolve_avatar(parent, info):
+        print(parent)
+        return Avatar.objects.get(user=parent,primary=True)

@@ -31,7 +31,6 @@ class AssignMutation(BaseMutation):
 
     @classmethod
     def change(cls, context, root, info, *arg, **kwargs):
-        logger.info("Publishing it to the Consumer")
 
         reference = kwargs.pop("reference") if "reference" in kwargs else uuid.uuid4()
         podid = kwargs.pop("pod") if "pod" in kwargs else None
@@ -43,5 +42,5 @@ class AssignMutation(BaseMutation):
             raise NoPodFoundError("Please specifiy a correct NodeID")
         
         assignation = assign_inputs_pipe(context, reference, pod, inputs)
-
+        logger.error(f"Sending Assignation {str(assignation)}")
         return assignation
