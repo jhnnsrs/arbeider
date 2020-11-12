@@ -1,3 +1,4 @@
+from extensions.filters import NodeListFilter
 from graphene.types.generic import GenericScalar
 from balder.subscriptions.assignation.watch import WatchSubscription
 from balder.subscriptions.helpers.myprovisions import MyProvisionsSubscription, MyProvisions
@@ -19,7 +20,7 @@ from extensions.fremmed.mutations import SlotMutation
 from extensions.fremmed.subscriptions import GateSubscription
 
 
-@register_query("nodes", description="Get all nodes in this bergen instance", withfilter=True)
+@register_query("nodes", description="Get all nodes in this bergen instance", withfilter=NodeListFilter)
 class NodeListWrapper(BalderObjectWrapper):
     object_type = NodeType
     resolver = lambda root, info: Node.objects.all()
@@ -31,7 +32,6 @@ class ListItem(graphene.ObjectType):
     label = graphene.String()
     description= graphene.String()
     value = GenericScalar()
-
 
 
 @register_query("porttypes", description="Get all PortTypes in this bergen instance")
@@ -68,8 +68,7 @@ class NodeWrapper(BalderObjectWrapper):
     object_type = PodType
     aslist = True
 
-    @staticmethod
-    def resolver(root, context, models):
+    def resolve(context, models):
         #TODO: Implement check before this
         pods = Pod.objects.accessible(context.user)
         for model in models:
@@ -85,20 +84,14 @@ class NodeWrapper(BalderObjectWrapper):
 class NodeWrapper(BalderObjectWrapper):
     object_type = NodeType
     asfield = True
-
-    @staticmethod
-    def resolver(root, context, id):
-        return Node.objects.get(id=id)
+    resolve = lambda context, id: Node.objects.get(id=id)
 
 
 @register_query("monitor", reference= graphene.String(description="The monitored Provision"), description="Show the status of a NOde")
 class MonitorQueryWrapper(BalderObjectWrapper):
     object_type = ProvisionType
     asfield = True
-
-    @staticmethod
-    def resolver(root, context, reference):
-        return Provision.objects.get(reference=reference)
+    resolve = lambda context, reference: Provision.objects.get(reference=reference)
 
 
 
@@ -111,20 +104,14 @@ class Slot(BalderMutationWrapper):
 class MeQueryWrapper(BalderObjectWrapper):
     object_type = UserType
     asfield = True
-
-    @staticmethod
-    def resolver(root, context: BouncerContext):
-        return context.user
+    resolve = lambda context: context.user
 
 @register_query("myprovisions", description="Show the currently provisions for the user")
 class MeQueryWrapper(BalderObjectWrapper):
     object_type = ProvisionType
     aslist = True
+    resolve = lambda context: MyProvisions(context.user)
 
-    @staticmethod
-    def resolver(root, context):
-        print(context)
-        return MyProvisions(context.user)
 
 @register_subscription("myprovisions", description="Show Provisions for the currently logged in users")
 class MyProvisionSubscriptionWrapper(BalderSubscriptionWrapper):

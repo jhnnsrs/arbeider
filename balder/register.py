@@ -1,3 +1,4 @@
+from django_filters.filterset import FilterSet
 from delt.bouncers.context import BouncerContext
 import logging
 
@@ -100,16 +101,17 @@ class BalderRegister(object):
                 if cls.resolver is None or not callable(cls.resolver): raise BalderRegisterConfigurationError(f"Please specify a callable resolver in your ObjectWrapper {cls.__name__}")
                 assert issubclass(cls.object_type, graphene.ObjectType)
                 if cls.aslist or aslist:
-                    if cls.withfilter or withfilter:
+                    if withfilter:
                         assert issubclass(cls.object_type, BalderObjectType)
+                        assert issubclass(withfilter, FilterSet)
                         logger.info(f"Registering {cls.object_type.__name__} as ListQuery with DjangoFilter")
-                        get_balder_registry().setQueryField(self.path, BalderFilterField(cls.object_type, description=description, **self.kwargs))
+                        get_balder_registry().setQueryField(self.path, BalderFilterField(cls.object_type, description=description, filterset_class=withfilter, **self.kwargs))
                     else:
                         logger.info(f"Registering {cls.object_type.__name__} as ListQuery")
-                        get_balder_registry().setQueryField(self.path, graphene.List(cls.object_type, description=description, resolver=bounced_root_info(cls.resolver), **self.kwargs))
+                        get_balder_registry().setQueryField(self.path, graphene.List(cls.object_type, description=description, resolver=cls.resolver, **self.kwargs))
                 elif cls.asfield or asfield:
                     logger.info(f"Registering {cls.object_type.__name__} as ListQuery")
-                    get_balder_registry().setQueryField(self.path, graphene.Field(cls.object_type, description=description, resolver=bounced_root_info(cls.resolver), **self.kwargs))
+                    get_balder_registry().setQueryField(self.path, graphene.Field(cls.object_type, description=description, resolver=cls.resolver, **self.kwargs))
                 else:
                     raise BalderRegisterConfigurationError(f"Not sure how to register the Subclass of BalderObjectWrapper: {cls.__name__} no asfield or aslist argument Provided")
             elif issubclass(cls, BalderQueryWrapper):

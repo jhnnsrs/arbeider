@@ -52,7 +52,7 @@ class WidgetType(graphene.Interface):
 
 class PortType(graphene.Interface):
     key = graphene.String()
-    name = graphene.String()
+    label = graphene.String()
     description = graphene.String(required=False)
     required = graphene.Boolean()
     primary = graphene.Boolean( description="Is this the primary driver for this Node?")

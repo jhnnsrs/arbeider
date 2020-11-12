@@ -3,7 +3,7 @@ from graphene.types.inputobjecttype import InputObjectType
 
 from balder.delt.models import NodeType
 from balder.types import BalderObjectType
-from flow.models import FlowNode, Graph, Flow
+from flow.models import Engine, FlowNode, Graph, Flow
 import graphene
 
 
@@ -54,3 +54,10 @@ class FlowType(BalderObjectType):
     class Meta:
         model = Flow
         description = Flow.__doc__
+
+
+class EngineType(BalderObjectType):
+
+    class Meta:
+        model = Engine
+        description = Engine.__doc__

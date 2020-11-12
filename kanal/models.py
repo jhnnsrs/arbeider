@@ -1,10 +1,17 @@
 from delt.serializers import AssignationMessageSerializer, AssignationModelSerializer
 import logging
 from kanal.utils import layer_send
-from delt.models import Assignation, Pod
+from delt.models import Assignation, Pod, Template
 from django.db import models
 
 logger = logging.getLogger(__name__)
+
+
+class KanalTemplate(Template):
+    channel = models.CharField(max_length=1000, unique=True, help_text="The channel the implemtation lives on")
+
+
+
 
 
 class KanalPod(Pod):

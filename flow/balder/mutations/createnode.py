@@ -1,7 +1,10 @@
+from delt.constants.scopes import CAN_ADD_NODES, SCOPELIST
 from flow.balder.types import PortInputType
 import graphene
 from graphene.types.generic import GenericScalar
 
+
+from delt.bouncers.context import BouncerContext
 from balder.mutations.base import BaseMutation
 from flow.models import Flow
 from delt.models import Node, Repository
@@ -14,7 +17,7 @@ from balder.delt.models import NodeType
 
 
 def get_flow_repository_for_id(user, id="localhost"):
-    repo, _ = Repository.objects.filter(creator=user).get_or_create(name=f"flow_{id}")
+    repo, _ = Repository.objects.filter(creator=user).get_or_create(type=f"flow", defaults={"name": f"flow_{id}", "creator": user})
     return repo
 
 class CreateNodeMutation(BaseMutation):
@@ -31,10 +34,11 @@ class CreateNodeMutation(BaseMutation):
 
 
     @staticmethod
-    def change(context, *args,  **kwargs):
-        user = context.user
-        #TODO: Check permissions
+    def change(context: BouncerContext, *args,  **kwargs):
+        if not context.can(CAN_ADD_NODES): raise Exception("User is not authorized to add Nodes")
 
+        
+        user = context.user
         name = kwargs.get("name")
         description = kwargs.get("description", "No Description")
         variety = kwargs.get("variety", "flow")

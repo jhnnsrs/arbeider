@@ -1,18 +1,15 @@
+from balder.delt.models import NodeType
+from delt.models import Node
 from flow.balder.mutations.createnode import CreateNodeMutation
 import graphene
 
 from balder.register import register_mutation, register_query
 from balder.wrappers import BalderMutationWrapper, BalderObjectWrapper
 from flow.balder.mutations.createflow import CreateFlowMutation
-from flow.balder.mutations.creategraph import CreateGraphMutation
 from flow.balder.mutations.toflow import ToFlowMutation
-from flow.models import FlowNode, Graph
-from flow.balder.types import FlowNodeType, GraphType
+from flow.models import Flow, FlowNode, Graph
+from flow.balder.types import FlowNodeType, FlowType, GraphType
 
-
-@register_mutation("createGraph", description="Create a graph from a diagram")
-class CreateGraph(BalderMutationWrapper):
-    mutation = CreateGraphMutation
 
 @register_mutation("createNode", description="Create a graph from a diagram")
 class CreateNode(BalderMutationWrapper):
@@ -39,13 +36,12 @@ class GraphItemWrapper(BalderObjectWrapper):
     asfield = True
 
 
-@register_query("all_flows", 
+@register_query("myflows", 
     description="Get all Flows", 
-    withfilter=True
 )
-class GraphItemWrapper(BalderObjectWrapper):
-    object_type = FlowNodeType
-    resolver = lambda root, info: FlowNode.objects.all()
+class FlowsWrapper(BalderObjectWrapper):
+    object_type = FlowType
+    resolve = lambda context: Flow.objects.filter(node__repository__type="flow", node__repository__creator=context.user)
     aslist = True
 
 @register_query("flow", 

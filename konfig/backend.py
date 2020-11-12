@@ -25,7 +25,7 @@ class KonfigSettings(NodeBackendSettings):
 
 
 def get_konfig_repository():
-    rep, _ = Repository.objects.get_or_create(name="konfig")
+    rep, _ = Repository.objects.get_or_create(name="konfig", defaults = {"creator": None, "type":"konfig"})
     return rep
 
 

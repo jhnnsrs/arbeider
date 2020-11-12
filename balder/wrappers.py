@@ -1,7 +1,11 @@
 from balder.mutations.base import BaseMutation
 from balder.queries.base import BaseQuery
 from balder.subscriptions.base import BaseSubscription
+from delt.bouncers.context import BouncerContext
+import logging
 
+
+logger = logging.getLogger(__name__)
 
 class WrappingError(Exception):
     pass
@@ -12,6 +16,13 @@ class BalderObjectWrapper(object):
     aslist = False
     asfield = False
     withfilter = False
+    resolve = lambda context, *args, **kwargs: logger.error("Please Implement Resolver!!")
+
+    @classmethod
+    def resolver(cls, root, info, *args, **kwargs):
+        context = BouncerContext(info=info)
+        return cls.resolve(context, *args, **kwargs)
+
 
 
 class BalderQueryWrapper(object):

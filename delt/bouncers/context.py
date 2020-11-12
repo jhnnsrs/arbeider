@@ -7,7 +7,7 @@ from django.test import RequestFactory
 from oauth2_provider.models import AccessToken, Application
 import logging
 from oauth2_provider.settings import oauth2_settings
-
+from delt.constants.scopes import SCOPELIST
 
 logger = logging.getLogger(__name__)
 
@@ -15,6 +15,24 @@ try:
     application = Application.objects.get(name="Trontheim")
 except:
     pass
+
+
+
+
+def authenticateFromRequest(request):
+    
+    authenticators = [auth() for auth in api_settings.DEFAULT_AUTHENTICATION_CLASSES]
+    for authenticator in authenticators:
+        user_auth_tuple = None
+        user_auth_tuple = authenticator.authenticate(request)
+        if user_auth_tuple is not None:
+            logger.debug("Provided through OAuth2 Token")
+            return user_auth_tuple
+            
+        else:
+            return get_anonymous_user(), None
+
+SESSIONSCOPES = [k for k,v in SCOPELIST.items()]
 
 class BouncerContext(object):
 
@@ -24,24 +42,33 @@ class BouncerContext(object):
         self._scopes = None
         self._token = None
         if request is not None:
-            
-            logger.debug("Provided through preauthenticated Request")
+            logger.info("Context Provided by REST Framework")
             self._user = request.user
             self._auth = request.auth
+            self._token = self._auth
+
         if info is not None:
-            
+            logger.info("Context Provided by Balder Framework")
+            context = info.context
             try:
-                self._user = info.context._scope["user"]
-                self._auth = info.context._scope["auth"]
-                logger.debug("Provided through preauthenticated Context _scope")
+                self._user, self._auth = authenticateFromRequest(info.context)
+                self._scopes = self._auth.scopes
+                self._token = self._auth
             except:
-                self._user = info.context.user
-                self._auth = None
-                logger.debug("Provided through preauthenticated Context")
+                logger.info("Couldnt Authenticate with OAUTH, trying Session")
+                try:
+                    # This path means we are dealing with a session object
+                    self._user = context._scope["user"]
+                    self._auth = None
+                    self._scopes = SESSIONSCOPES
+                    self._token = "NONNONNONE"
+                except Exception as e:
+                    logger.info("Failed completely here", e)
 
             #TODO: Impelement oauth thingy dingy
 
         if token is not None:
+            logger.info("Context Provided by Token Framework")
             #TODO: Very very hacky
             # compatibility with rest framework
             self._token = token
@@ -53,16 +80,7 @@ class BouncerContext(object):
             get_request.method = "GET"
             get_request.META["HTTP_AUTHORIZATION"] = "Bearer {}".format(token)
 
-            authenticators = [auth() for auth in api_settings.DEFAULT_AUTHENTICATION_CLASSES]
-            for authenticator in authenticators:
-                user_auth_tuple = None
-                user_auth_tuple = authenticator.authenticate(get_request)
-                if user_auth_tuple is not None:
-                    logger.debug("Provided through OAuth2 Token")
-                    self._user, self._auth = user_auth_tuple
-                    
-                else:
-                    self._user = get_anonymous_user()
+            self._user, self._auth = authenticateFromRequest(get_request)
 
 
         for key, value in kwargs.items():
@@ -76,8 +94,17 @@ class BouncerContext(object):
             if self._auth is not None:
                 self._scopes = self._auth.scopes
             else:
-                self._scopes = []   
-        return self._scopes     
+                self._scopes = []
+        print(self._scopes)
+        return self._scopes
+
+
+    def can(self, scope):
+        if scope in self.scopes: return True 
+
+
+
+        return False
 
     @property
     def user(self):

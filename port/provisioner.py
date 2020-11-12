@@ -1,3 +1,4 @@
+from re import template
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from delt.consumers.gateway import channel_layer
@@ -60,12 +61,19 @@ class PortProvision(ProvisionConsumer):
         flow = provision.node.flownode
         if flow is None: raise NotImplementedError("We are still only able to provision FLOWS")
 
-
-        node = provision.node
         if selectors.all(provision.subselector):
+            # Lets check if there is already a running instance of this Pod? Maybe we can use that template?
             pod = Flowly.objects.filter(node=provision.node).first()
             if not pod:
                 logger.info("No Pod with this configuration yet found")
+                templates = provision.node.templates.filter(provider="port")
+                
+                logger.info(f"Found {templates.count()} Templates")
+                
+                
+                template = templates.first()
+
+
                 if provision.user:
                     pod = Flowly.objects.create(
                         node = flow,

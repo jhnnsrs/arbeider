@@ -1,4 +1,5 @@
 import avatar
+from django_filters import filterset
 from balder.delt.ports import PortType
 import graphene
 from balder.types import BalderObjectType
@@ -6,6 +7,7 @@ from delt.models import *
 from avatar.models import Avatar
 from balder import fields
 from django.db import models
+from django_filters import FilterSet
 from graphene_django.converter import convert_django_field
 from delt.fields import InputsField, OutputsField
 
@@ -42,15 +44,14 @@ class PodType(BalderObjectType):
     class Meta:
         model = Pod
 
+
 class NodeType(BalderObjectType):
     outputs = graphene.List(PortType)
     inputs = graphene.List(PortType)
 
     class Meta:
         model = Node
-        filter_fields = {
-            'name': ['exact', 'icontains', 'istartswith'],
-        }
+        
 
 
 class AssignationType(BalderObjectType):
@@ -84,5 +85,7 @@ class UserType(BalderObjectType):
         exclude = ("password",)
 
     def resolve_avatar(parent, info):
-        print(parent)
-        return Avatar.objects.get(user=parent,primary=True)
+        try:
+            return Avatar.objects.get(user=parent,primary=True)
+        except:
+            return None

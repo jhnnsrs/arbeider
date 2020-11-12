@@ -58,7 +58,7 @@ try:
 except Exception as e:
     # TODO: For now if we are migrating this returns an error
     logger.error(f"Could not discover Nodes {e}")
-    raise e  
+     
 
 
 orchestrator = get_orchestrator()

@@ -1,9 +1,8 @@
-from rest_framework import serializers
-
-from konfig import params
-from konfig.node import Konfig
 from drawing.models import LineRoi
 from elements.models import ROI, Representation
+from konfig import params
+from konfig.node import Konfig
+from rest_framework import serializers
 
 
 class Vectors(params.ObjectPort):

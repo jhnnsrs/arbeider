@@ -33,7 +33,7 @@ class PortMixin(object):
         return { 
             "type": str, 
             "key": str,
-            "name": str,
+            "label": str,
             "dependencies": List[str],
             "description": str,
             "required": bool,
@@ -61,7 +61,7 @@ class PortMixin(object):
 
         return {
         "key": key,
-        "name": self.label or self.field_name or key,
+        "label": self.label or self.field_name or key,
         "description": self.portdescription or self.help_text,
         "required": self.required,
         "default": default,

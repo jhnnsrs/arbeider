@@ -44,7 +44,4 @@ class ChannelsOfWrapper(BalderObjectWrapper):
 class MeQueryWrapper(BalderObjectWrapper):
     object_type = RepresentationType
     aslist = True
-
-    @staticmethod
-    def resolver(root, context):
-        return Representation.objects.filter(creator=context.user).order_by("-created_at")[:5]
+    resolve= lambda context: Representation.objects.filter(creator=context.user).order_by("-created_at")[:5]

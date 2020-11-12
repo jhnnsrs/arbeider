@@ -15,11 +15,17 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+class Provider(models.Model):
+    ''' The Provider is a model to show what templates belong to '''
+    name = models.CharField(max_length=1000, help_text="This Providers Name")
 
+    def __str__(self) -> str:
+        return self.name
 
 class Repository(models.Model):
     creator = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, null=True, blank=True, help_text="The Person that created this repository")
     name = models.CharField(max_length=1000, help_text="A unique identifier of this Repository on this Platform, calculated hashing the package and interface")
+    type = models.CharField(max_length=300, help_text="What sort of repository is this")
 
     def __str__(self) -> str:
         return self.name
@@ -54,8 +60,12 @@ class Node(models.Model):
 
 class Template(models.Model):
     creator = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, null=True, blank=True)
-    node = models.ForeignKey(Node, on_delete=models.CASCADE, help_text="The Node this Template Belongs to")
+    provider = models.ForeignKey(Provider, on_delete=models.CASCADE, blank=True,null=True)
+    node = models.ForeignKey(Node, on_delete=models.CASCADE, help_text="The Node this Template Belongs to", related_name="templates")
     name = models.CharField(max_length=1000, help_text="The name of this template")
+
+    def __str__(self):
+        return f"Template of {self.node.name} on {self.provider.name} "
 
 
 class Route(models.Model):
@@ -75,6 +85,7 @@ class Route(models.Model):
 class Pod(models.Model):
     """ A Pod is Arnheims Representation of an Instance of an Implementation of a Node"""
     node = models.ForeignKey(Node, on_delete=models.CASCADE, help_text="The node this Pod is an instance of", related_name="pods")
+    template = models.ForeignKey(Template, on_delete=models.CASCADE, help_text="The template used to create this pod", related_name="pods", null=True, blank=True)
     podclass = models.CharField(max_length=400, default="classic-pod")
     status = models.CharField(max_length=300, default= POD_PENDING)
     provider = models.CharField(max_length=1000, help_text="The provisioner that created this Pod")
@@ -89,7 +100,6 @@ class Pod(models.Model):
     def __str__(self):
         return f"Pod for node {self.node.name} ( Package: {self.node.package}/{self.node.interface}  ) at {self.provider}"
 
-
     def assign(self, assignation):
         raise NotImplementedError("Your Pod must provide a interface how to assign a Job to It")
 
@@ -97,6 +107,7 @@ class Provision(models.Model):
     """ A Provision constitutes a way of providing an Instance of an Implementation """
     parent = models.ForeignKey("self", on_delete=models.CASCADE, null=True, blank=True, help_text="The Provisions parent", related_name="children")
     node = models.ForeignKey(Node, on_delete=models.CASCADE, help_text="The node this provision connects", related_name="provisions")
+    template = models.ForeignKey(Template, on_delete=models.CASCADE, help_text="The template used to create this provision", related_name="provisions", null=True, blank=True)
     pod = models.ForeignKey(Pod, on_delete=models.CASCADE, help_text="The pod this provision connects", related_name="provisions", null=True, blank=True)
     active = models.BooleanField(default=False)
     provider = models.CharField(max_length=1000, help_text="The Provider")
