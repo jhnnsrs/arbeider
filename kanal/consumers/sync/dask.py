@@ -9,9 +9,9 @@ class DaskKanalSyncConsumer(KanalSyncConsumer):
     enabled_schedulers = DEFAULT_SCHEDULERS
     scheduler_priority = DEFAULT_SCHEDULERS
 
-    def __init__(self, scope):
+    def __init__(self):
         logger.info(f"{self.__class__.__name__} will be able to access these schedulers {repr(self.enabled_schedulers)}")
-        super().__init__(scope)
+        super().__init__()
 
     
     def compute(self, graph, wanted= None):

@@ -1,3 +1,4 @@
+from balder.mutations.negotiations.negotiate import NegotiateMutation
 from extensions.filters import NodeListFilter
 from graphene.types.generic import GenericScalar
 from balder.subscriptions.assignation.watch import WatchSubscription
@@ -20,6 +21,13 @@ from extensions.fremmed.mutations import SlotMutation
 from extensions.fremmed.subscriptions import GateSubscription
 
 
+@register_mutation("negotiate", description="Negotiate our protocols")
+class Negotiate(BalderMutationWrapper):
+    mutation = NegotiateMutation
+
+
+
+
 @register_query("nodes", description="Get all nodes in this bergen instance", withfilter=NodeListFilter)
 class NodeListWrapper(BalderObjectWrapper):
     object_type = NodeType
@@ -32,6 +40,7 @@ class ListItem(graphene.ObjectType):
     label = graphene.String()
     description= graphene.String()
     value = GenericScalar()
+
 
 
 @register_query("porttypes", description="Get all PortTypes in this bergen instance")

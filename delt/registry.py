@@ -16,7 +16,7 @@ class Registry():
         self.nodeIdentifierPublishersMap = {}
 
     def getConsumersMap(self):
-        return self.channelConsumersMap
+        return { key: c.as_asgi() for key, c in self.channelConsumersMap.items()}
 
     def getViewsetRoutes(self):
         return self.viewsetRoutes

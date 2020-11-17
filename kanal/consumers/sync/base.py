@@ -30,12 +30,12 @@ class KanalSyncConsumer(SyncConsumer):
     konfig: Konfig  = None
     jobSerializer = JobSerializer
 
-    def __init__(self, scope):
+    def __init__(self):
         if self.konfig is None or not issubclass(self.konfig, Konfig):
             print("Something going wrong")
             raise KanalConsumerConfigException(f"{self.__class__.__name__} was not registered with a Node")
 
-        super().__init__(scope)
+        super().__init__()
 
 
     def progress(self, message):

@@ -25,11 +25,6 @@ logger.warn("HAOINSOIENOIENOIENOAINOEINOAIENs")
 
 class PortGateway(SyncConsumer):
 
-
-    def __init__(self, scope):
-        logger.info("WE HAVE GOOTEN HERE YOU MONSTER")
-        super().__init__(scope)
-
     @deserialized(ProvisionRequestSerializer)
     def on_provision_request(self, message):
         parent = message["parent"]

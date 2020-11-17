@@ -27,11 +27,11 @@ class ProvisionConsumerException(Exception):
 class ProvisionConsumer(SyncConsumer):
     settings = None
 
-    def __init__(self, scope) -> None:
+    def __init__(self) -> None:
         if self.settings is None or not isinstance(self.settings, BaseHandlerSettings):
             logger.error(f"Provision Consumer of Class {self.__class__.__name__} does not have a valid settings handler!")
             raise ProvisionConsumerException("You must provide a valid BaseHandlerSettings class to your Provision Consumer")
-        super().__init__(scope)
+        super().__init__()
 
 
     @deserialized(ProvisionMessageSerializer)
