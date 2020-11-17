@@ -31,7 +31,7 @@ application = ProtocolTypeRouter({
     # We actually don't need the URLRouter here, but we've put it in for
     # illustration. Also note the inclusion of the AuthMiddlewareStack to
     # add users and sessions - see http://channels.readthedocs.io/en/latest/topics/authentication.html
-    'websocket': AuthMiddlewareStack(URLRouter([
+    'websocket': WithApolloMiddleWare(URLRouter([
         path('graphql/', MyGraphqlWsConsumer.as_asgi()),
         path('graphql', MyGraphqlWsConsumer.as_asgi()),
     ])),

@@ -21,36 +21,22 @@ class ApolloAuthTokenMiddleware:
     Custom middleware (insecure) that takes user IDs from the query string.
     """
 
-    def __init__(self, inner):
+    def __init__(self, app):
         # Store the ASGI application we were passed
-        self.inner = inner
+        self.app = app
 
-    def __call__(self, scope):
-        return ApolloAuthTokenMiddlewareInstance(scope, self)
-
-class ApolloAuthTokenMiddlewareInstance:
-    """
-    Custom middleware (insecure) that takes tokens from the query string.
-    """
-
-    def __init__(self, scope, middleware):
-        # Store the ASGI application we were passed
-        self.middleware = middleware
-        self.scope = dict(scope)
-        self.inner = self.middleware.inner
-
-    async def __call__(self, receive, send):
+    async def __call__(self, scope, receive, send):
 
         # Close old database connections to prevent usage of timed out connections
 
         # Look up user from query string (you should also do things like
         # check it's a valid user ID, or if scope["user"] is already populated)
 
-        user = self.scope["user"]
+        user = scope["user"]
         
         print("Trying to authenticate")
         try:
-            tokenm = tokenreg.match(str(self.scope["query_string"]))
+            tokenm = tokenreg.match(str(scope["query_string"]))
             if tokenm:
                 # compatibility with rest framework
                 auth_token = tokenm.group("token")
@@ -68,8 +54,8 @@ class ApolloAuthTokenMiddlewareInstance:
                     print(user_auth_tuple)
                     if user_auth_tuple is not None:
                         user, auth = user_auth_tuple
-                        self.scope["auth"] = auth
-                        self.scope["user"] = user
+                        scope["auth"] = auth
+                        scope["user"] = user
                         break
 
         except AttributeError as e:
@@ -78,6 +64,5 @@ class ApolloAuthTokenMiddlewareInstance:
             pass
 
 
-        inner = self.inner(self.scope)
-        # Return the inner application directly and let it run everything else
-        return await inner(receive, send)
+        return await self.app(scope, receive, send)
+
