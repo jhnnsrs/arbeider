@@ -41,7 +41,8 @@ class NegotiateMutation(BaseMutation):
                 "type" : "grapqhl",
                 "url": "http://localhost:8000/graphql"
             },
-            "timestamp": datetime.datetime.now()
+            "timestamp": datetime.datetime.now(),
+            "user": context.user
         }
 
 

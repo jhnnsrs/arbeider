@@ -1,3 +1,4 @@
+from balder.delt.models import UserType
 import graphene
 from graphene.types.generic import GenericScalar
 
@@ -15,3 +16,4 @@ class TranscriptType(graphene.ObjectType):
     array = graphene.Field(ArrayProtocol)
     communication = graphene.Field(CommunicationProtocol)
     timestamp = graphene.DateTime()
+    user = graphene.Field(UserType)

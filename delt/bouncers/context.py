@@ -29,8 +29,9 @@ def authenticateFromRequest(request):
             logger.debug("Provided through OAuth2 Token")
             return user_auth_tuple
             
-        else:
-            return get_anonymous_user(), None
+    
+    return get_anonymous_user(), None
+
 
 SESSIONSCOPES = [k for k,v in SCOPELIST.items()]
 
@@ -48,7 +49,7 @@ class BouncerContext(object):
             self._token = self._auth
 
         if info is not None:
-            logger.info("Context Provided by Balder Framework")
+            logger.info("Context Provided by GraphQL Framework")
             context = info.context
             try:
                 self._user, self._auth = authenticateFromRequest(info.context)
@@ -63,6 +64,10 @@ class BouncerContext(object):
                     self._scopes = SESSIONSCOPES
                     self._token = "NONNONNONE"
                 except Exception as e:
+                    self._user = get_anonymous_user()
+                    self._auth = None
+                    self._scopes = []
+                    self._token = "NONNONNONE"
                     logger.info("Failed completely here", e)
 
             #TODO: Impelement oauth thingy dingy
@@ -108,10 +113,14 @@ class BouncerContext(object):
 
     @property
     def user(self):
-        if self._user.id is None:
-            self._user = get_anonymous_user()
-        logger.debug(f"User is {self._user}")
-        return self._user
+        try:
+            if self._user.id is None:
+                self._user = get_anonymous_user()
+            logger.debug(f"User is {self._user}")
+            return self._user
+        except:
+            logger.error("Please fix this properly")
+            return get_anonymous_user()
 
 
     @property
