@@ -16,4 +16,5 @@ class TranscriptType(graphene.ObjectType):
     array = graphene.Field(ArrayProtocol)
     communication = graphene.Field(CommunicationProtocol)
     timestamp = graphene.DateTime()
+    extensions = GenericScalar(description="Extensionsmap of Identifier and Model")
     user = graphene.Field(UserType)

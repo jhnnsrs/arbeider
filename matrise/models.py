@@ -13,7 +13,6 @@ from django.contrib.auth.models import User
 from django.contrib.postgres.fields.array import ArrayField
 from django.contrib.postgres.fields.jsonb import JSONField
 from django.db import models
-
 from matrise.defaults import default_zarr_storage, get_default_file_version
 # Create your models here.
 from matrise.fields import DimsField, ShapeField, StoreField
@@ -21,6 +20,7 @@ from matrise.managers import DelayedMatriseManager, MatriseManager
 from django.core.files.uploadedfile import InMemoryUploadedFile
 
 logger = logging.getLogger(__name__)
+
 
 class MatriseBase(models.Model):
     fileserializer = None

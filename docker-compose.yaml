@@ -38,5 +38,3 @@ networks:
 
 volumes:
   mytest:
-  newdata:
-  oldfranceso:

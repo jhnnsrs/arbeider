@@ -1,3 +1,4 @@
+Afrom delt.extension.models import get_extension_models
 import logging
 import uuid
 import os
@@ -11,6 +12,11 @@ from balder.mutations.base import BaseMutation
 from balder.utils import modelToDict
 
 logger = logging.getLogger(__name__)
+
+
+from django.apps import apps
+
+
 
 
 class NotNodeFoundError(Exception):
@@ -28,6 +34,8 @@ class NegotiateMutation(BaseMutation):
         logger.info(f"Initialized by {context.user}")
 
 
+        
+
         transcript = {
             "array": {
                 "type": "s3",
@@ -41,6 +49,7 @@ class NegotiateMutation(BaseMutation):
                 "type" : "grapqhl",
                 "url": "http://localhost:8000/graphql"
             },
+            "extensions": get_extension_models(),
             "timestamp": datetime.datetime.now(),
             "user": context.user
         }

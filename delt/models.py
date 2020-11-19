@@ -13,7 +13,17 @@ from delt.helpers import get_default_job_settings
 from delt.constants.lifecycle import JOB_PENDING, POD_PENDING
 import logging
 
+
+import django.db.models.options as options
+
+
 logger = logging.getLogger(__name__)
+
+
+logger.info("Adding identifiers to Meta class")
+options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('identifiers',)
+
+
 
 class Provider(models.Model):
     ''' The Provider is a model to show what templates belong to '''

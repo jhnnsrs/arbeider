@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from django.core import serializers
 from django.db import models
+from delt.extension.models import Model
 # Create your models here.
 from pandas import HDFStore
 
@@ -23,11 +24,15 @@ def get_sentinel_user():
 
 
 class Antibody(models.Model):
+
     name = models.CharField(max_length=100)
     creator = models.ForeignKey(User, blank=True, on_delete=models.CASCADE)
 
     def __str__(self):
         return "{0}".format(self.name)
+
+    class Meta:
+        identifiers = ["model"]
 
 
 class Experiment(models.Model):
@@ -41,6 +46,10 @@ class Experiment(models.Model):
     def __str__(self):
         return "Experiment {0} by {1}".format(self.name,self.creator.username)
 
+
+    class Meta:
+        identifiers = ["model"]
+
 class ExperimentalGroup(models.Model):
     name = models.CharField(max_length=200, help_text="The experimental groups name")
     description = models.CharField(max_length=1000,  help_text="A brief summary of applied techniques in this group")
@@ -52,6 +61,10 @@ class ExperimentalGroup(models.Model):
     def __str__(self):
         return "ExperimentalGroup {0} on Experiment {1}".format(self.name,self.experiment.name)
 
+
+    class Meta:
+        identifiers = ["model"]
+
 class FileMatchString(models.Model):
     name = models.CharField(max_length=500)
     regexp = models.CharField(max_length=4000)
@@ -59,6 +72,9 @@ class FileMatchString(models.Model):
 
     def __str__(self):
         return "FileMatchString {0} created by {1}".format(self.name,self.creator.name)
+
+    class Meta:
+        identifiers = ["model"]
 
 
 class Animal(models.Model):
@@ -72,6 +88,9 @@ class Animal(models.Model):
     def __str__(self):
         return "{0}".format(self.name)
 
+    class Meta:
+        identifiers = ["model"]
+
 
 class Sample(models.Model):
     """ A sgfsefsef is a multi-dimensional Array that can do what ever it wants """
@@ -81,6 +100,10 @@ class Sample(models.Model):
     nodeid = models.CharField(max_length=400, null=True, blank=True)
     experimentalgroup = models.ForeignKey(ExperimentalGroup, on_delete=models.SET_NULL, blank=True, null=True)
     animal = models.ForeignKey(Animal, on_delete=models.SET_NULL, blank=True, null=True)
+
+
+    class Meta:
+        identifiers = ["model"]
 
 
     def __str__(self):
@@ -174,6 +197,7 @@ class Representation(WithPlanes, WithChannel, AutoGenerateImageFromArrayMixin, M
         max = False
         slicefunction = lambda x: x/2
         rescale= True
+        identifiers = ["array","model"]
 
     def __str__(self):
         return f'Representation of {self.name}'
@@ -195,6 +219,7 @@ class ROI(models.Model):
     class Meta:
         base_manager_name = "objects"
         default_manager_name = "objects"
+        identifiers = ["model","roi"]
 
 
     def __str__(self):
@@ -213,6 +238,7 @@ class Transformation(Matrise):
     class Meta:
         base_manager_name = "objects"
         default_manager_name = "objects"
+        identifiers = ["array","model"]
 
     def __str__(self):
         return self.name
