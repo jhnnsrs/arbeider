@@ -25,6 +25,7 @@ logger.warn("HAOINSOIENOIENOIENOAINOEINOAIENs")
 
 class PortGateway(SyncConsumer):
 
+    
     @deserialized(ProvisionRequestSerializer)
     def on_provision_request(self, message):
         parent = message["parent"]

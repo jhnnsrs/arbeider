@@ -7,5 +7,3 @@ class FileField(models.FileField):
     description = "HerreFile"
 
 
-
-

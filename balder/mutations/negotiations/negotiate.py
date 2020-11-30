@@ -39,7 +39,7 @@ class NegotiateMutation(BaseMutation):
         transcript = {
             "array": {
                 "type": "s3",
-                "path": settings.S3_PUBLIC_DOMAIN,
+                "path": "minio:9000",
                 "params": {
                     "access_key": settings.AWS_ACCESS_KEY_ID,
                     "secret_key": settings.AWS_SECRET_ACCESS_KEY

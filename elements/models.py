@@ -195,7 +195,7 @@ class Representation(WithPlanes, WithChannel, AutoGenerateImageFromArrayMixin, M
         base_manager_name = "objects"
         default_manager_name = "objects"
         max = False
-        slicefunction = lambda x: x/2
+        slicefunction = lambda x: int(x/2)
         rescale= True
         identifiers = ["array","model"]
 
