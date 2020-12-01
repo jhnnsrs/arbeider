@@ -133,6 +133,10 @@ class Table(models.Model):
     # Custom Manager to simply create an array
     objects = TableManager()
 
+
+    class Meta:
+        identifiers = ["model","table"]
+
     def get_dataframe(self):
         logger.info("Trying to access file {0} to get dataframe".format(self.filepath))
         with HDFStore(self.filepath) as store:

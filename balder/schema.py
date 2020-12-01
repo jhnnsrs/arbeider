@@ -6,7 +6,7 @@ from balder.discover import autodiscover_balder
 from balder.registry import get_balder_registry
 from balder.delt.ports import *
 from balder import fields
-
+from balder.delt.enums import *
 from graphene_django.converter import convert_django_field
 from delt.fields import InputsField, OutputsField
 # This File Gets called upon Schema Creation
@@ -49,6 +49,7 @@ def buildRootTypes():
 
     roottypes += [PortType, IntPortType, ModelPortType, ObjectPortType, IntPortType, CharPortType, UUIDPortType, BoolPortType, ListPortType, FilePortType]
     roottypes += [SliderWidgetType, ObjectWidgetType, SwitchWidgetType, CharWidgetType, ModelWidgetType, IntWidgetType, UUIDWidgetType, FileWidgetType, ListWidgetType, QueryWidgetType, SliderQueryWidgetType, FakeWidgetType]
+    roottypes += [PodStatus]
     return roottypes
 
 

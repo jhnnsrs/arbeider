@@ -166,6 +166,7 @@ MODULES = [
     'drawing',
     'flow',
     "customdeep",
+    'vart',
 ]
 
 
