@@ -53,7 +53,6 @@ class ToFlowMutation(BaseMutation):
                     if layer["type"] == "diagram-nodes":
                         models = layer["models"]
                         for key, model in models.items(): 
-                            print(model)
                             if model["variety"] == "input":
                                 extras = resolve_inputs(model)
                                 if extras is not None:

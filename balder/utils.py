@@ -21,7 +21,6 @@ def modelToDict(model, exclude_fields=[]):
 def serializerToDict(serializer):
     kwargs = {}
     data = serializer.initial_data
-    print(serializer)
     for f, field in serializer.fields.items():
             if not field.write_only:
                 if isinstance(field, serializers.SerializerMethodField):

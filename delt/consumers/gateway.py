@@ -78,10 +78,9 @@ class GatewayConsumer(SyncConsumer):
     @deserialized(ProvisionMessageSerializer)
     def republish_provision(self, message):
         provision = message["provision"]
-        logger.error(f"Provision Republish {provision}")
+        logger.warn(f"Provision Republish {provision}")
         #pong of provision
         async_to_sync(channel_layer.send)("assignation-13",{"type": "on_init_acknowledged", "data" : {}})
-        print("OISNOEINFOISNEFOINSOEIFNOSIENFOPSIENF")
         republished_provision_pipe(provision)
     
     def pod_updated(self, message: dict):

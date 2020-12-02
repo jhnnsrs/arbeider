@@ -21,7 +21,6 @@ class FremmedProvisionConsumer(ProvisionConsumer):
     provider = "fremmed"
 
     def get_pod(self, provision):
-        print(provision)
         logger.info(f"Received {provision}")
 
         if selectors.unique(provision["subselector"]):

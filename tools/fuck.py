@@ -22,7 +22,6 @@ def main():
     serialized = RepresentationSerializer(rep)
     data = serialized.data
 
-    print(data)
     new = RepresentationSerializer(data=data)
     kwargs = {}
     data = new.initial_data
@@ -38,7 +37,6 @@ def main():
                     kwargs[f] = data[f]
                     continue
 
-    print(kwargs)
 
 
 

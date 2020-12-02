@@ -51,7 +51,7 @@ class NegotiateMutation(BaseMutation):
             },
             "extensions": get_extension_models(),
             "timestamp": datetime.datetime.now(),
-            "user": context.user
+            "user": context.user if context.user.is_authenticated else None
         }
 
 

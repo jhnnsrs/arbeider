@@ -16,9 +16,7 @@ class ParquetStore(FieldFile):
             location = self.storage.location
             parquet = f"{bucket}/{self.name}"
             # Initilize the S3 file system
-            print(self.url)
             path = self.url.split("http://")
-            print(path)
             logger.info(f"Bucket [{bucket}]: Connecting to {self.name}")
             df = df.read_parquet(path) # needs to be prepended with s3, check?
             return df
@@ -38,9 +36,7 @@ class ParquetStore(FieldFile):
             location = self.storage.location
             parquet = f"{bucket}/{self.name}"
             # Initilize the S3 file system
-            print(self.url)
             path = self.url.split("http://")
-            print(path)
             logger.info(f"Bucket [{bucket}]: Connecting to {self.name}")
             df = df.to_parquet(df, path, compute=compute) # needs to be prepended with s3, check?
             return df

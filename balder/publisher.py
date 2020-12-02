@@ -54,7 +54,6 @@ class BalderPublisher(BasePublisher):
         to_balder_assignation_listeners(assignation)
 
     def on_assignation_progress(self, assignation):
-        print("CALLED")
         to_balder_assignation_listeners(assignation)
 
     def on_provision_failed(self, provision):

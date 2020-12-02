@@ -30,7 +30,6 @@ class NotCompatibleException(Exception):
 
 async def getDatasetFromStore(store):
     loop = asyncio.get_running_loop()
-    print(loop)
     bucket = store.storage.bucket_name
     location = store.storage.location
     s3_path = f"{bucket}/{store.name}"

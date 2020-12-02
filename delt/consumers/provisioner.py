@@ -66,7 +66,6 @@ class ProvisionConsumer(SyncConsumer):
     @deserialized(AssignationMessageSerializer)
     def on_assign_job(self, message):
         assignation = message["assignation"]
-        print(assignation)
         try:
             job = self.assign_inputs(assignation)
             send_assignation_to_gateway(assignation, "assignation_success")

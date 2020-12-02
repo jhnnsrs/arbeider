@@ -19,7 +19,6 @@ class Command(BaseCommand):
 
         logger.debug("Starting to discover")
 
-        print("DOING TdfsdfsdfsdfsdfsdfsdfsdfHIS")
         
         autodiscover_nodes(catalog=True)
         autodiscover_pods(register=False, catalog=True)

@@ -1,6 +1,7 @@
+from vart.types import VartPodType
+from vart.serializers import QueueSubscriptionMessageSerializer
 from vart.models import Volunteer
 from balder.subscriptions.base import BaseSubscription
-from balder.delt.models import PodType
 import graphene
 import logging
 
@@ -8,7 +9,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 class QueueSubscription(BaseSubscription):
-    Output = PodType
+    Output = VartPodType
 
 
 
@@ -29,8 +30,11 @@ class QueueSubscription(BaseSubscription):
 
     @classmethod
     def announce(cls, context, payload, *arg, **kwargs):
-        print(payload)
-        return None
+        logger.info("Receive that here")
+        serializr = QueueSubscriptionMessageSerializer(data=payload)
+        if serializr.is_valid(raise_exception=True):
+            logger.info("Here you go my volunteer")
+            return serializr.validated_data["pod"]
 
 
     @classmethod
@@ -46,4 +50,4 @@ class QueueSubscription(BaseSubscription):
         logger.info(f"{volunteer} is waiting for Pod")
 
 
-        return [f"{volunteer.id}"]
+        return [f"volunteer_{volunteer.id}"]

@@ -53,7 +53,6 @@ class KanalSyncConsumer(SyncConsumer):
         if inputs.is_valid(raise_exception=True):
             try:
                 outputdict = self.start(inputs.validated_data)
-                print(outputdict)
                 # Serialize the outputs
                 outputs = self.konfig.outputs(outputdict)
                 self.assignation.status = "done"

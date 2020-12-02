@@ -1,3 +1,4 @@
+from vart.registry import get_handler_registry
 from delt.orchestrator import get_orchestrator
 import logging
 
@@ -46,6 +47,9 @@ class Command(BaseCommand):
             if isinstance(value,ChannelHandler):
                 runningchannels.append(value.settings.provisionConsumer)
 
+
+        for key, value in get_handler_registry().getConsumerMap().items():
+            runningchannels.append(key)
 
         allchannels = runningchannels + ["gateway", "portgateway","thenotifier"]
         logger.info(f"Running worker for providers {allchannels}")

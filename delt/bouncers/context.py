@@ -19,66 +19,76 @@ except:
 
 
 
+
 def authenticateFromRequest(request):
     
     authenticators = [auth() for auth in api_settings.DEFAULT_AUTHENTICATION_CLASSES]
     for authenticator in authenticators:
         user_auth_tuple = None
-        user_auth_tuple = authenticator.authenticate(request)
+        user_auth_tuple = authenticator.authenticate(request) #TODO: No matter the request we can't detect auth for client credientals
         if user_auth_tuple is not None:
             logger.debug("Provided through OAuth2 Token")
             return user_auth_tuple
             
     
-    return get_anonymous_user(), None
+    return None, None
+
+
+def authenticateFromAsgiRequest(request):
+
+    try:
+        # This appears to be coming from the Subscription API (websockets -> channels)
+        scope = request._scope
+        return scope["user"], scope["auth"] if "auth" in scope else None
+    except:
+        # A Request from the Standard Web api
+        rf = RequestFactory()
+        get_request = rf.get('/api/comments/')
+        get_request._request = {}
+        get_request.method = "GET"
+        get_request.META["HTTP_AUTHORIZATION"] = request.META["HTTP_AUTHORIZATION"]
+
+        return authenticateFromRequest(get_request)
 
 
 SESSIONSCOPES = [k for k,v in SCOPELIST.items()]
 
+
+class BouncerException(Exception):
+    pass
+
+class WrongAppTypeException(BouncerException):
+    pass
+
+class NoAnonymousAccess(BouncerException):
+    pass
+
+
 class BouncerContext(object):
 
-    def __init__(self, request: Request = None, info= None, token=None, **kwargs):
+    def __init__(self, request: Request = None, info= None, token=None):
 
-        self._authorized = None
-        self._scopes = None
-        self._token = None
+        self.accessibles = []
+        self.app_type = None
+        self._user = None
+        self._auth = None
+
         if request is not None:
-            logger.info("Context Provided by REST Framework")
+            logger.info("Context Provided by Request Framework")
             self._user = request.user
             self._auth = request.auth
-            self._token = self._auth
 
+        
         if info is not None:
             logger.info("Context Provided by GraphQL Framework")
             context = info.context
-            try:
-                self._user, self._auth = authenticateFromRequest(info.context)
-                self._scopes = self._auth.scopes
-                self._token = self._auth
-            except:
-                logger.info("Couldnt Authenticate with OAUTH, trying Session")
-                try:
-                    # This path means we are dealing with a session object
-                    self._user = context._scope["user"]
-                    self._auth = None
-                    self._scopes = SESSIONSCOPES
-                    self._token = "NONNONNONE"
-                except Exception as e:
-                    self._user = get_anonymous_user()
-                    self._auth = None
-                    self._scopes = []
-                    self._token = "NONNONNONE"
-                    logger.info("Failed completely here", e)
-
-            #TODO: Impelement oauth thingy dingy
+            self._user, self._auth = authenticateFromAsgiRequest(context)
+            
 
         if token is not None:
             logger.info("Context Provided by Token Framework")
-            #TODO: Very very hacky
-            # compatibility with rest framework
-            self._token = token
 
-
+            # We just go the rout as making a request and use the Oauth Framework
             rf = RequestFactory()
             get_request = rf.get('/api/comments/')
             get_request._request = {}
@@ -88,54 +98,88 @@ class BouncerContext(object):
             self._user, self._auth = authenticateFromRequest(get_request)
 
 
-        for key, value in kwargs.items():
-            if hasattr(self, key):
-                setattr(self, key, value)
+
+        if self._user : self.accessibles.append("user")
+        if self._auth : self.accessibles.append("auth")
+        
+        if self._auth and self._user: self.app_type = "oauth"
+        if self._auth and not self._user: self.app_type = "m2m"
+        if not self._auth and self._user: self.app_type = "session"
 
 
-    @property
-    def scopes(self):
-        if self._scopes is None:
-            if self._auth is not None:
-                self._scopes = self._auth.scopes
+        if not self._auth and not self._user:
+            logger.warn("We are dealing with the M2M Error here or no Authentication") 
+            self.app_type = "m2m" #TODO:This is correctly incorrect until we find a way to access the correct app
+        
+
+    def scopes(self, default= None):
+        if "auth" not in self.accessibles:
+            if default:
+                return default
             else:
-                self._scopes = []
-        print(self._scopes)
+                raise Exception("No default scopes provided and client not authorized with scopes!")
+        else:
+            self._scopes = self._auth.scopes
         return self._scopes
 
 
-    def can(self, scope):
-        if scope in self.scopes: return True 
-
-
-
+    def can(self, scope, default=[]):
+        if scope in self.scopes(default=default): return True 
         return False
 
     @property
+    def app(self):
+        return self.app_type
+
+    @property
+    def anonymous(self):
+        return len(self.accessibles) < 1
+
+    @property
+    def accessible(self):
+        return self.accessibles
+
+    @property
     def user(self):
-        try:
-            if self._user.id is None:
-                self._user = get_anonymous_user()
-            logger.debug(f"User is {self._user}")
-            return self._user
-        except:
-            logger.error("Please fix this properly")
+        if "user" not in self.accessibles:
             return get_anonymous_user()
+        else:
+            return self._user
 
 
     @property
     def token(self):
         # TODO: HORROUNDOUS
-        if self._token is None:
-            try:
-                self._token = AccessToken.objects.filter(user = self.user).first()
-            except AccessToken.DoesNotExist as e:
-                self._token = None
-                logger.info("Creating new Access Token for this")
+        if "auth" not in self.accessibles:
+            logger.error("The App accessing this does not provide the right app type for TOKEN. Returnin Empty")
+            return ""
+        else:
+            return self._auth
 
-            if self._token is None: #Either we were login in anonymously or no token exists yet for this sort of applicatoin
-                max_caching_time = datetime.now() + timedelta(
-                    seconds=oauth2_settings.RESOURCE_SERVER_TOKEN_CACHING_SECONDS
-                )
-                self._token =  AccessToken.objects.create(user= self.user, application= application, expires= max_caching_time)
-        return self._token
+
+
+
+def bounce(apps = ["m2m","session","oauth"], accessible = ["user","app"], anonymous=False):
+
+    def real_decorator(func):
+
+        def bounced(cls, context: BouncerContext, *args, **kwargs):
+            print(context)
+            if context.app not in apps and len(apps) != 0:
+                raise WrongAppTypeException(f"The client Authentication Type is not part of accessible App Type. {context.app} vs {apps}'")
+            if accessible not in context.accessible and len(accessible) != 0:
+                raise WrongAppTypeException(f'The client Authentication Type does not provide access to this Endpoint. {accessible} vs {context.accessible}')
+            if anonymous:
+                if context.anonymous: 
+                    raise NoAnonymousAccess("Anonymous users or apps are not allowed on this Endpoint")
+            return func(cls, context, *args, **kwargs)
+        
+        return bounced
+
+    return real_decorator
+
+
+
+
+
+

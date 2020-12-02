@@ -33,7 +33,6 @@ class MyProvisionsSubscription(BaseSubscription):
     @classmethod
     def accept(cls, context, root, info, *args, **kwargs):
         user = context.user
-        print(f' Attaching to myprovisions_{user.id}')
         return [f'myprovisions_{user.id}']
 
     
@@ -52,5 +51,4 @@ class MyProvisionsSubscription(BaseSubscription):
 def to_balder_myprovisions(provision):
     message = MyProvisionsMessage({"user":provision.user})
     group= f'myprovisions_{provision.user.id}'
-    print(f"publishing to {group}")
     MyProvisionsSubscription.broadcast(group=group,payload=message.data)

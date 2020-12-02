@@ -87,7 +87,6 @@ class KonfigBackend(NodeBackendRegister):
         nodeDefaults.update(additionalKwargs)
         nodeUniques.update(additionalUniques)
 
-        print(nodeDefaults)
 
 
         # Register With Backend if channel and node

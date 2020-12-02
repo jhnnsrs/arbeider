@@ -1,68 +1,73 @@
+
+from vart.serializers import QueueSubscriptionMessageSerializer
+from django.utils.translation import activate
+from vart.handler import VartHandlerSettings
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
+from delt.consumers.gateway import channel_layer
+import logging
+from port.utils import assignation_channel_from_id
+
+from delt import selector as selectors
 from delt.consumers.provisioner import ProvisionConsumer
+from delt.models import Assignation
+from delt.constants.lifecycle import POD_PENDING
+from delt.serializers import AssignationModelSerializer, PodSerializer
+from vart.models import Volunteer, VartPod
+from vart.subscriptions.queue import QueueSubscription
 
 
-class PortProvision(ProvisionConsumer):
-    settings = PortHandlerSettings()
-    provider = "port"
+logger = logging.getLogger(__name__)
+channel_layer = get_channel_layer()
+
+
+class VartProvisionError(Exception):
+    pass
+
+
+
+class Selector(object):
+
+    def __init__(self, subselector: str) -> None:
+        self.subselector = subselector
+
+    def is_all(self) -> bool:
+        return selectors.all(self.subselector)
+
+    def is_new(self) -> bool:
+        return selectors.new(self.subselector)
+
+
+    
+
+
+
+
+
+
+class VartProvision(ProvisionConsumer):
+    settings = VartHandlerSettings()
+    provider = "vart"
 
     def get_pod(self, provision):
         logger.info(f"Received {provision}")
 
         # Are we provisioning a Flow???
-        flow = provision.node.flownode
-        if flow is None: raise NotImplementedError("We are still only able to provision FLOWS")
+        node = provision.node
+        selector = Selector(provision.subselector)
 
-        if selectors.all(provision.subselector):
+        if selector.is_all():
             # Lets check if there is already a running instance of this Pod? Maybe we can use that template?
-            pod = Flowly.objects.filter(node=provision.node).first()
-            if not pod:
-                logger.info("No Pod with this configuration yet found")
-                templates = provision.node.templates.filter(provider="port")
-                
-                logger.info(f"Found {templates.count()} Templates")
-                
-                
-                template = templates.first()
+            volunteer = Volunteer.objects.filter(node=node, active=True).first()
+            pod = VartPod.objects.create(volunteer=volunteer, node=node)
+            pod.status = POD_PENDING
+            pod.save()
 
+            QueueSubscription.publish(group=f"volunteer_{volunteer.id}", payload=QueueSubscriptionMessageSerializer({"pod": pod}).data)
+        else:
+            raise NotImplementedError("We haven't implemented that yet")    
 
-                if provision.user:
-                    pod = Flowly.objects.create(
-                        node = flow,
-                        podclass = "flow",
-                        status = POD_PENDING,
-                        provider = self.provider,
-                        persistent = False
-                    )
-
-                    provision.pod = pod
-
-                    container = spawnContainerForProvision(provision)
-                    pod.container_id = container.id
-                    pod.save()
-                else:
-                   raise PortProvisionError("Only signed in users are allowed to create Pods")
-
-
-        if selectors.new(provision.subselector):
-            if provision.user:
-                    pod = Flowly.objects.create(
-                        node = flow,
-                        podclass = "flow",
-                        status = POD_PENDING,
-                        provider = self.provider,
-                        persistent = False
-                    )
-                    
-                    provision.pod = pod
-
-                    container = spawnContainerForProvision(provision)
-                    pod.container_id = container.id
-                    pod.save()
-            else:
-                raise PortProvisionError("Only signed in users are allowed to create Pods")
-
-        logger.info(f"Created POD with ID: {pod.container_id}")
-        logger.info(f"Created POD with FLOW: {pod.node_id}")
+        logger.info(f"Created POD with Volunteer: {pod.volunteer_id}")
         logger.info(f"Created POD with PROVISION: {provision.id}")
         return pod
 

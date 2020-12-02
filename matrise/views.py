@@ -65,7 +65,6 @@ class MatriseViewsetMixIn():
             array = array.sel(t=query_params["t"]) if "t" in query_params else array
             if "channel_name" in query_params:
                 s = f'Name == "{query_params["channel_name"]}"'
-                print(s)
                 c = array.biometa.channels.compute().query(s).index
                 array = array.sel(c= c)
         except Exception as e:

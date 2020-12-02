@@ -6,4 +6,4 @@ class AutoProviderConfig(AppConfig):
 
 
     def ready(self):
-        print("Auto Provider loaded")
+        pass

@@ -1,9 +1,11 @@
 import graphene
 
 class PodStatus(graphene.Enum):
-    ERROR = 1
-    INFO = 2
-    DEBUG = 3
+    ERROR = "error"
+    PENDING = "pending"
+    INFO = "info"
+    DEBUG = "debug"
+    ACTIVE = "active"
 
     @property
     def description(self):

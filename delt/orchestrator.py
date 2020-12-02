@@ -9,6 +9,7 @@ from delt.handlers.base import BaseHandler
 from delt.models import Job, Node, Pod
 from delt.validators.base import BaseValidator
 
+
 logger = logging.getLogger(__name__)
 
 class OrchestratorError(Exception):
@@ -82,7 +83,9 @@ class Orchestrator():
         if provider in self.providerHandlerMap:
             return self.providerHandlerMap[provider]
         else:
-            raise OrchestratorError(f"No Handler registered with Provider {provider}. Did you register it?")
+            from vart.registry import get_handler_registry
+            return get_handler_registry().getHandler(provider)
+
 
     def getHandlerForPod(self, pod: Pod) -> BaseHandler:
         return self.getHandlerForProvider(pod.provider)

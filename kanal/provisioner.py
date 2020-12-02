@@ -43,6 +43,6 @@ class KanalProvisionConsumer(ProvisionConsumer):
         try:
             assignation.pod.kanalpod.assign(assignation)
         except Exception as e:
-            print(e)
+            pass
 
 

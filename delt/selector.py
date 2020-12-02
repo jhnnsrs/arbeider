@@ -1,5 +1,3 @@
-from delt.orchestrator import get_orchestrator
-from delt.handlers.base import BaseHandler
 import re
 
 # The Backend Selector
@@ -19,16 +17,24 @@ all =  lambda selector: True if all_handler.match(selector) else False
 new =  lambda selector: True if new_handler.match(selector) else False
 id = lambda selector: id_handler.match(selector).group("id") if id_handler.match(selector) else False
 
-def get_handler_for_selector(selector: str) -> BaseHandler:
 
-    m = provider.match(selector)
-    if m:
-        return get_orchestrator().getHandlerForProvider(m.group("provider"))
-
-def get_provider_for_selector(selector: str) -> BaseHandler:
+def get_provider_for_selector(selector: str):
 
     m = provider.match(selector)
     if m:
         return m.group("provider"), m.group("substring")
     else:
         raise Exception("We didnt find any provider matching")#
+
+
+
+class Selector(object):
+
+    def __init__(self, subselector: str) -> None:
+        self.subselector = subselector
+
+    def is_all(self) -> bool:
+        return all(self.subselector)
+
+    def is_new(self) -> bool:
+        return new(self.subselector)

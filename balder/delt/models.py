@@ -11,7 +11,6 @@ from django_filters import FilterSet
 from graphene_django.converter import convert_django_field
 from delt.fields import InputsField, OutputsField
 
-print("CALLED")
 # TODO: find a better place to register these fields... they need to be imported before the models are imported
 
 @convert_django_field.register(OutputsField)

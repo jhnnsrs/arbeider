@@ -81,9 +81,7 @@ class NodeWrapper(BalderObjectWrapper):
         #TODO: Implement check before this
         pods = Pod.objects.accessible(context.user)
         for model in models:
-            print(model)
             pods = pods.filter(node__inputs__contains=[{"identifier": model}])
-            print(pods)
 
         return pods
 

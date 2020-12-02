@@ -19,15 +19,15 @@ channel_layer = get_channel_layer()
 logger = logging.getLogger(__name__)
 
 
-def deserialized(serializer: serializers.Serializer, raise_exception=True):
+def deserialized(serializer: serializers.Serializer, raise_exception=True, colapse=None):
 
     def real_decorator(function):
 
         def wrapper(self, message):
-            print(message["data"])
             serialized = serializer(data=message["data"])
             if serialized.is_valid(raise_exception=raise_exception):
                 data = serialized.validated_data
+                if colapse: data = data[colapse]
                 function(self, data)
         return wrapper
 
@@ -48,7 +48,6 @@ def asyncdeserialized(serializer: serializers.Serializer, raise_exception=True):
     def real_decorator(function):
 
         async def wrapper(self, message):
-            print(message["data"])
             data = await get_data(message["data"])
             await function(self, data)
 

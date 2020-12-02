@@ -4,6 +4,7 @@ from delt.models import Node, Pod
 import uuid
 
 class Volunteer(models.Model):
+    name = models.CharField(max_length=400, unique=True, default=uuid.uuid4)
     node = models.ForeignKey(Node, on_delete=models.CASCADE, help_text="The volunteers node")
     active = models.BooleanField(help_text="Is this volunteer active right now", default=False)
     identifier = models.UUIDField(default=uuid.uuid4, help_text="The identifier for this volunteer")

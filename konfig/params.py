@@ -18,7 +18,6 @@ class PortMixin(object):
     def __init__(self, *args, **kwargs) -> None:
         if "widget" in kwargs:
             self.widget = kwargs.pop("widget")
-            print("Has widget", self.widget)
             assert(isinstance(self.widget, Widget)), "Please only Provide Widgets"
 
         self.portinfo = kwargs.pop("info") if "info" in kwargs else None

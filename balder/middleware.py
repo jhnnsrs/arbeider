@@ -18,7 +18,7 @@ def get_user(authenticator, request):
 
 class ApolloAuthTokenMiddleware:
     """
-    Custom middleware (insecure) that takes user IDs from the query string.
+    Custom middleware (insecure) that takes application token from the query string.
     """
 
     def __init__(self, app):
@@ -28,19 +28,15 @@ class ApolloAuthTokenMiddleware:
     async def __call__(self, scope, receive, send):
 
         # Close old database connections to prevent usage of timed out connections
-
         # Look up user from query string (you should also do things like
         # check it's a valid user ID, or if scope["user"] is already populated)
-
         user = scope["user"]
         
-        print("Trying to authenticate")
         try:
             tokenm = tokenreg.match(str(scope["query_string"]))
             if tokenm:
                 # compatibility with rest framework
                 auth_token = tokenm.group("token")
-                print(auth_token)
                 rf = RequestFactory()
                 get_request = rf.get('/api/comments/')
                 get_request._request = {}
@@ -51,7 +47,6 @@ class ApolloAuthTokenMiddleware:
                 for authenticator in authenticators:
                     user_auth_tuple = None
                     user_auth_tuple = await get_user(authenticator, get_request)
-                    print(user_auth_tuple)
                     if user_auth_tuple is not None:
                         user, auth = user_auth_tuple
                         scope["auth"] = auth

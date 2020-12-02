@@ -10,14 +10,9 @@
             "command": "python manage.py runserver 0.0.0.0:8000"
         },
         {
-            "label": "Gateway",
+            "label": "W",
             "type": "shell",
             "command": "python manage.py runall"
-        },
-        {
-            "label": "Providers",
-            "type": "shell",
-            "command": "python manage.py runproviders"
         },
         {
             "label": "Kanal",
@@ -28,6 +23,11 @@
             "label": "Schema",
             "type": "shell",
             "command": "python manage.py makemigrations && python manage.py migrate"
+        },
+        {
+            "label": "Test Message",
+            "type": "shell",
+            "command": "python tools/send_message.py"
         }
     ]
 }

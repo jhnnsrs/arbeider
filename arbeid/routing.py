@@ -1,3 +1,4 @@
+from vart.registry import get_handler_registry
 from kanal.registry import get_kanal_registry
 from balder.notifier.consumer import NotifyConsumer
 from channels.auth import AuthMiddlewareStack
@@ -22,6 +23,8 @@ WithApolloMiddleWare = lambda inner: AuthMiddlewareStack(ApolloAuthTokenMiddlewa
 
 
 
+consumers = get_handler_registry().getConsumerMap()
+
 application = ProtocolTypeRouter({
 
     # Channels will do this for you automatically. It's included here as an example.
@@ -45,6 +48,7 @@ application = ProtocolTypeRouter({
         "gateway": GatewayConsumer.as_asgi(),
         "portgateway": PortGateway.as_asgi(),
         "thenotifier": NotifyConsumer.as_asgi(),
+        **consumers,
         }
-        ),
+    ),
 })

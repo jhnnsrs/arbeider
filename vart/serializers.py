@@ -4,4 +4,4 @@ from rest_framework.relations import PrimaryKeyRelatedField
 
 
 class QueueSubscriptionMessageSerializer(serializers.Serializer):
-    pod = PrimaryKeyRelatedField(VartPod)
+    pod = PrimaryKeyRelatedField(queryset=VartPod.objects.all())

@@ -34,7 +34,7 @@ class FremmedPublisher(BasePublisher):
 
 
     def on_pod_provisioned(self, pod: Pod):
-        print("logged")
-
+        pass
+    
     def on_pod_updated(self, pod: Pod):
-        print("logged")
+        pass

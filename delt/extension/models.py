@@ -15,7 +15,6 @@ def get_extension_models():
         EXTENSION_MODELS = {}
 
         for model in allmodels:
-            print("Updating Transcript")
             try: 
                 identifiers = model._meta.identifiers
                 for identifier in identifiers:
@@ -23,8 +22,10 @@ def get_extension_models():
                         EXTENSION_MODELS[identifier].append(model.__name__)
                     else:
                         EXTENSION_MODELS[identifier] = [model.__name__]
+                    logger.info(f"{model.__name__} is a valid DeltModel. We registered it")
             except:
-                logger.info(f"{model.__name__} is not a valid DeltModel. Please specify identifiers in Meta Class ")
+                pass
+                
 
 
     return EXTENSION_MODELS

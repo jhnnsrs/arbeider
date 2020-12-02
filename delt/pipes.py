@@ -15,7 +15,7 @@ from delt.models import Assignation, Job, Node, Pod, Provision
 from delt.orchestrator import get_orchestrator
 from delt.publishers.base import BasePublisher
 from delt.publishers.utils import publish_to_event
-from delt.selector import get_handler_for_selector, get_provider_for_selector
+from delt.selector import get_provider_for_selector
 from delt.utils import pipe
 
 logger = logging.getLogger(__name__)
@@ -73,7 +73,6 @@ def assignation_done_pipe(assignation):
 
 
 def assignation_progress_pipe(assignation):
-    print("CALLLED BAYED")
     publish_to_event("assignation_progress", assignation)
 
 def assignation_failed_pipe(assignation):
@@ -90,16 +89,13 @@ def unprovision_succeeded_pipe(provision):
 
 # Pod Lifecycle Pipes
 
-@pipe("pod_initializing")
 def pod_initializing_pipe(pod: Pod):
     publish_to_event("pod_initializing",pod)
 
 
-@pipe("pod_initialized")
 def pod_initialized_pipe(pod: Pod):
     publish_to_event("pod_initialized",pod)
 
-@pipe("pod_activated")
 def pod_activated_pipe(pod: Pod):
     publish_to_event("pod_activated",pod)
 

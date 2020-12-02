@@ -4,8 +4,6 @@ from filters.konfigs.filters.blur import BlurFilterKonfig
 import xarray as xr
 
 
-print("Halioinsoinoisnoiesn")
-
 @register_with_kanal_backend(BlurFilterKonfig)
 class BlurConsumer(FilterConsumer):
     """This is a Maximum Projection

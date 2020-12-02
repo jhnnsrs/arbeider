@@ -36,7 +36,6 @@ def generatePort(key, field , depth=0):
     if isinstance(field, PortMixin):
         # Port Mixins can generate themselves Dynamically
         field = field.build_port(key)
-        print(field)
         return field
     else:
         raise NotImplementedError(f"We dont know how to serialize the {key}: {field}")
