@@ -15,7 +15,7 @@ def main():
     from elements.models import Representation, Sample
     samp, created = Sample.objects.get_or_create(name="TestSample",creator_id=1)
 
-    array = xr.DataArray(da.zeros((1024,1024,4,87,1)), dims=["x","y","c","z","t"])
+    array = xr.DataArray(da.random.random((1024,1024,4,20,1)), dims=["x","y","c","z","t"])
 
     Representation.objects.from_xarray(array, sample=samp, creator_id=1, name="maxisp")
 
