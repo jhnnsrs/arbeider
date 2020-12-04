@@ -172,6 +172,7 @@ class Assignation(models.Model):
     outputs = OutputsField(help_text="The Outputs", blank=True, null=True)
     reference = models.CharField(max_length=1000, unique=True, default=uuid.uuid4, help_text="The Unique identifier of this Provision")
     status = models.CharField(max_length=1000, help_text="This provisions status")
+    message = models.CharField(max_length=1000, help_text="This provisions status")
     creator = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, null=True, blank=True)
     token = models.CharField(max_length=1000, blank=True, default=uuid.uuid4(), null=True, help_text="The Token that created this Provision")
 

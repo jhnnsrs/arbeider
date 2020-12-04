@@ -6,6 +6,10 @@ class MarkType(graphene.ObjectType):
     registered = graphene.Boolean(description="Did we register your status update")
 
 
+class EndType(graphene.ObjectType):
+    registered = graphene.Boolean(description="Did we register the end of your assignation")
+
+
 
 class VartPodType(BalderObjectType):
 

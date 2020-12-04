@@ -26,10 +26,7 @@ class AutoGenerateImageFromArrayMixin(models.Model):
 
 
 
-    def save(self, *args, **kwargs):
-        if not self.image:
-            self._array = getattr(self, "_array",self.store.loadDataArray())
-            
+    def save(self, *args, **kwargs):            
         super().save(*args, **kwargs)
 
 

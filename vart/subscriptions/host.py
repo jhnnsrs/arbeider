@@ -1,4 +1,4 @@
-from delt.models import Assignation
+from delt.models import Assignation, Pod
 from vart.types import VartPodType
 from vart.serializers import HostSubscriptionMessageSerializer, QueueSubscriptionMessageSerializer
 from vart.models import VartPod, Volunteer
@@ -25,7 +25,7 @@ class HostSubscription(BaseSubscription):
         pod_id = kwargs.pop("pod")
 
         pod = VartPod.objects.get(id=pod_id)
-        pod.status = PodStatus.ERROR
+        pod.status = PodStatus.ERROR.value
         pod.save()
 
 
@@ -45,9 +45,8 @@ class HostSubscription(BaseSubscription):
     def accept(cls, context, root, info, *args, **kwargs):
         
         pod_id = kwargs.pop("pod")
-
         pod = VartPod.objects.get(id=pod_id)
-        pod.status = PodStatus.ACTIVE
+        pod.status = PodStatus.ACTIVE.value
         pod.save()
         pod_activated_pipe(pod)
 

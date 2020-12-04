@@ -1,5 +1,6 @@
-from balder.register import register_query
-from balder.wrappers import BalderObjectWrapper
+from elements.mutations.create_representation import CreateRepresentationMutation
+from balder.register import register_mutation, register_query
+from balder.wrappers import BalderMutationWrapper, BalderObjectWrapper
 from elements.types import SampleType
 import graphene 
 from .models import Representation, Sample
@@ -25,6 +26,14 @@ class RepresentationWrapper(BalderObjectWrapper):
     object_type = RepresentationType
     resolver = lambda root, info, id: Representation.objects.get(id=id)
     asfield = True
+
+
+@register_mutation("createRepresentation", description="Representations by ID", id = graphene.Int(required=True))
+class CreateRepresentationWrapper(BalderMutationWrapper):
+    mutation = CreateRepresentationMutation
+
+
+
 
 @register_query("channelsof", description="Channel of a Representation", rep = graphene.Int(required=True, ))
 class ChannelsOfWrapper(BalderObjectWrapper):

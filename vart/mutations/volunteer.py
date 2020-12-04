@@ -2,7 +2,6 @@ from delt.bouncers.context import bounce
 from vart.models import Volunteer
 from vart.types import MarkType, VolunteerType
 from balder.mutations.base import BaseMutation
-from balder.delt.enums import PodStatus
 import graphene
 import logging
 logger = logging.getLogger(__name__)

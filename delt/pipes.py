@@ -1,4 +1,5 @@
 
+from balder.delt.enums import AssignationStatus
 import logging
 
 from django.forms.models import model_to_dict
@@ -72,7 +73,13 @@ def assignation_done_pipe(assignation):
     publish_to_event("assignation_done",assignation)
 
 
-def assignation_progress_pipe(assignation):
+def assignation_critical_pipe(assignation):
+    # A Successfull provision will results in a Pod that is either Active or Pending by default
+    # Therefore we can always publish it
+    publish_to_event("assignation_critical",assignation)
+
+
+def assignation_progress_pipe(assignation: Assignation):
     publish_to_event("assignation_progress", assignation)
 
 def assignation_failed_pipe(assignation):
@@ -98,6 +105,10 @@ def pod_initialized_pipe(pod: Pod):
 
 def pod_activated_pipe(pod: Pod):
     publish_to_event("pod_activated",pod)
+
+
+
+
 
 
 
@@ -191,15 +202,13 @@ def assign_inputs_pipe(context: BouncerContext, reference, pod: Pod, inputs: dic
         validator.validateInputs(inputs)
 
         # We assign the Job to the Handler
-
-        
         logger.info(f"Will Assign a New Job with reference {reference}")
         assignation = Assignation.objects.create(
             reference=reference,
             pod=pod,
             creator=user,
             inputs=inputs,
-            status="pending",
+            status=AssignationStatus.PENDING.value,
             token= context.token
         )
 

@@ -27,8 +27,8 @@ class MatriseBase(models.Model):
 
 
     store = StoreField(verbose_name="store",storage=default_zarr_storage, upload_to="zarr", blank=True, null= True, help_text="The location of the Array on the Storage System (S3 or Media-URL)")
-    shape = ShapeField(models.IntegerField(),help_text="The arrays shape")
-    dims = DimsField(models.CharField(max_length=100),help_text="The arrays dimension")
+    shape = ShapeField(models.IntegerField(),help_text="The arrays shape", blank=True, null=True)
+    dims = DimsField(models.CharField(max_length=100),help_text="The arrays dimension", blank=True, null=True)
     name = models.CharField(max_length=1000, blank=True, null= True,help_text="Cleartext name")
     signature = models.CharField(max_length=300,null=True, blank=True,help_text="The arrays unique signature (check Doc on: Signatures)")
     unique = models.UUIDField(default=uuid.uuid4, editable=False, help_text="A unique identifier for this array")
@@ -73,7 +73,7 @@ class MatriseBase(models.Model):
             array = self.store.loadDataArray()
             return array
         else:
-            raise NotImplementedError("This array does not have a store")
+            raise NotImplementedError("This represetaion does not have a array")
 
 
     @property
@@ -90,7 +90,7 @@ class MatriseBase(models.Model):
             array = self.store.loadDataset()
             return array
         else:
-            raise NotImplementedError("This array does not have a store")
+            raise NotImplementedError("This representation does not have a store/array")
 
     def _repr_html_(self):
         return "<h1>" + f'Matrise at {str(self.name)} in {self.store}' + "</h1>"

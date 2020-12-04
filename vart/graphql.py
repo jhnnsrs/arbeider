@@ -1,4 +1,5 @@
 
+from vart.mutations.end import EndMutation
 from vart.subscriptions.host import HostSubscription
 from vart.subscriptions.queue import QueueSubscription
 from vart.mutations.volunteer import VolunteerMutation
@@ -9,10 +10,13 @@ from balder.register import (register_mutation, register_query,
 
 
 
-@register_mutation("mark", description="Mark your pods status")
+@register_mutation("mark", description="Mark your assignations status")
 class Mark(BalderMutationWrapper):
     mutation = MarkMutation
 
+@register_mutation("end", description="End your assignation with Success")
+class End(BalderMutationWrapper):
+    mutation = EndMutation
 
 @register_mutation("volunteer", description="Volunteer for hosting a Node")
 class Volunteer(BalderMutationWrapper):
