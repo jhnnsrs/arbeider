@@ -73,6 +73,7 @@ class Template(models.Model):
     provider = models.ForeignKey(Provider, on_delete=models.CASCADE, blank=True,null=True)
     node = models.ForeignKey(Node, on_delete=models.CASCADE, help_text="The Node this Template Belongs to", related_name="templates")
     name = models.CharField(max_length=1000, help_text="The name of this template")
+    version = models.CharField(max_length=400, help_text="A short descriptor for the kind of version") #Subject to change
 
     def __str__(self):
         return f"Template of {self.node.name} on {self.provider.name} "

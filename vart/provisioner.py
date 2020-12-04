@@ -59,7 +59,7 @@ class VartProvision(ProvisionConsumer):
         if selector.is_all():
             # Lets check if there is already a running instance of this Pod? Maybe we can use that template?
             volunteer = Volunteer.objects.filter(node=node, active=True).first()
-            pod = VartPod.objects.create(volunteer=volunteer, node=node)
+            pod = VartPod.objects.create(volunteer=volunteer, node=node, provider=)
             pod.status = POD_PENDING
             pod.save()
 

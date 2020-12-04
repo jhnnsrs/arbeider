@@ -1,5 +1,6 @@
+from delt.models import Assignation
 from vart.types import VartPodType
-from vart.serializers import QueueSubscriptionMessageSerializer
+from vart.serializers import HostSubscriptionMessageSerializer, QueueSubscriptionMessageSerializer
 from vart.models import VartPod, Volunteer
 from balder.subscriptions.base import BaseSubscription
 import graphene
@@ -32,7 +33,12 @@ class HostSubscription(BaseSubscription):
 
     @classmethod
     def announce(cls, context, payload, *arg, **kwargs):
-        return None
+        serialized = HostSubscriptionMessageSerializer(data=payload)
+        logger.warn("aebfiubaeiuofnouieabn")
+        if serialized.is_valid():
+            return serialized.validated_data["assignation"]
+        else:
+            return None
 
 
     @classmethod
@@ -47,4 +53,4 @@ class HostSubscription(BaseSubscription):
 
         logger.warn(f"{pod} is ready for Assignation")
 
-        return [f"hostedpod_{pod.id}"]
+        return [f"vartpod_{pod.id}"]

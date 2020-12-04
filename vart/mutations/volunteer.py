@@ -19,6 +19,7 @@ class VolunteerMutation(BaseMutation):
     class Arguments:
         node = graphene.ID(description="The Node you want to voluneer for pod")
         name = graphene.String(description="How would you like to be identifier for us?")
+        version = graphene.String(description="Which audience are you targeting?")
         nodes = graphene.List(graphene.ID, description="The Nodes you want to volunteer for")
 
 
@@ -29,9 +30,12 @@ class VolunteerMutation(BaseMutation):
         logger.info(f"Initialized by {context.user}")
 
         name = kwargs.pop("name")
+        version = kwargs.pop("version")
         node_id = int(kwargs.pop("node"))
-        
 
-        volunteer, created = Volunteer.objects.get_or_create(defaults = {"node_id":node_id, "active": False}, name=name)
+        try:
+            return Volunteer.objects.get(name=name, node_id=node_id, version=version)
+        except:
+            volunteer = Volunteer.objects.create(node_id=node_id, active=False, version=version, name=name, creator=context.user)
 
         return volunteer

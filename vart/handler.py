@@ -1,6 +1,7 @@
 from typing import Type
+from vart.subscriptions.host import HostSubscription
 from balder.delt.enums import PodStatus
-from vart.serializers import QueueSubscriptionMessageSerializer
+from vart.serializers import HostSubscriptionMessageSerializer, QueueSubscriptionMessageSerializer
 from vart.subscriptions.queue import QueueSubscription
 from vart.models import VartPod, Volunteer
 from delt.consumers.utils import deserialized
@@ -12,8 +13,8 @@ from channels.layers import get_channel_layer
 
 from delt.selector import Selector
 from delt.models import Pod, Assignation, Provision, Node
-from delt.serializers import  ProvisionMessageSerializer
-from delt.pipes import provision_succeeded_pipe
+from delt.serializers import  AssignationMessageSerializer, ProvisionMessageSerializer
+from delt.pipes import assignation_succeeded_pipe, provision_succeeded_pipe
 logger = logging.getLogger(__name__)
 
 class HandlerMeta(type):
@@ -25,8 +26,19 @@ channel_layer = get_channel_layer()
 
 
 class Protocol(object):
+
+    # Channel
+    ASSIGNATION_IN = "assignation_in"
     PROVISION_IN = "provision_in"
+
+    # Gateway
+    ASSIGNATION_SUCCEEDED = "assignation_succeeded"
     PROVISION_SUCCEEDED = "provision_succeeded"
+
+
+
+class VartProtocol(Protocol):
+    pass
 
 
 class HandlerSettings:
@@ -36,6 +48,7 @@ class HandlerSettings:
         # find handler settings
         self.gateway_channel = f"{settingsField}_gateway"
         self.channel_channel = f"{settingsField}_channel"
+        self.provider_name = settingsField
 
 
 class Messenger(object):
@@ -71,6 +84,10 @@ def wrappedGatewayHandler(parent):
         def provision_succeeded(self, prov: Provision):
             provision_succeeded_pipe(prov)
 
+        @deserialized(AssignationMessageSerializer, colapse="assignation")
+        def assignation_succeeded(self, assignation: Assignation):
+            assignation_succeeded_pipe(assignation)
+
 
 
     return HandlerGatewayConsumer
@@ -94,7 +111,13 @@ def wrappedChannelHandler(parent):
             prov.pod = pod
             prov.save()
 
-            self.gateway.contact(Protocol.PROVISION_SUCCEEDED, {"provision": prov}, serializer= ProvisionMessageSerializer)
+            self.gateway.contact(VartProtocol.PROVISION_SUCCEEDED, {"provision": prov}, serializer= ProvisionMessageSerializer)
+
+
+        @deserialized(AssignationMessageSerializer, colapse="assignation")
+        def assignation_in(self, assignation: Assignation):
+            HostSubscription.broadcast(group=f"vartpod_{assignation.pod.id}", payload=HostSubscriptionMessageSerializer({"assignation": assignation}).data)
+            self.gateway.contact(VartProtocol.ASSIGNATION_SUCCEEDED, {"assignation": assignation}, serializer= AssignationMessageSerializer)
 
 
 
@@ -126,9 +149,17 @@ class Handler(metaclass=HandlerMeta):
 
     def on_new_provision(self, provision: Provision):
         # Generally we want to let the Consumer decide how to handle the provision so we send int over 
-        self.channelMessenger.contact(Protocol.PROVISION_IN,{"provision": provision}, serializer=ProvisionMessageSerializer)
-        print(provision)
+        self.channelMessenger.contact(VartProtocol.PROVISION_IN,{"provision": provision}, serializer=ProvisionMessageSerializer)
 
+    def on_new_assignation(self, assignation: Assignation):
+        self.channelMessenger.contact(VartProtocol.ASSIGNATION_IN,{"assignation": assignation}, serializer=AssignationMessageSerializer)
+
+
+    def on_assign_job(self, assignation: Assignation):
+        # Backward compatibiliy
+        return self.on_new_assignation(assignation)
+        
+        
 
     def provide(self, node: Node, selector: Selector) -> Pod:
         # This function is run on the worker Thread! It gets activated from 
@@ -142,7 +173,7 @@ class VartHandler(Handler):
         if selector.is_all():
             # Lets check if there is already a running instance of this Pod? Maybe we can use that template?
             volunteer = Volunteer.objects.filter(node=node, active=True).first()
-            pod = VartPod.objects.create(volunteer=volunteer, node=node)
+            pod = VartPod.objects.create(volunteer=volunteer, node=node, provider=self.settings.provider_name)
             pod.status = PodStatus.PENDING
             pod.save()
         else:

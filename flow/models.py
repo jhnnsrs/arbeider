@@ -32,7 +32,6 @@ class Engine(models.Model):
 class Flow(Template):
     diagram = models.JSONField()
     engine= models.ForeignKey(Engine, on_delete=models.CASCADE, null=True, blank=True)
-    version = models.CharField(max_length=100)
-
+    
     def __str__(self) -> str:
         return f"{self.name} for {self.engine}"
