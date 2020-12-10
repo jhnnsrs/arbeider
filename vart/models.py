@@ -1,7 +1,13 @@
 from django.db import models
-from delt.models import Node, Pod, Template
+from port.models import ContainerTemplate, PortPod
+from delt.models import Node, Pod, ProviderSettings, Template
 # Create your models here.
 import uuid
+
+class VartSettings(ProviderSettings):
+    allow_public = models.BooleanField(default=False, help_text="Allow Public Clients?")
+
+
 
 class Volunteer(Template):
     active = models.BooleanField(help_text="Is this volunteer active right now", default=False)

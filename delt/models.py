@@ -1,3 +1,4 @@
+from delt.utils import generate_random_name
 from delt.integrity import node_identifier
 from typing import Iterable, Optional
 from delt.managers import PodManager
@@ -28,9 +29,18 @@ options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('identifiers',)
 class Provider(models.Model):
     ''' The Provider is a model to show what templates belong to '''
     name = models.CharField(max_length=1000, help_text="This Providers Name")
+    installed_at = models.DateTimeField(auto_created=True, auto_now_add=True)
 
     def __str__(self) -> str:
         return self.name
+
+
+class ProviderSettings(models.Model):
+    provider = models.ForeignKey(Provider, on_delete=models.CASCADE, help_text="The implemented Provider!")
+    active = models.BooleanField(default=True, help_text="Is this provider active or no longer active?")
+    created_at = models.DateTimeField(auto_created=True, auto_now_add=True)
+
+
 
 class Repository(models.Model):
     creator = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, null=True, blank=True, help_text="The Person that created this repository")
@@ -72,7 +82,7 @@ class Template(models.Model):
     creator = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, null=True, blank=True)
     provider = models.ForeignKey(Provider, on_delete=models.CASCADE, blank=True,null=True)
     node = models.ForeignKey(Node, on_delete=models.CASCADE, help_text="The Node this Template Belongs to", related_name="templates")
-    name = models.CharField(max_length=1000, help_text="The name of this template")
+    name = models.CharField(max_length=1000, default=generate_random_name, help_text="The name of this template")
     version = models.CharField(max_length=400, help_text="A short descriptor for the kind of version") #Subject to change
 
     def __str__(self):
@@ -126,6 +136,7 @@ class Provision(models.Model):
     token = models.CharField(max_length=1000, blank=True, default=uuid.uuid4(), help_text="The Token that created this Provision")
     reference = models.CharField(max_length=1000, unique=True, default=uuid.uuid4, help_text="The Unique identifier of this Provision")
     status = models.CharField(max_length=1000, blank=True, help_text="This provisions status")
+    statusmessage = models.CharField(max_length=1000, blank=True, help_text="This provisions status")
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, max_length=1000, help_text="This provision creator")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

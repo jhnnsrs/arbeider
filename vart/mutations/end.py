@@ -1,7 +1,7 @@
 from delt.models import Assignation
 from vart.types import EndType, MarkType
 from balder.mutations.base import BaseMutation
-from balder.delt.enums import AssignationStatus, PodStatus
+from delt.enums import AssignationStatus
 import graphene
 import logging
 logger = logging.getLogger(__name__)
@@ -30,7 +30,7 @@ class EndMutation(BaseMutation):
         #TODO: Check integrity of outputs
         assi = Assignation.objects.get(id=id)
         assi.outputs = outputs
-        assi.status = AssignationStatus.DONE.value
+        assi.status = AssignationStatus.DONE
         assi.save()
 
         assignation_done_pipe(assi)

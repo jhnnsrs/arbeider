@@ -76,6 +76,12 @@ class JobType(BalderObjectType):
     class Meta:
         model = Job
 
+
+class TemplateType(BalderObjectType):
+
+    class Meta:
+        model = Template
+
 class UserType(BalderObjectType):
     avatar = graphene.Field(AvatarType)
 

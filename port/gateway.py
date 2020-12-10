@@ -11,7 +11,6 @@ from delt.models import Node, Pod, Provision
 from delt.pipes import (assign_inputs_pipe, pod_activated_pipe, pod_initialized_pipe,
                         provision_pod_pipe)
 from delt.constants.lifecycle import *
-from port.models import Flowly
 from port.serializers import (ActivationRequestSerializer, AssignationRequestSerializer,
                               InitRequestSerializer,
                               ProvisionRequestSerializer)

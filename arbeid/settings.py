@@ -78,7 +78,7 @@ MEDIA_ROOT = str(defaults.media_path)
 # S3 Settings
 
 #S3 Settings
-S3_PUBLIC_DOMAIN = "10.0.2.2:9000" #TODO: FIx
+S3_PUBLIC_DOMAIN = "localhost:9000" #TODO: FIx
 AWS_ACCESS_KEY_ID = defaults.s3_key
 AWS_SECRET_ACCESS_KEY = defaults.s3_secret
 AWS_S3_ENDPOINT_URL  = str(defaults.s3_endpointurl)
@@ -155,6 +155,7 @@ EXTENSIONS = [
     'balder',
     'providers.auto',
     'port',
+    'reactive'
 ]
 
 
@@ -165,7 +166,6 @@ MODULES = [
     'filters',
     'drawing',
     'flow',
-    "customdeep",
     'vart',
 ]
 

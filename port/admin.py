@@ -1,6 +1,9 @@
 from django.contrib import admin
 
 # Register your models here.
-from port.models import Flowly
+from port.models import Container, ContainerTemplate, PortPod, PortSettings
 
-admin.site.register(Flowly)
+admin.site.register(PortSettings)
+admin.site.register(PortPod)
+admin.site.register(Container)
+admin.site.register(ContainerTemplate)

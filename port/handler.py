@@ -1,26 +1,39 @@
+from delt.handlers.env import BaseHandlerEnvironment
+from delt.handlers.protocol import Protocol
+from delt.selector import Selector
+from delt.models import Node, Pod
+from delt.handlers.newbase import BaseHandler
+from balder.delt.enums import PodStatus
+from port.models import PortSettings
 import logging
 
-from asgiref.sync import async_to_sync
-from celery import signature
-from channels.layers import get_channel_layer
-
-from delt.handlers.channels import (ChannelHandler,
-                                    ChannelHandlerConfigException,
-                                    ChannelHandlerSettings)
-from delt.models import Pod, Assignation
-from delt.serializers import JobSerializer
 
 logger = logging.getLogger(__name__)
 
-class KanalHandlerConfigException(ChannelHandlerConfigException):
+class PortProtocol(Protocol):
     pass
 
-class PortHandlerSettings(ChannelHandlerSettings):
-    provider = "port"
-    provisionConsumer = "port"
+class PortHandlerEnv(BaseHandlerEnvironment[PortSettings]):
+    settingsModel = PortSettings
 
 
-class PortHandler(ChannelHandler):
-    settings = PortHandlerSettings()
-    provider = "port"
+class PortHandler(BaseHandler):
+    env = PortHandlerEnv("port")
 
+    def provide(self, node: Node, selector: Selector) -> Pod:
+        if selector.is_all():
+
+            
+            
+
+            # Lets check if there is already a running instance of this Pod? Maybe we can use that template?
+            volunteer = Volunteer.objects.filter(node=node, active=True).first()
+            pod = VartPod.objects.create(volunteer=volunteer, node=node, provider=self.settings.provider_name)
+            pod.status = PodStatus.PENDING.value
+            pod.save()
+        else:
+            raise NotImplementedError("We haven't implemented that yet")    
+
+        logger.info(f"Created POD with Volunteer: {pod.volunteer_id}")
+        # We are asking the queued Volunteer if he is accepting the Task
+        return pod

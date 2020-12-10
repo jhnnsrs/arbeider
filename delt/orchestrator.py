@@ -83,7 +83,7 @@ class Orchestrator():
         if provider in self.providerHandlerMap:
             return self.providerHandlerMap[provider]
         else:
-            from vart.registry import get_handler_registry
+            from delt.registries.handler import get_handler_registry
             return get_handler_registry().getHandler(provider)
 
 

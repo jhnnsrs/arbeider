@@ -20,7 +20,7 @@ class Slice(ObjectPort):
     lower = IntPort(allow_null=True, help_text="The Lower Index / The Lower Limit for the Slice", widget=PlanesWiget)
 
 class MaxISPInputs(BaseProjectorInputs):
-    slice = Slice()
+    slice = Slice(allow_null=True)
 
 class MaxISPConfig(BaseProjectorConfig):
     """This is a Maximum Intensity Projection

@@ -49,7 +49,7 @@ def buildRootTypes():
 
     roottypes += [PortType, IntPortType, ModelPortType, ObjectPortType, IntPortType, CharPortType, UUIDPortType, BoolPortType, ListPortType, FilePortType]
     roottypes += [SliderWidgetType, ObjectWidgetType, SwitchWidgetType, CharWidgetType, ModelWidgetType, IntWidgetType, UUIDWidgetType, FileWidgetType, ListWidgetType, QueryWidgetType, SliderQueryWidgetType, FakeWidgetType]
-    roottypes += [PodStatus, AssignationStatus]
+    roottypes += [PodStatusEnum, AssignationStatusEnum]
     return roottypes
 
 

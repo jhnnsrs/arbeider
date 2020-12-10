@@ -29,7 +29,6 @@ class Queue(BalderSubscriptionWrapper):
     subscription = QueueSubscription
 
 
-
 @register_subscription("host", description="The interface for hosting a pod")
 class Host(BalderSubscriptionWrapper):
     subscription = HostSubscription

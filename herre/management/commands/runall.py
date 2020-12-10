@@ -1,4 +1,5 @@
-from vart.registry import get_handler_registry
+from delt.registries.handler import get_handler_registry
+from delt.registries.additionals import get_additionals_registry
 from delt.orchestrator import get_orchestrator
 import logging
 
@@ -49,6 +50,9 @@ class Command(BaseCommand):
 
 
         for key, value in get_handler_registry().getConsumerMap().items():
+            runningchannels.append(key)
+
+        for key, value in get_additionals_registry().getConsumerMap().items():
             runningchannels.append(key)
 
         allchannels = runningchannels + ["gateway", "portgateway","thenotifier"]

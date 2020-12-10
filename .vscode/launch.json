@@ -4,6 +4,7 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+
     
 
 
@@ -21,41 +22,12 @@
             "django": true
         },
         {
-            "name": "Provisioners",
+            "name": "W",
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/manage.py",
             "args": [
-                "runproviders",
-            ],
-            "django": true
-        },
-        {
-            "name": "Gateway",
-            "type": "python",
-            "request": "launch",
-            "program": "${workspaceFolder}/manage.py",
-            "args": [
-                "rungateway",
-            ],
-            "django": true
-        },
-        {
-            "name": "Kanal",
-            "type": "python",
-            "request": "launch",
-            "program": "${workspaceFolder}/manage.py",
-            "args": [
-                "runkanal",
-            ],
-            "django": true
-        },
-        {
-            "name": "Test",
-            "type": "python",
-            "request": "launch",
-            "program": "${workspaceFolder}/tools/new_rep.py",
-            "args": [
+                "runall",
             ],
             "django": true
         },

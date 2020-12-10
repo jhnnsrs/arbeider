@@ -1,4 +1,5 @@
-from vart.registry import get_handler_registry
+from delt.registries.handler import get_handler_registry
+from delt.registries.additionals import get_additionals_registry
 from kanal.registry import get_kanal_registry
 from balder.notifier.consumer import NotifyConsumer
 from channels.auth import AuthMiddlewareStack
@@ -12,8 +13,6 @@ from delt.consumers.gateway import GatewayConsumer
 from delt.registry import get_registry
 from fremmed.consumers import FremmedJobConsumer, FremmedProvisionConsumer
 from kanal.provisioner import KanalProvisionConsumer
-from port.gateway import PortGateway
-from port.provisioner import PortProvision
 
 # The channel routing defines what connections get handled by what consumers,
 # selecting on either the connection type (ProtocolTypeRouter) or properties
@@ -22,8 +21,11 @@ from port.provisioner import PortProvision
 WithApolloMiddleWare = lambda inner: AuthMiddlewareStack(ApolloAuthTokenMiddleware(inner))
 
 
+pausedApps = None
 
-consumers = get_handler_registry().getConsumerMap()
+
+handlers = get_handler_registry().getConsumerMap()
+additionals = get_additionals_registry().getConsumerMap(exclude=pausedApps)
 
 application = ProtocolTypeRouter({
 
@@ -44,11 +46,10 @@ application = ProtocolTypeRouter({
         "fremmed": FremmedProvisionConsumer.as_asgi(),
         "kanal": KanalProvisionConsumer.as_asgi(),
         "fremmedjob": FremmedJobConsumer.as_asgi(),
-        "port": PortProvision.as_asgi(),
         "gateway": GatewayConsumer.as_asgi(),
-        "portgateway": PortGateway.as_asgi(),
         "thenotifier": NotifyConsumer.as_asgi(),
-        **consumers,
-        }
+        **handlers,
+        **additionals
+    }
     ),
 })

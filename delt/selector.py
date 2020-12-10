@@ -19,7 +19,7 @@ id = lambda selector: id_handler.match(selector).group("id") if id_handler.match
 
 
 def get_provider_for_selector(selector: str):
-
+    print(selector)
     m = provider.match(selector)
     if m:
         return m.group("provider"), m.group("substring")

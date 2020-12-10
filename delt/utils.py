@@ -2,9 +2,7 @@ from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 import inspect
 import logging
-from posix import pipe
-
-from konfig.node import node_identifier
+import namegenerator
 
 
 channel_layer = get_channel_layer()
@@ -55,3 +53,7 @@ def channel_layer_send(channel, method, layer = channel_layer):
 def gateway_send(method):
     return channel_layer_send("gateway", method)
 
+
+
+def generate_random_name():
+    return namegenerator.gen()

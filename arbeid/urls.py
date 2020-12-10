@@ -14,7 +14,8 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 import logging
-from vart.registry import get_handler_registry
+from reactive.handler import ReactiveHandler
+from delt.registries.handler import get_handler_registry
 from vart.handler import VartHandler
 
 from django.conf.urls import url
@@ -77,7 +78,8 @@ orchestrator.setHandlerForProvider("port", PortHandler())
 orchestrator.setHandlerForProvider("auto", AutoProviderHandler())
 
 
-get_handler_registry().registerHandler("vart",VartHandler())
+get_handler_registry().registerHandler(VartHandler())
+get_handler_registry().registerHandler(ReactiveHandler())
 
 orchestrator.setDefaultValidator(AlwaysTrueValidator())
 
