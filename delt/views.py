@@ -26,15 +26,6 @@ class NodeViewSet(viewsets.ModelViewSet):
         
 
 
-class JobViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows users to be viewed or edited.
-    """
-    filter_backends = (DjangoFilterBackend,)
-    filter_fields = ("creator",)
-    queryset = Job.objects.all()
-    serializer_class = JobSerializer
-
 
 class PodViewSet(viewsets.ModelViewSet):
     """

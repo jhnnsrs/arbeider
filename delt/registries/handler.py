@@ -23,6 +23,10 @@ class HandlerRegistry(BaseRegistry):
         return self.identifierHandlerMap[identifier]
 
 
+    def getHandlerForProvider(self, provider):
+        return self.getHandler(provider.name)
+
+
 
 
 def get_handler_registry() -> HandlerRegistry:

@@ -1,3 +1,4 @@
+from balder.delt.inputs import SelectorInput
 import logging
 import uuid
 
@@ -14,7 +15,7 @@ class ProvideSubscription(BaseProvisionSubscription):
     class Arguments:
         node = graphene.ID(required=True, description="The node's id")
         reference = graphene.String(required=False, description="This Pods unique Reference (for the Client)")
-        selector = graphene.String(required=False, description="The SelectorString")
+        selector = SelectorInput(required=False, description="The Selector")
         parent = graphene.String(required=False, description="The parent provision")
 
     @classmethod

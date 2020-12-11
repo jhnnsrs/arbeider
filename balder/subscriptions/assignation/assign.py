@@ -5,9 +5,8 @@ import graphene
 from graphene.types.generic import GenericScalar
 
 from balder.subscriptions.assignation.base import BaseAssignationSubscription
-from delt.models import Job, Pod, Assignation
-from delt.pipes import (assign_inputs_pipe, provision_pod_pipe,
-                        republish_provision_pipe)
+from delt.models import Pod, Assignation
+from delt.pipes import (assign_inputs_pipe)
 
 logger = logging.getLogger(__name__)
 

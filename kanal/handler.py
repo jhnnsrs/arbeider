@@ -6,7 +6,6 @@ from channels.layers import get_channel_layer
 from delt.handlers.channels import (ChannelHandler,
                                     ChannelHandlerConfigException,
                                     ChannelHandlerSettings)
-from delt.serializers import JobSerializer
 
 CHANNELS_JOB_ACTION = "emit_job"
 channel_layer = get_channel_layer()

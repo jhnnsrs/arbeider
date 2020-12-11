@@ -1,3 +1,4 @@
+from reactive.selector import RxSelector
 from port.models import Container, PortPod
 from delt.handlers.env import BaseHandlerEnvironment
 from delt.handlers.protocol import Protocol
@@ -45,8 +46,9 @@ class PortHandler(BaseHandler):
 class ReactiveProtocol(PortProtocol):
     pass
 
-class ReactiveEnv(BaseHandlerEnvironment[RxSettings]):
+class ReactiveEnv(BaseHandlerEnvironment[RxSettings, RxSelector]):
     settingsModel = RxSettings
+    selectorClass = RxSelector
 
 
 class NotTemplateFoundError(HandlerException):

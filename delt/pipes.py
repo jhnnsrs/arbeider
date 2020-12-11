@@ -1,4 +1,5 @@
 
+from balder.delt.inputs import SelectorInput
 from balder.delt.enums import AssignationStatus
 import logging
 
@@ -12,7 +13,7 @@ from delt.bouncers.node.base import BaseNodeBouncer
 from delt.bouncers.pod.base import BasePodBouncer
 from delt.consumers.utils import send_provision_to_gateway
 from delt.constants.lifecycle import *
-from delt.models import Assignation, Job, Node, Pod, Provision
+from delt.models import Assignation, Node, Pod, Provider, Provision
 from delt.orchestrator import get_orchestrator
 from delt.publishers.base import BasePublisher
 from delt.publishers.utils import publish_to_event
@@ -46,9 +47,6 @@ def pod_updated_pipe(pod: Pod):
     logger.info("Updating Pod")
     publishToPodEvents(pod)
 
-def job_assigned_pipe(job: Job):
-    logger.info("Updating Pod")
-    publish_to_event("job_assigned",job)
 
 # Handler Results
 
@@ -130,7 +128,7 @@ def republished_provision_pipe(provision: Provision):
 
 
 @pipe("provision_pod")
-def provision_pod_pipe(context: BouncerContext, reference, node: Node, selector: str, parent):
+def provision_pod_pipe(context: BouncerContext, reference, node: Node, selector: SelectorInput, parent):
     ''' Make sure the reference here is unique'''
     
     #Check if a Provsion already exists under this reference
@@ -146,7 +144,7 @@ def provision_pod_pipe(context: BouncerContext, reference, node: Node, selector:
         bouncer.can_provision_pods()
 
         #Check were we will Provide
-        provider, subselector = get_provider_for_selector(selector)
+        provider = Provider.objects.get(name=selector.provider)
         
         # Check permissions of user to provide on this Node and this Provider
         bouncer.can_provide_on(provider)
@@ -159,12 +157,12 @@ def provision_pod_pipe(context: BouncerContext, reference, node: Node, selector:
             reference=reference,
             node=node,
             provider=provider,
-            subselector= subselector,
+            kwargs= selector.kwargs,
             status= PROVISION_PENDING,
+            statusmessage = "We are trying to Provision with {provider}",
             user=user,
             parent=parent,
             token= context.token,
-            active=True
         )
 
         
@@ -198,7 +196,7 @@ def assign_inputs_pipe(context: BouncerContext, reference, pod: Pod, inputs: dic
         user = bouncer.user
 
         # We are validating the inputs according to the Node Specifications
-        validator = orchestrator.getValidatorForNode(pod.node)
+        validator = orchestrator.getValidatorForNode(pod.template.node)
         validator.validateInputs(inputs)
 
         # We assign the Job to the Handler
@@ -208,7 +206,7 @@ def assign_inputs_pipe(context: BouncerContext, reference, pod: Pod, inputs: dic
             pod=pod,
             creator=user,
             inputs=inputs,
-            status=AssignationStatus.PENDING.value,
+            status= AssignationStatus.PENDING.value,
             token= context.token
         )
 

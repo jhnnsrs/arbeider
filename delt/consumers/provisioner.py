@@ -12,8 +12,8 @@ from delt.consumers.utils import (AssignationMessageSerializer, deserialized,
                                   send_provision_to_gateway)
 from delt.constants.lifecycle import PROVISION_DENIED_CREATION, PROVISION_SUCCESS_CREATED
 from delt.models import Assignation, Node, Pod, Provision
-from delt.serializers import (PodSerializer, ProvisionMessageSerializer,
-                              ProvisionSerializer)
+from delt.serializers import ProvisionMessageSerializer
+                              
 
 logger = logging.getLogger(__name__)
 

@@ -71,10 +71,16 @@ class RouteType(BalderObjectType):
             'name': ['exact', 'icontains', 'istartswith'],
         }
 
-class JobType(BalderObjectType):
+class ProviderType(BalderObjectType):
 
     class Meta:
-        model = Job
+        model = Provider
+
+
+class SelectorType(BalderObjectType):
+
+    class Meta:
+        model = Selector
 
 
 class TemplateType(BalderObjectType):

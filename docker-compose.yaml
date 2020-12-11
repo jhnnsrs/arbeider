@@ -5,10 +5,17 @@ services:
     image: postgres:12.2-alpine
     env_file:
       - arnheim.env
-  karl:
+
+  frank:
     image: postgres:12.2-alpine
     env_file:
       - arnheim.env
+
+  nathan:
+    image: postgres:12.2-alpine
+    env_file:
+      - arnheim.env
+
   arbeider:
     build: .
     command: python /arbeider/manage.py runallworkers

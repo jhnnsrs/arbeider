@@ -7,7 +7,6 @@ from delt.handlers.channels import (ChannelHandler,
                                     ChannelHandlerConfigException,
                                     ChannelHandlerSettings)
 from delt.models import Provision
-from delt.serializers import JobSerializer
 
 channel_layer = get_channel_layer()
 logger = logging.getLogger(__name__)

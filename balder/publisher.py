@@ -8,9 +8,8 @@ from balder.subscriptions.provisions.monitor import MonitorSubscription
 from balder.subscriptions.provisions.provide import ProvideSubscription
 from balder.subscriptions.provisions.utils import to_balder_provision_listeners 
 from balder.subscriptions.assignation.utils import to_balder_assignation_listeners 
-from delt.models import Job, Pod
+from delt.models import Pod
 from delt.publishers.base import BasePublisher, BasePublisherSettings
-from delt.serializers import JobSerializer, PodSerializer, ProvisionSerializer
 
 logger = logging.getLogger(__name__)
 JOB_SUBSCRIPTION = "all_jobs"
@@ -27,18 +26,6 @@ class BalderPublisher(BasePublisher):
 
     def __init_(self):
         super().__init__(self)
-
-
-    def on_job_assigned(self, job: Job):
-        logger.info(f"Publishing Job: {str(job)}")
-        node = job.pod.node
-        reference = job.reference
-        serialized = JobSerializer(job)
-        get_balder_registry().getSubscriptionForNode(node).broadcast(group=f"job_{reference}", payload=serialized.data)
-
-
-    def on_job_updated(self, job: Job):
-        logger.info(f"Uppdated Job: {str(job)}")
 
     def on_provision_succeeded(self, provision):
         to_balder_provision_listeners(provision)

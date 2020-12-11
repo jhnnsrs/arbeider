@@ -15,17 +15,18 @@ from balder.register import (register_mutation, register_query,
 from balder.subscriptions.provisions.monitor import MonitorSubscription
 from balder.subscriptions.assignation.assign import AssignSubscription
 from balder.subscriptions.provisions.provide import ProvideSubscription
-from balder.wrappers import (BalderMutationWrapper, BalderObjectWrapper, BalderSubscriptionWrapper)
+from balder.wrappers import (BalderMutationWrapper, BalderObjectWrapper, BalderQueryWrapper, BalderSubscriptionWrapper)
 from delt.models import Assignation, Node, Pod, Provision
-from extensions.fremmed.mutations import SlotMutation
-from extensions.fremmed.subscriptions import GateSubscription
+from balder.queries.introspection.selector import SelectorQuery
 
 
 @register_mutation("negotiate", description="Negotiate our protocols")
 class Negotiate(BalderMutationWrapper):
     mutation = NegotiateMutation
 
-
+@register_query("selectors", description="Get Selectors")
+class Selectors(BalderQueryWrapper):
+    query = SelectorQuery
 
 
 @register_query("nodes", description="Get all nodes in this bergen instance", withfilter=NodeListFilter)
@@ -102,10 +103,6 @@ class MonitorQueryWrapper(BalderObjectWrapper):
 
 
 
-@register_mutation("slot", description="Input for a Node")
-class Slot(BalderMutationWrapper):
-    mutation = SlotMutation
-
 
 @register_query("me", description="Show the currently logged in user")
 class MeQueryWrapper(BalderObjectWrapper):
@@ -157,12 +154,6 @@ class ProvideSubscriptionWrapper(BalderSubscriptionWrapper):
 class MonitorSubscriptionWrapper(BalderSubscriptionWrapper):
     ''' This provides a fast way to provide a node though a provision and moniters it on the way, violates CQRS patterns'''
     subscription = MonitorSubscription
-
-
-@register_subscription("gate", description="Gate Way")
-class Gate(BalderSubscriptionWrapper):
-    subscription = GateSubscription
-
 
 
 # ASSIGNATION SHIT

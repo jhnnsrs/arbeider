@@ -1,15 +1,9 @@
+from delt.enums import ProvisionStatus
 import logging
-import uuid
 
-import graphene
-
-from balder.delt.models import NodeType, PodType, ProvisionType, UserType
+from balder.delt.models import ProvisionType
 from balder.subscriptions.base import BaseSubscription
-from balder.utils import modelToDict
-from delt.models import Node, Pod, Provision
-from delt.pipes import provision_pod_pipe
-from delt.serializers import (PodSerializer, ProvisionMessageSerializer,
-                              ProvisionSerializer)
+from delt.serializers import  ProvisionMessageSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -23,4 +17,6 @@ class BaseProvisionSubscription(BaseSubscription):
         serializer = ProvisionMessageSerializer(data=payload)
         if serializer.is_valid():
             provision = serializer.validated_data["provision"]
+            if provision.status == ProvisionStatus.CRITICAL:
+                raise Exception(provision.statusmessage)
             return provision

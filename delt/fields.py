@@ -10,6 +10,9 @@ class InputsField(JSONField):
 class OutputsField(JSONField):
     pass
 
+# Kwargs are Types that allow the Provider to specify the shape of a request to them
+class KwargsField(JSONField):
+    pass # 
 
 class SettingsField(JSONField):
     pass

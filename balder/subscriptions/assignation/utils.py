@@ -1,6 +1,6 @@
 from balder.subscriptions.assignation.watch import WatchSubscription
 from balder.subscriptions.assignation.assign import AssignSubscription
-from delt.serializers import AssignationMessageSerializer, ProvisionSerializer
+from delt.serializers import AssignationMessageSerializer
 
 
 def to_balder_assignation_listeners(assignation):

@@ -11,7 +11,6 @@ from balder.consumers import MyGraphqlWsConsumer
 from balder.middleware import ApolloAuthTokenMiddleware
 from delt.consumers.gateway import GatewayConsumer
 from delt.registry import get_registry
-from fremmed.consumers import FremmedJobConsumer, FremmedProvisionConsumer
 from kanal.provisioner import KanalProvisionConsumer
 
 # The channel routing defines what connections get handled by what consumers,
@@ -43,9 +42,7 @@ application = ProtocolTypeRouter({
     "channel": ChannelNameRouter({
         # If running in KANAL Mode
         #**get_kanal_registry().getConsumersMap(),
-        "fremmed": FremmedProvisionConsumer.as_asgi(),
         "kanal": KanalProvisionConsumer.as_asgi(),
-        "fremmedjob": FremmedJobConsumer.as_asgi(),
         "gateway": GatewayConsumer.as_asgi(),
         "thenotifier": NotifyConsumer.as_asgi(),
         **handlers,

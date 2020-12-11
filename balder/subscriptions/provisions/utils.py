@@ -1,6 +1,6 @@
 from balder.subscriptions.provisions.monitor import MonitorSubscription
 from balder.subscriptions.provisions.provide import ProvideSubscription
-from delt.serializers import ProvisionMessageSerializer, ProvisionSerializer
+from delt.serializers import ProvisionMessageSerializer
 
 
 def to_balder_provision_listeners(provision):

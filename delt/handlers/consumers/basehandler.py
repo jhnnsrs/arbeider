@@ -1,23 +1,35 @@
-from delt.handlers.exceptions import HandlerException
-from delt.enums import AssignationStatus, ProvisionStatus
+from rest_framework.exceptions import ValidationError
+from delt.handlers.exceptions import HandlerException, SelectorMalformedException
+from delt.enums import AssignationStatus, PodStatus, ProvisionStatus
 from delt.handlers.consumers.base import BaseConsumer
 from delt.handlers.protocol import Protocol
 from delt.consumers.utils import deserialized
 import logging
 
-from delt.selector import Selector
+from delt.selectors.base import BaseSelector
 from delt.models import Assignation, Provision
 from delt.serializers import  AssignationMessageSerializer, ProvisionMessageSerializer
 
 logger = logging.getLogger(__name__)
 
 class BaseHandlerConsumer(BaseConsumer):
+    selectorClass = None
+
+    def __init__(self) -> None:
+        super().__init__()
 
     @deserialized(ProvisionMessageSerializer, colapse="provision")
     def provision_in(self, prov: Provision):
         try:
-            pod = self.handler.provide(prov.node, Selector(prov.subselector))
+            try:
+                selectodict = self.handler.env.getSelectorFromKwargs(prov.kwargs)
+            except ValidationError as e:
+                raise SelectorMalformedException(e)
+
+
+            pod = self.handler.provide(prov.node, selectodict)
             pod.active = True
+            pod.status = PodStatus.ACTIVE
             pod.save()
 
             # Updating Provision With Pod

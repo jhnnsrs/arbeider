@@ -1,19 +1,13 @@
+from balder.delt.inputs import SelectorInput
 import logging
 import uuid
 
 import graphene
-from django.forms.models import model_to_dict
-from rest_framework import serializers
 
-from balder.delt.models import (Node, NodeType, Pod, PodType, ProvisionType,
-                               UserType)
+from balder.delt.models import  ProvisionType
 from balder.mutations.base import BaseMutation
-from balder.subscriptions.base import BaseSubscription
-from balder.utils import modelToDict
-from delt.models import Node, Pod, Provision
+from delt.models import Node
 from delt.pipes import provision_pod_pipe
-from delt.serializers import (PodSerializer, ProvisionModelSerializer,
-                              ProvisionSerializer)
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +22,7 @@ class ProvideMutation(BaseMutation):
         node = graphene.ID(required=True, description="The node's id")
         reference = graphene.String(required=False, description="This Pods unique Reference (for the Client)")
         parent = graphene.String(required=False, description="The parent provision")
-        selector = graphene.String(required=False, description="The SelectorString")
+        selector = SelectorInput(required=True, description="The Selector")
 
     @classmethod
     def change(cls, context, root, info, *arg, **kwargs):
@@ -46,5 +40,4 @@ class ProvideMutation(BaseMutation):
         
         provision = provision_pod_pipe(context, reference, node, selector, parent)
 
-        kwargs = modelToDict(provision)
-        return ProvisionType(**kwargs)
+        return provision

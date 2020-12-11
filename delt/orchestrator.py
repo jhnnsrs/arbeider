@@ -6,7 +6,7 @@ from delt.bouncers.job.base import BaseJobBouncer
 from delt.bouncers.node.base import BaseNodeBouncer
 from delt.bouncers.pod.base import BasePodBouncer
 from delt.handlers.base import BaseHandler
-from delt.models import Job, Node, Pod
+from delt.models import Node, Pod
 from delt.validators.base import BaseValidator
 
 
@@ -49,9 +49,6 @@ class Orchestrator():
     def getBouncerForNodeAndContext(self, node: Node, context: BouncerContext):
         return self.defaultNodeBouncer(node, context)
 
-    def getBouncerForJob(self, job: Job):
-        return self.defaultJobBouncer
-
 
     def setValidatorForNodeIdentifier(self, identifier, validator: BaseValidator):
         assert issubclass(type(validator), BaseValidator), "You must provide a valid Validator that derives from Base Validator"
@@ -80,15 +77,12 @@ class Orchestrator():
             self.providerHandlerMap[provider] = handler
  
     def getHandlerForProvider(self, provider)-> BaseHandler:
-        if provider in self.providerHandlerMap:
-            return self.providerHandlerMap[provider]
-        else:
-            from delt.registries.handler import get_handler_registry
-            return get_handler_registry().getHandler(provider)
+        from delt.registries.handler import get_handler_registry
+        return get_handler_registry().getHandlerForProvider(provider)
 
 
     def getHandlerForPod(self, pod: Pod) -> BaseHandler:
-        return self.getHandlerForProvider(pod.provider)
+        return self.getHandlerForProvider(pod.template.provider)
 
     def getPublishersForEvent(self, event):
         publishers = []

@@ -8,7 +8,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.postgres.fields.jsonb import JSONField
 from django.db import models
 
-from delt.fields import (AccessPolicy, ArgsField, InputsField, OutputsField,
+from delt.fields import (AccessPolicy, ArgsField, InputsField, KwargsField, OutputsField,
                          PublishersField, SelectorField, SettingsField)
 from delt.helpers import get_default_job_settings
 from delt.constants.lifecycle import JOB_PENDING, POD_PENDING
@@ -32,7 +32,7 @@ class Provider(models.Model):
     installed_at = models.DateTimeField(auto_created=True, auto_now_add=True)
 
     def __str__(self) -> str:
-        return self.name
+        return f"Provider: {self.name}"
 
 
 class ProviderSettings(models.Model):
@@ -79,14 +79,19 @@ class Node(models.Model):
 
 
 class Template(models.Model):
-    creator = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, null=True, blank=True)
-    provider = models.ForeignKey(Provider, on_delete=models.CASCADE, blank=True,null=True)
+    provider = models.ForeignKey(Provider, on_delete=models.CASCADE)
     node = models.ForeignKey(Node, on_delete=models.CASCADE, help_text="The Node this Template Belongs to", related_name="templates")
     name = models.CharField(max_length=1000, default=generate_random_name, help_text="The name of this template")
+
+    # Meta Field
+    creator = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, null=True, blank=True)
     version = models.CharField(max_length=400, help_text="A short descriptor for the kind of version") #Subject to change
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
 
     def __str__(self):
-        return f"Template of {self.node.name} on {self.provider.name} "
+        return f"Template of {self.node.name} "
 
 
 class Route(models.Model):
@@ -105,89 +110,83 @@ class Route(models.Model):
 
 class Pod(models.Model):
     """ A Pod is Arnheims Representation of an Instance of an Implementation of a Node"""
-    node = models.ForeignKey(Node, on_delete=models.CASCADE, help_text="The node this Pod is an instance of", related_name="pods")
-    template = models.ForeignKey(Template, on_delete=models.CASCADE, help_text="The template used to create this pod", related_name="pods", null=True, blank=True)
+    template = models.ForeignKey(Template, on_delete=models.CASCADE, help_text="The template used to create this pod", related_name="pods")
     podclass = models.CharField(max_length=400, default="classic-pod")
-    status = models.CharField(max_length=300, default= POD_PENDING)
-    provider = models.CharField(max_length=1000, help_text="The provisioner that created this Pod")
+    status = models.CharField(max_length=300, default=POD_PENDING)
     unique = models.UUIDField(max_length=1000, unique=True, default=uuid.uuid4, help_text="The Unique identifier of this POD")
-    reference = models.CharField(max_length=1000, unique=True, null=True, blank=True,  help_text="The Unique identifier of this POD")
-    persistent = models.BooleanField(default=False)
     policy = models.CharField(max_length=5000, default= "*")
 
 
     objects = PodManager()
 
     def __str__(self):
-        return f"Pod for node {self.node.name} ( Package: {self.node.package}/{self.node.interface}  ) at {self.provider}"
+        return f"Pod for Template {self.template} at {self.template.provider}"
 
     def assign(self, assignation):
         raise NotImplementedError("Your Pod must provide a interface how to assign a Job to It")
 
 class Provision(models.Model):
     """ A Provision constitutes a way of providing an Instance of an Implementation """
+
+    # 1. Input to the Provision
     parent = models.ForeignKey("self", on_delete=models.CASCADE, null=True, blank=True, help_text="The Provisions parent", related_name="children")
     node = models.ForeignKey(Node, on_delete=models.CASCADE, help_text="The node this provision connects", related_name="provisions")
-    template = models.ForeignKey(Template, on_delete=models.CASCADE, help_text="The template used to create this provision", related_name="provisions", null=True, blank=True)
-    pod = models.ForeignKey(Pod, on_delete=models.CASCADE, help_text="The pod this provision connects", related_name="provisions", null=True, blank=True)
-    active = models.BooleanField(default=False)
-    provider = models.CharField(max_length=1000, help_text="The Provider")
-    subselector = models.CharField(max_length=1000, help_text="The selector")
-    token = models.CharField(max_length=1000, blank=True, default=uuid.uuid4(), help_text="The Token that created this Provision")
+    provider = models.ForeignKey(Provider, on_delete=models.CASCADE, help_text="The provider we might want")
+    kwargs = models.JSONField(null=True, blank=True, help_text="Kwargs for the Provider") 
     reference = models.CharField(max_length=1000, unique=True, default=uuid.uuid4, help_text="The Unique identifier of this Provision")
+    
+
+
+    # 2. Getting the Pod 
+    pod = models.ForeignKey(Pod, on_delete=models.CASCADE, help_text="The pod this provision connects", related_name="provisions", null=True, blank=True)
+    
+    # Status fields
     status = models.CharField(max_length=1000, blank=True, help_text="This provisions status")
     statusmessage = models.CharField(max_length=1000, blank=True, help_text="This provisions status")
-    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, max_length=1000, help_text="This provision creator")
+
+
+    # Meta fields 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, max_length=1000, help_text="This provision creator")
+    token = models.CharField(max_length=1000, blank=True, default=uuid.uuid4(), help_text="The Token that created this Provision") # TODO: Get rid of this???
 
-class Job(models.Model):
-    """ 
-    A Job is the Arnheim equivalent of a Task that lives on a Node
-    """
-    inputs = InputsField(blank=True, null=True, help_text="The Inputs")
-    outputs = OutputsField(help_text="The Outputs", blank=True, null=True)
-    settings = SettingsField(max_length=1000, default=get_default_job_settings) # jsondecoded
-    status = models.CharField(max_length=500,  default= JOB_PENDING)
-    creator = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
-    pod = models.ForeignKey(Pod, on_delete=models.CASCADE, null=True, blank=True, help_text="The Pod this Job lives on")
-    reference = models.CharField(max_length=400, default= uuid.uuid4, help_text="The Nodeinstance this Job lives on")
-    selector = SelectorField(max_length=400, blank=True, help_text="The Selectivity for Instances of this Node (especially unique Frontends)")
-    unique = models.UUIDField(max_length=1000, unique=True, default=uuid.uuid4, editable=False)
-
-    def __str__(self):
-        return f"Request by {self.creator.username}"
-
-    def _repr_html_(self):
-        return f'''<h5>Request by {self.creator.username} </h5>
-                <ul>
-                    <li> Last Status: {self.statusmessage}</li>
-                    <li> Node Status: {self.nodeid}</li>
-                    <li> Settings: {self.settings}</li>
-                </ul>'''
-
-    def save(self, *args, **kwargs):
-        # Check how the current values differ from ._loaded_values. For example,
-        # prevent changing the creator_id of the model. (This example doesn't
-        # support cases where 'creator_id' is deferred).
-        super().save(*args, **kwargs)
-
-    class Meta:
-        permissions = (
-                ('queue_job', 'Queue Job'),
-            )
 
 class Assignation(models.Model):
+
+    # 1. Input to the Assignation
     pod = models.ForeignKey(Pod, on_delete=models.CASCADE, help_text="The pod this provision connects", related_name="assignations")
     inputs = InputsField(blank=True, null=True, help_text="The Inputs")
+    reference = models.CharField(max_length=1000, unique=True, default=uuid.uuid4, help_text="The Unique identifier of this Assignation")
+
+
+    # 2. Input to the Provision
+    status = models.CharField(max_length=1000, help_text="This assignations status")
+    statusmessage = models.CharField(max_length=1000, blank=True, help_text="This assignation status message")
+
+
+    # 2. The Termination of the Assignation
     outputs = OutputsField(help_text="The Outputs", blank=True, null=True)
-    reference = models.CharField(max_length=1000, unique=True, default=uuid.uuid4, help_text="The Unique identifier of this Provision")
-    status = models.CharField(max_length=1000, help_text="This provisions status")
-    message = models.CharField(max_length=1000, help_text="This provisions status")
-    creator = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, null=True, blank=True)
-    token = models.CharField(max_length=1000, blank=True, default=uuid.uuid4(), null=True, help_text="The Token that created this Provision")
+
+
+    # Meta fields 
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    creator = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, max_length=1000, help_text="This provision creator")
+    token = models.CharField(max_length=1000, blank=True, default=uuid.uuid4(), help_text="The Token that created this Provision") # TODO: Get rid of this???
 
     def __str__(self) -> str:
         return f"Assignation {self.id} on (ref: {self.reference}) for {self.pod} "
     
-    
+    class Meta:
+        permissions = (
+                ('can_assign', 'Assign Job'),
+            )
+
+class Selector(models.Model):
+    provider = models.ForeignKey(Provider, on_delete=models.CASCADE, help_text="The provider these kwargs belong to")
+    kwargs = KwargsField(blank=True, null=True, help_text="The Specific inputs this selector needs and their types")
+
+
+    def __str__(self) -> str:
+        return f"Selector for {self.provider}"

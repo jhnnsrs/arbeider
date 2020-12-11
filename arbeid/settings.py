@@ -150,8 +150,6 @@ INITIAL_SET = [
 EXTENSIONS = [
     'konfig',
     'kanal',
-    'fremmed',
-    'jobb',
     'balder',
     'providers.auto',
     'port',
@@ -167,6 +165,7 @@ MODULES = [
     'drawing',
     'flow',
     'vart',
+    'slacko'
 ]
 
 

@@ -50,3 +50,4 @@ pylint
 pylint-django
 
 colorlog
+namegenerator

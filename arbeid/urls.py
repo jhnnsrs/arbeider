@@ -14,6 +14,9 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 import logging
+from slacko.handler import SlackoHandler
+from vart.selector import VartSelector
+from slacko.selector import SlackoSelector
 from reactive.handler import ReactiveHandler
 from delt.registries.handler import get_handler_registry
 from vart.handler import VartHandler
@@ -43,16 +46,13 @@ from delt.router import router as configrouter
 from delt.validators.alwaystrue import AlwaysTrueValidator
 from elements.router import router as elementsrouter
 from flow.router import router as flowrouter
-from fremmed.handler import FremmedHandler
-from fremmed.publisher import FremmedPublisher
 from herre.router import router as herrerouter
-from jobb.router import JobRouter
-from jobb.router import router as jobrouter
 from kanal.handler import KanalHandler
 from konfig.backend import KonfigBackend
 from port.handler import PortHandler
 from port.publisher import PortPublisher
 from providers.auto.handler import AutoProviderHandler
+from delt.registries.selector import get_selector_registry
 
 logger = logging.getLogger(__name__)
 
@@ -73,13 +73,16 @@ orchestrator.setPublisher("port", PortPublisher())
 
 
 orchestrator.setHandlerForProvider("kanal", KanalHandler())
-orchestrator.setHandlerForProvider("fremmed", FremmedHandler())
 orchestrator.setHandlerForProvider("port", PortHandler())
 orchestrator.setHandlerForProvider("auto", AutoProviderHandler())
 
 
 get_handler_registry().registerHandler(VartHandler())
 get_handler_registry().registerHandler(ReactiveHandler())
+get_handler_registry().registerHandler(SlackoHandler())
+
+get_selector_registry().registerSelector("slacko",SlackoSelector())
+get_selector_registry().registerSelector("vart",VartSelector())
 
 orchestrator.setDefaultValidator(AlwaysTrueValidator())
 
@@ -124,7 +127,6 @@ urlpatterns = [
     url(r'^api/elements/', include((elementsrouter.urls, 'elementsapi'))),
     url(r'^api/herre/', include((herrerouter.urls, 'herrapi'))),
     url(r'^api/config/', include((configrouter.urls, 'configapi'))),
-    url(r'^api/jobs/', include((jobrouter.urls, 'jobsapi'))),
     url(r'^api/flows/', include((flowrouter.urls, 'flowsapi'))),
     url('avatar/', include('avatar.urls')),
     path('o/', include('oauth2_provider.urls', namespace='oauth2_provider')),

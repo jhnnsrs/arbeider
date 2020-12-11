@@ -1,4 +1,5 @@
 
+from delt.serializers import ProvisionModelSerializer
 import logging
 
 from asgiref.sync import async_to_sync
@@ -7,10 +8,8 @@ from channels.layers import get_channel_layer
 from balder.registry import get_balder_registry
 from balder.subscriptions.provisions.monitor import MonitorSubscription
 from balder.subscriptions.provisions.provide import ProvideSubscription
-from delt.models import Job, Pod, Provision
+from delt.models import  Provision
 from delt.publishers.base import BasePublisher, BasePublisherSettings
-from delt.serializers import (JobSerializer, PodSerializer,
-                              ProvisionModelSerializer, ProvisionSerializer)
 from port.utils import provision_channel_from_id, assignation_channel_from_id
 
 logger = logging.getLogger(__name__)
@@ -31,9 +30,6 @@ class PortPublisher(BasePublisher):
     def __init_(self):
         super().__init__(self)
 
-
-    def on_job_updated(self, job: Job):
-        logger.info(f"Uppdated Job: {str(job)}")
 
     def is_responsible(self, provision):
         if provision.parent is None:

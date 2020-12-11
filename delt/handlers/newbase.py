@@ -2,7 +2,7 @@ from delt.handlers.env import BaseHandlerEnvironment
 from delt.handlers.protocol import Protocol
 from delt.handlers.consumers.basegateway import BaseGatewayConsumer
 from delt.handlers.messenger import Messenger
-from typing import Type
+from typing import Generic, Type, TypeVar
 from vart.subscriptions.host import HostSubscription
 from delt.consumers.utils import deserialized
 import logging
@@ -11,11 +11,11 @@ from asgiref.sync import async_to_sync
 from channels.consumer import SyncConsumer
 from channels.layers import get_channel_layer
 from delt.handlers.consumers.basehandler import BaseHandlerConsumer
-from delt.selector import Selector
 from delt.models import Pod, Assignation, Provision, Node, Provider, ProviderSettings
 from delt.serializers import  AssignationMessageSerializer, ProvisionMessageSerializer
 from delt.pipes import assignation_succeeded_pipe, provision_succeeded_pipe
 logger = logging.getLogger(__name__)
+
 
 class HandlerMeta(type):
     pass
@@ -96,7 +96,7 @@ class BaseHandler(metaclass=HandlerMeta):
         
         
 
-    def provide(self, node: Node, selector: Selector) -> Pod:
+    def provide(self, node: Node, selector: dict) -> Pod:
         # This function is run on the worker Thread! It gets activated from 
         raise NotImplementedError(f"Please overwrite this function in your Handler: {self.__class__.__name__}")
 

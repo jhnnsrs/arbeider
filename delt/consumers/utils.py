@@ -10,9 +10,7 @@ from delt.consumers.config import (CONSUMER_ASSIGNATION_ACTION,
                                    GATEWAY_POD_PROVISION_SUCCESS_ACTION,
                                    GATEWAY_PROVISION_UPDATE)
 from delt.serializers import (AssignationMessageSerializer,
-                              AssignationSerializer,
-                              ProvisionMessageSerializer,
-                              ProvisionModelSerializer, ProvisionSerializer)
+                              ProvisionMessageSerializer,)
 
 channel_layer = get_channel_layer()
 

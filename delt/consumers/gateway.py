@@ -4,18 +4,15 @@ from asgiref.sync import async_to_sync
 from channels.consumer import SyncConsumer
 from channels.layers import get_channel_layer
 
-from balder.utils import serializerToDict
 from delt.consumers.utils import deserialized
-from delt.models import Job, Pod
+from delt.models import  Pod
 from delt.pipes import (assignation_done_pipe, assignation_failed_pipe, assignation_progress_pipe, assignation_succeeded_pipe,
-                        job_assigned_pipe, pod_provisioned_pipe,
+                        pod_provisioned_pipe,
                         pod_updated_pipe, provision_failed_pipe,
                         provision_succeeded_pipe, republished_provision_pipe,
                         unprovision_failed_pipe, unprovision_succeeded_pipe)
 from delt.serializers import (AssignationMessageSerializer,
-                              AssignationSerializer, JobSerializer,
-                              PodSerializer, ProvisionMessageSerializer,
-                              ProvisionSerializer)
+ProvisionMessageSerializer)
 
 logger = logging.getLogger(__name__)
 
@@ -24,17 +21,6 @@ channel_layer = get_channel_layer()
 
 class GatewayConsumer(SyncConsumer):
 
-    def job_assigned(self, message: dict):
-        data = message["data"]
-        job = Job.objects.get(id=data["id"])
-        job_assigned_pipe(job)
-
-    def job_updated(self, message: dict):
-        data = message["data"]
-        serialized = JobSerializer(data=data)
-        job_dict = serializerToDict(serialized)
-
-        logger.info(f"Updated Job {job_dict}")
 
     @deserialized(ProvisionMessageSerializer)
     def provision_success(self, message):

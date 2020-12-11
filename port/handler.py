@@ -6,16 +6,16 @@ from delt.handlers.newbase import BaseHandler
 from balder.delt.enums import PodStatus
 from port.models import PortSettings
 import logging
-
+from port.selector import PortSelector
 
 logger = logging.getLogger(__name__)
 
 class PortProtocol(Protocol):
     pass
 
-class PortHandlerEnv(BaseHandlerEnvironment[PortSettings]):
+class PortHandlerEnv(BaseHandlerEnvironment[PortSettings, PortSelector]):
     settingsModel = PortSettings
-
+    selectorClass = PortSelector
 
 class PortHandler(BaseHandler):
     env = PortHandlerEnv("port")

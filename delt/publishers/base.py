@@ -2,7 +2,7 @@ import logging
 
 from django.conf import settings
 
-from delt.models import Job, Pod
+from delt.models import Pod
 
 logger = logging.getLogger(__name__)
 
