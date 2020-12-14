@@ -73,12 +73,14 @@ MODULES = os.environ.get("ARNHEIM_MODULES", "").split(",")
 #   |_____/ \___|_|  |_| \_/ \___|\__,_|
 #       Derived Settings for Django
 
+ARNHEIM_HOST = "arbeider" # Set this to the host you are on
+ARNHEIM_PORT = 8000 # Set this to the host you are on
 MEDIA_ROOT = str(defaults.media_path)
 
 # S3 Settings
 
-#S3 Settings
-S3_PUBLIC_DOMAIN = "localhost:9000" #TODO: FIx
+
+S3_PUBLIC_DOMAIN = f"{ARNHEIM_HOST}:9000" #TODO: FIx
 AWS_ACCESS_KEY_ID = defaults.s3_key
 AWS_SECRET_ACCESS_KEY = defaults.s3_secret
 AWS_S3_ENDPOINT_URL  = str(defaults.s3_endpointurl)
@@ -97,6 +99,11 @@ PARQUET_BUCKET = "parquet"
 DEFAULT_PARQUET_STORAGE = defaults.parquet_storage
 DEFAULT_ZARR_STORAGE = defaults.zarr_storage
 DEFAULT_NAME_GENERATOR = defaults.name_generator
+
+
+
+
+
 ALLOWED_HOSTS = ["*"]
 
 MEDIA_URL = defaults.media_url
@@ -107,6 +114,9 @@ STORAGE_MODE = defaults.storage
 DEFAULT_FILE_STORAGE = defaults.storage_default
 
 # Application definition
+
+
+
 
 BASE_FRAMEWORK = [
     "delt" # Provides backend specifivy registrys,

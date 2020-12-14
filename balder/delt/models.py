@@ -77,6 +77,20 @@ class ProviderType(BalderObjectType):
         model = Provider
 
 
+class DataPointsType(BalderObjectType):
+
+    class Meta:
+        model = DataPoint
+
+
+class DataModelType(BalderObjectType):
+    extenders = graphene.List(graphene.String, description="The extenders")
+
+    class Meta:
+        model = DataModel
+
+
+
 class SelectorType(BalderObjectType):
 
     class Meta:

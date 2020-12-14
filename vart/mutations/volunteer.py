@@ -1,3 +1,4 @@
+from delt.models import Provider
 from delt.bouncers.context import bounce
 from vart.models import Volunteer
 from vart.types import MarkType, VolunteerType
@@ -33,8 +34,8 @@ class VolunteerMutation(BaseMutation):
         node_id = int(kwargs.pop("node"))
 
         try:
-            return Volunteer.objects.get(name=name, node_id=node_id, version=version)
+            return Volunteer.objects.get(name=name, node_id=node_id, version=version, )
         except:
-            volunteer = Volunteer.objects.create(node_id=node_id, active=False, version=version, name=name, creator=context.user)
+            volunteer = Volunteer.objects.create(node_id=node_id, active=False, version=version, name=name, creator=context.user, provider=Provider.objects.get(name="vart"))
 
         return volunteer

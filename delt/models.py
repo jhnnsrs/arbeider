@@ -1,3 +1,4 @@
+from delt.enums import Endpoint, enumToChoices
 from delt.utils import generate_random_name
 from delt.integrity import node_identifier
 from typing import Iterable, Optional
@@ -26,13 +27,42 @@ options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('identifiers',)
 
 
 
+
+
+
 class Provider(models.Model):
-    ''' The Provider is a model to show what templates belong to '''
+    ''' Providers are extending the functionality as plugins:
+    You can use the provider to provision pods and implement a custom assignation logic
+    
+    A provider implements a handler that gets called by the provision pipe and can
+    override SelectorKwargs to enable autocompletion of the required models
+    '''
     name = models.CharField(max_length=1000, help_text="This Providers Name")
     installed_at = models.DateTimeField(auto_created=True, auto_now_add=True)
 
     def __str__(self) -> str:
         return f"Provider: {self.name}"
+
+
+class DataPoint(models.Model):
+    """A Datapoint is the way arnheim is allowing access to apis, a datapoint stores the protocol
+
+    """
+    host = models.CharField(max_length=100, help_text="Where are we storing this??")
+    name = models.CharField(max_length=100, help_text="A unique identifier for this datapoint, will be prepeneded to the Model it hosts", unique=True)
+    port = models.IntegerField(help_text="the port this point lives on")
+    type = models.CharField(max_length=100, choices=enumToChoices(Endpoint), help_text="The Type of API")
+    installed_at = models.DateTimeField(auto_created=True, auto_now_add=True)
+
+
+
+class DataModel(models.Model):
+    """ A unique serverside model to interact with , it lives on a datapoint"""
+    point = models.ForeignKey(DataPoint, on_delete=models.CASCADE, related_name="models")
+    identifier = models.CharField(max_length=100, help_text=" A unique identifier for this model in its Datapoint")
+    installed_at = models.DateTimeField(auto_created=True, auto_now_add=True)
+    extenders = models.JSONField(null=True, blank=True, help_text="Unique identifiers for a Datamodel, good for introspection")
+
 
 
 class ProviderSettings(models.Model):

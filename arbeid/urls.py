@@ -52,7 +52,9 @@ from konfig.backend import KonfigBackend
 from port.handler import PortHandler
 from port.publisher import PortPublisher
 from providers.auto.handler import AutoProviderHandler
+
 from delt.registries.selector import get_selector_registry
+from delt.registries.datapoint import get_datapoint_registry
 
 logger = logging.getLogger(__name__)
 
@@ -77,12 +79,16 @@ orchestrator.setHandlerForProvider("port", PortHandler())
 orchestrator.setHandlerForProvider("auto", AutoProviderHandler())
 
 
+get_datapoint_registry().registerDataPoint("elements")
+
 get_handler_registry().registerHandler(VartHandler())
 get_handler_registry().registerHandler(ReactiveHandler())
 get_handler_registry().registerHandler(SlackoHandler())
 
 get_selector_registry().registerSelector("slacko",SlackoSelector())
 get_selector_registry().registerSelector("vart",VartSelector())
+
+
 
 orchestrator.setDefaultValidator(AlwaysTrueValidator())
 

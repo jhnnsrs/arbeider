@@ -1,4 +1,4 @@
-from balder.delt.models import UserType
+from balder.delt.models import DataModelType, DataPointsType, UserType
 import graphene
 from graphene.types.generic import GenericScalar
 
@@ -15,6 +15,8 @@ class CommunicationProtocol(graphene.ObjectType):
 class TranscriptType(graphene.ObjectType):
     array = graphene.Field(ArrayProtocol)
     communication = graphene.Field(CommunicationProtocol)
+    extensions = GenericScalar(description="Configuration space for extensios")
     timestamp = graphene.DateTime()
-    extensions = GenericScalar(description="Extensionsmap of Identifier and Model")
+    models = graphene.List(DataModelType, description="Extensionsmap of Identifier and Model")
+    points = graphene.List(DataPointsType, description="The Attached datapoints to this instance")
     user = graphene.Field(UserType)

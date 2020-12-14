@@ -1,3 +1,5 @@
+from delt.models import DataPoint
+from balder.delt.enums import ClientTypeEnum
 from delt.extension.models import get_extension_models
 import logging
 import uuid
@@ -26,7 +28,7 @@ class NegotiateMutation(BaseMutation):
     Output = TranscriptType
 
     class Arguments:
-        client_type = graphene.String(required=True, description="The clients type [external, ...]")
+        client_type = graphene.Argument(ClientTypeEnum, description="The clients type [external, ...]")
 
     @classmethod
     def change(cls, context, root, info, *arg, **kwargs):
@@ -37,7 +39,8 @@ class NegotiateMutation(BaseMutation):
         
 
         transcript = {
-            "array": {
+            "extensions": {
+                "array": {
                 "type": "s3",
                 "path": "minio:9000",
                 "params": {
@@ -45,11 +48,13 @@ class NegotiateMutation(BaseMutation):
                     "secret_key": settings.AWS_SECRET_ACCESS_KEY
                 }
             },
+            },
             "communication": {
                 "type" : "grapqhl",
                 "url": "http://localhost:8000/graphql"
             },
-            "extensions": get_extension_models(),
+            "models": get_extension_models(),
+            "points": list(DataPoint.objects.all()),
             "timestamp": datetime.datetime.now(),
             "user": context.user if context.user.is_authenticated else None
         }

@@ -38,7 +38,7 @@ class VartHandler(BaseHandler):
             raise NotImplementedError("We haven't implemented that yet")    
         
 
-        pod = VartPod.objects.create(volunteer=volunteer, node=node, provider=self.env.provider_name)
+        pod = VartPod.objects.create(template=volunteer, volunteer=volunteer)
         pod.status = PodStatus.PENDING.value
         pod.save()
 
