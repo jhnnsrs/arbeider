@@ -1,13 +1,6 @@
 from rest_framework import serializers
 
-from flow.models import FlowNode, Graph
-
-
-class FlowNodeSerializer(serializers.ModelSerializer):
-    
-    class Meta:
-        model = FlowNode
-        fields = "__all__"
+from flow.models import Graph
 
 
 

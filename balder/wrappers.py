@@ -21,6 +21,7 @@ class BalderObjectWrapper(object):
     @classmethod
     def resolver(cls, root, info, *args, **kwargs):
         context = BouncerContext(info=info)
+        print(args, kwargs)
         return cls.resolve(context, *args, **kwargs)
 
 

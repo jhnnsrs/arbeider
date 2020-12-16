@@ -30,6 +30,7 @@ class PodStatus(str, Enum):
 class AssignationStatus(str, Enum): 
     PENDING = "PENDING"
     ASSIGNED = "ASSIGNED"
+    YIELD = "YIELD"
     DENIED = "ASSIGNED"
     ERROR = "ERROR"
     CRITICAL = "CRITICAL"

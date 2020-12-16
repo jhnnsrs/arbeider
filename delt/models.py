@@ -93,7 +93,7 @@ class Node(models.Model):
     inputs = InputsField(default=list)
     outputs = OutputsField(default=list)
     nodeclass = models.CharField(max_length=400, default="classic-node")
-    repository = models.ForeignKey(Repository, null=True, blank=True, on_delete=models.CASCADE)
+    repository = models.ForeignKey(Repository, null=True, blank=True, on_delete=models.CASCADE, related_name="nodes")
 
     def save(self,*args, **kwargs) -> None:
         logger.info(f"Validating Integrity of {str(self)}")
@@ -214,7 +214,7 @@ class Assignation(models.Model):
             )
 
 class Selector(models.Model):
-    provider = models.ForeignKey(Provider, on_delete=models.CASCADE, help_text="The provider these kwargs belong to")
+    provider = models.ForeignKey(Provider, on_delete=models.CASCADE, help_text="The provider these kwargs belong to", related_name="selectors")
     kwargs = KwargsField(blank=True, null=True, help_text="The Specific inputs this selector needs and their types")
 
 

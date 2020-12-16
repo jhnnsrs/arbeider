@@ -70,6 +70,10 @@ def assignation_done_pipe(assignation):
     # Therefore we can always publish it
     publish_to_event("assignation_done",assignation)
 
+def assignation_yielded_pipe(assignation):
+    # A Successfull provision will results in a Pod that is either Active or Pending by default
+    # Therefore we can always publish it
+    publish_to_event("assignation_yielded",assignation)
 
 def assignation_critical_pipe(assignation):
     # A Successfull provision will results in a Pod that is either Active or Pending by default

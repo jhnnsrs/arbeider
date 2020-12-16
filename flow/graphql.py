@@ -1,23 +1,22 @@
+from flow.mutations.updategraph import UpdateGraphMutation
 from flow.mutations.compile import CompileMutation
 from flow.types import CompilerType, ExecutionGraphType
-from flow.balder.mutations.createnode import CreateNodeMutation
 import graphene
 
 from balder.register import register_mutation, register_query
 from balder.wrappers import BalderMutationWrapper, BalderObjectWrapper
-from flow.balder.mutations.createflow import CreateFlowMutation
-from flow.models import Compiler, ExecutionGraph, Flow, FlowNode, Graph
-from flow.balder.types import FlowNodeType, FlowType, GraphType
+from flow.models import Compiler, ExecutionGraph, Graph
+from flow.types import GraphType
+from flow.mutations.creategraph import CreateGraphMutation
 
 
-@register_mutation("createNode", description="Create a graph from a diagram")
-class CreateNode(BalderMutationWrapper):
-    mutation = CreateNodeMutation
+@register_mutation("createGraph", description="Create a Flow from a diagram")
+class CreateGraph(BalderMutationWrapper):
+    mutation = CreateGraphMutation
 
-
-@register_mutation("createFlow", description="Create a Flow from a diagram")
-class CreateFlow(BalderMutationWrapper):
-    mutation = CreateFlowMutation
+@register_mutation("updateGraph", description="Create a Flow from a diagram")
+class UpdateGraphh(BalderMutationWrapper):
+    mutation = UpdateGraphMutation
 
 
 @register_mutation("compile", description="Takes a Graph and compiles it with the help of a Compiler")
@@ -31,28 +30,17 @@ class Compile(BalderMutationWrapper):
 )
 class GraphItemWrapper(BalderObjectWrapper):
     object_type = GraphType
-    resolver = lambda context, id: Graph.objects.get(id=id)
+    resolve = lambda context, id: Graph.objects.get(id=id)
     asfield = True
 
 
-@register_query("myflows", 
-    description="Get all Flows", 
+@register_query("mygraphs", 
+    description="Get your graphs", 
 )
-class FlowsWrapper(BalderObjectWrapper):
-    object_type = FlowType
-    resolve = lambda context: Flow.objects.filter(node__repository__type="flow", node__repository__creator=context.user)
+class MyGraphsWrapper(BalderObjectWrapper):
+    object_type = GraphType
+    resolve = lambda context, id: Graph.objects.filter(creator=context.user)
     aslist = True
-
-
-@register_query("flow", 
-    description="Get the flow", 
-    id=graphene.ID(required=True, description="the Flow id")
-)
-class FlowDetail(BalderObjectWrapper):
-    object_type = FlowNodeType
-    resolver = lambda context, id: FlowNode.objects.get(id=id)
-    asfield = True
-
 
 @register_query("compilers", 
     description="Get the Compilers",

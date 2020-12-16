@@ -10,6 +10,10 @@ class EndType(graphene.ObjectType):
     registered = graphene.Boolean(description="Did we register the end of your assignation")
 
 
+class YieldType(graphene.ObjectType):
+    registered = graphene.Boolean(description="Did we register the end of your assignation")
+
+
 
 class VartPodType(BalderObjectType):
 

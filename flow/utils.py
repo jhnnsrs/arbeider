@@ -1,5 +1,5 @@
 
 
 
-def validate_flow(diagram: dict):
+def validate_graph(diagram: dict):
     return True

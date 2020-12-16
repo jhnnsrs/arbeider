@@ -1,12 +1,13 @@
+from balder.mutations.management.createnode import CreateNodeMutation
 from balder.mutations.negotiations.negotiate import NegotiateMutation
 from extensions.filters import NodeListFilter
 from graphene.types.generic import GenericScalar
 from balder.subscriptions.assignation.watch import WatchSubscription
 from balder.subscriptions.helpers.myprovisions import MyProvisionsSubscription, MyProvisions
-from balder.delt.ports import get_port_types, get_widget_types
 from delt.bouncers.context import BouncerContext
 import graphene
 
+import extensions.delt.introspection
 from balder.delt.models import AssignationType, NodeType, PodType, ProvisionType, UserType
 from balder.mutations.assignations.assign import AssignMutation
 from balder.mutations.provisions.provide import ProvideMutation
@@ -29,6 +30,11 @@ class Selectors(BalderQueryWrapper):
     query = SelectorQuery
 
 
+@register_mutation("createNode", description="Create a Node")
+class CreateNode(BalderMutationWrapper):
+    mutation = CreateNodeMutation
+
+
 @register_query("nodes", description="Get all nodes in this bergen instance", withfilter=NodeListFilter)
 class NodeListWrapper(BalderObjectWrapper):
     object_type = NodeType
@@ -42,19 +48,6 @@ class ListItem(graphene.ObjectType):
     description= graphene.String()
     value = GenericScalar()
 
-
-
-@register_query("porttypes", description="Get all PortTypes in this bergen instance")
-class PortTypesListWrapper(BalderObjectWrapper):
-    object_type = ListItem
-    resolver = lambda root, info: map(lambda item: { "key": item[0], "label": item[1].__name__, "description": item[1].__doc__}, list(get_port_types().items()))
-    aslist = True
-
-@register_query("widgettypes", description="Get all WidgetTypes in this bergen instance")
-class WidgetTypesWrapper(BalderObjectWrapper):
-    object_type = ListItem
-    resolver = lambda root, info: map(lambda item: { "key":  item[0], "label": item[1].__name__, "description": item[1].__doc__}, list(get_widget_types().items()))
-    aslist = True
 
 @register_query("pod", description="Get all nodes in this bergen instance", id = graphene.ID(description="The Pods ID"))
 class NodeListWrapper(BalderObjectWrapper):

@@ -124,7 +124,14 @@ class BouncerContext(object):
 
 
     def can(self, scope, default=[]):
-        if scope in self.scopes(default=default): return True 
+        try:
+            if scope in self.scopes(default=default): return True 
+        except Exception as e:
+            if self.app_type == "m2m":
+               return True
+            else:
+                raise e
+
         return False
 
     @property

@@ -21,7 +21,6 @@ class RxGraph(ExecutionGraph):
     value = models.JSONField()
 
 
-
 class RxTemplate(ContainerTemplate):
     graph = models.ForeignKey(RxGraph, on_delete=models.CASCADE, help_text="The RxGraph atached to this potential Worker")
     identifier = models.UUIDField(default=uuid.uuid4, help_text="The identifier for this volunteer")
