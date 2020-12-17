@@ -144,3 +144,4 @@ cython_debug/
 media
 export
 static_collected
+data

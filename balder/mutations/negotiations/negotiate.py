@@ -42,7 +42,7 @@ class NegotiateMutation(BaseMutation):
             "extensions": {
                 "array": {
                 "type": "s3",
-                "path": "minio:9000",
+                "path": "localhost:9000",
                 "params": {
                     "access_key": settings.AWS_ACCESS_KEY_ID,
                     "secret_key": settings.AWS_SECRET_ACCESS_KEY
