@@ -14,10 +14,10 @@ class DataPointRegistry(BaseRegistry):
     def __init__(self) -> None:
         self.pointnameDatapointMap: dict[str, DataPoint] = {}
 
-    def registerDataPoint(self,name, host=settings.ARNHEIM_HOST, type=Endpoint.GRAPHQL, port=settings.ARNHEIM_PORT):
+    def registerDataPoint(self,name, host=settings.ARNHEIM_HOST, inward=settings.ARNHEIM_INWARD, type=Endpoint.GRAPHQL, port=settings.ARNHEIM_PORT):
         datapoint = None
         try:
-            datapoint = DataPoint.objects.update_or_create(name=name, defaults= {"host": host, "type": type, "port": port} )
+            datapoint = DataPoint.objects.update_or_create(name=name, defaults= {"host": host, "type": type, "port": port, "inward": inward} )
         except Exception as e:
             logger.error("MIGRATE FIRST")
 

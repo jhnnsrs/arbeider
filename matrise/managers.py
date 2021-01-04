@@ -22,8 +22,6 @@ logger = logging.getLogger(__name__)
 
 
 class DelayedMatriseManager(Manager):
-    generatorClass = default_zarr_generator
-    group = None
     queryset = None
 
     def get_queryset(self):
@@ -41,29 +39,23 @@ class DelayedMatriseManager(Manager):
             [models.Model] -- The Model
             [xarray.backends.ZarrStore] -- The Delayed Graph as a ZarrStore
         """
+        # Create Model
         item = self.model(**kwargs)
-        generated = self.generatorClass(item, self.group)
-        array.name = generated.name
+        saved_item = item.save()
 
-        # Store Generation
-        item.store.name = generated.path
+        # Update With Array
+        array.name = saved_item.name
+        graph = item.store.save(array, compute=False, fileversion=fileversion, apiversion= apiversion)
         item.shape = list(array.shape)
         item.dims = list(array.dims)
-
-        # Actually Saving
-        item.unique = uuid4()
-        graph = item.store.save(array, compute=False, fileversion=fileversion, apiversion= apiversion)
-
-        
-
+        item.has_array = True
+    
             
         item.save()
         return (item, graph)
 
 
 class MatriseManager(Manager):
-    generatorClass = default_zarr_generator
-    group = None
     queryset = None
 
     def get_queryset(self):
@@ -81,20 +73,9 @@ class MatriseManager(Manager):
         """
 
         item = self.model(**kwargs)
-        generated = self.generatorClass(item, self.group)
-        array.name = generated.name
+        item.save() # Important. we now assign a store to this
 
-        # Store Generation
-        item.store.name = generated.path
-        item.shape = list(array.shape)
-        item.dims = list(array.dims)        
-
-
-        # Actually Saving
-        item.unique = uuid4()
-        graph = item.store.save(array, compute=True,fileversion=fileversion, apiversion= apiversion)
-      
-
+        item.store.save(array, compute=True,fileversion=fileversion, apiversion= apiversion)
 
         if isinstance(item,WithChannel):
             try:

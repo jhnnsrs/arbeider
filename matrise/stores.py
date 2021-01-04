@@ -109,6 +109,7 @@ class XArrayStore(FieldFile):
         dataset = xr.open_zarr(store=self.connected, consolidated=False)
         fileversion = dataset.attrs["fileversion"]
         fileapiversion = dataset.attrs["apiversion"]
+        logger.info(dataset)
         if apiversion == "0.1":
             if  fileapiversion == "0.1" and  fileversion == "0.1":
                 logger.info(f"Opening File with API v.{apiversion}  and File v.{fileversion} ")

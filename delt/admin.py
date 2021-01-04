@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 # Register your models here.
-from .models import Assignation, Node, Provider, ProviderSettings, Provision, Repository, Route, Pod, Selector, Template
+from .models import Assignation, DataModel, DataPoint, Node, Provider, ProviderSettings, Provision, Repository, Route, Pod, Selector, Template
 
 class RouteInline(admin.TabularInline):
     model = Route
@@ -22,3 +22,5 @@ admin.site.register(Provider)
 admin.site.register(Template)
 admin.site.register(ProviderSettings)
 admin.site.register(Selector)
+admin.site.register(DataPoint)
+admin.site.register(DataModel)

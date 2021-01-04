@@ -35,14 +35,14 @@ class NegotiateMutation(BaseMutation):
         logger.warn("Negotiation incoming")
         logger.info(f"Initialized by {context.user}")
 
-
+        local = False
         
 
         transcript = {
             "extensions": {
                 "array": {
                 "type": "s3",
-                "path": "localhost:9000",
+                "path": "minio:9000" if local else "localhost:9000",
                 "params": {
                     "access_key": settings.AWS_ACCESS_KEY_ID,
                     "secret_key": settings.AWS_SECRET_ACCESS_KEY
@@ -51,7 +51,7 @@ class NegotiateMutation(BaseMutation):
             },
             "communication": {
                 "type" : "grapqhl",
-                "url": "http://localhost:8000/graphql"
+                "url": "http://arbeider:8000/graphql" if local else "http://localhost:8000/graphql"
             },
             "models": get_extension_models(),
             "points": list(DataPoint.objects.all()),

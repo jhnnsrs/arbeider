@@ -1,3 +1,4 @@
+from elements.mutations.update_representation import UpdateRepresentationMutation
 from elements.mutations.create_representation import CreateRepresentationMutation
 from balder.register import register_mutation, register_query
 from balder.wrappers import BalderMutationWrapper, BalderObjectWrapper
@@ -28,10 +29,13 @@ class RepresentationWrapper(BalderObjectWrapper):
     asfield = True
 
 
-@register_mutation("createRepresentation", description="Representations by ID", id = graphene.Int(required=True))
+@register_mutation("createRepresentation", description="Create Representation")
 class CreateRepresentationWrapper(BalderMutationWrapper):
     mutation = CreateRepresentationMutation
 
+@register_mutation("updateRepresentation", description="Update Representation")
+class CreateRepresentationWrapper(BalderMutationWrapper):
+    mutation = UpdateRepresentationMutation
 
 
 

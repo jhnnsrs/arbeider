@@ -19,6 +19,6 @@ def rep_post_save(sender, **kwargs):
     if created:
         logger.info(f"Assigning Permissions {permissions} to Representation")
         for permission in permissions:
-            assign_perm(permission, representation.creator, representation)
+            assign_perm(permission, representation.sample.creator, representation)
             for group in get_all_access_groups():
                 assign_perm(permission, group, representation)

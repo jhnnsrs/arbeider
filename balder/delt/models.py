@@ -78,9 +78,17 @@ class ProviderType(BalderObjectType):
 
 
 class DataPointsType(BalderObjectType):
+    host = graphene.String(description="The Connection Url", local=graphene.Boolean(description="Is this a local?"))
 
     class Meta:
         model = DataPoint
+
+
+    def resolve_host(parent, info, *args, **kwargs):
+        print(parent.host)
+        host = parent.inward if kwargs.get("local", False) else parent.host
+        print(host)
+        return host
 
 
 class DataModelType(BalderObjectType):

@@ -49,6 +49,7 @@ class DataPoint(models.Model):
 
     """
     host = models.CharField(max_length=100, help_text="Where are we storing this??")
+    inward = models.CharField(max_length=100, help_text="The Microservice way", default="arbeider")
     name = models.CharField(max_length=100, help_text="A unique identifier for this datapoint, will be prepeneded to the Model it hosts", unique=True)
     port = models.IntegerField(help_text="the port this point lives on")
     type = models.CharField(max_length=100, choices=enumToChoices(Endpoint), help_text="The Type of API")

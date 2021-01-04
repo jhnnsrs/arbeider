@@ -73,7 +73,8 @@ MODULES = os.environ.get("ARNHEIM_MODULES", "").split(",")
 #   |_____/ \___|_|  |_| \_/ \___|\__,_|
 #       Derived Settings for Django
 
-ARNHEIM_HOST = "arbeider" # Set this to the host you are on
+ARNHEIM_HOST = "localhost"
+ARNHEIM_INWARD = "arbeider" # Set this to the host you are on
 ARNHEIM_PORT = 8000 # Set this to the host you are on
 MEDIA_ROOT = str(defaults.media_path)
 

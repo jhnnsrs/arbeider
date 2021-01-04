@@ -2,12 +2,13 @@ from enum import Enum
 
 
 def enumToChoices(enum: Enum):
-    return [(tag, tag.value) for tag in enum]
+    return [(tag.value, tag.value) for tag in enum]
 
 
 
 class ClientType(str, Enum):
     EXTERNAL = "external"
+    LOCAL = "local"
     USER = "user"
     ADMIN = "admin"
 

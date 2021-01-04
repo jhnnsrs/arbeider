@@ -9,7 +9,7 @@ from delt.extension.models import Model
 from pandas import HDFStore
 
 from elements.managers import (DelayedRepresentationManager,
-                               DelayedTransformationManager,
+                               DelayedTransformationManager, RepresentationGenerator,
                                RepresentationManager, TableManager,
                                TransformationManager)
 from matrise.models import  Matrise
@@ -180,8 +180,10 @@ class ChannelMap(object):
 
 
 class Representation(WithPlanes, WithChannel, AutoGenerateImageFromArrayMixin, Matrise):
+    group = "representation"
+    generatorClass = RepresentationGenerator
+
     ''' A Representation is 5-dimensional representation of a microscopic image '''
-    creator = models.ForeignKey(User, on_delete=models.CASCADE, help_text="The Person that created this representation")
     origin = models.ForeignKey('self', on_delete=models.SET_NULL, blank=True, null= True, related_name="derived", related_query_name="derived")
     sample = models.ForeignKey(Sample, on_delete=models.CASCADE, related_name='representations', help_text="The Sample this representation belongs to")
     type = models.CharField(max_length=400, blank=True, null=True, help_text="The Representation can have varying types, consult your API")

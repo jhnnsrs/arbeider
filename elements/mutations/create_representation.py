@@ -24,6 +24,6 @@ class CreateRepresentationMutation(BaseMutation):
         sampleid = kwargs.pop("sample")
         name = kwargs.pop("name")
         
-        rep = Representation.objects.create(name=name, sample_id = sampleid, creator=context.user)
+        rep = Representation.objects.create(name=name, sample_id = sampleid)
 
         return rep

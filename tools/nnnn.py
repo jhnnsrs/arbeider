@@ -13,12 +13,9 @@ from zarr.storage import DirectoryStore
 
 def main():
     from elements.models import Representation, Sample
-    samp, created = Sample.objects.get_or_create(name="TestSample",creator_id=1)
 
-    array = xr.DataArray(da.random.random((1024,1024,4,20,1)), dims=["x","y","c","z","t"])
-
-    Representation.objects.from_xarray(array, sample=samp, name="maxisp")
-
+    rep = Representation.objects.get(id=81)
+    print(rep.array)
 
 
 if __name__ == "__main__":
