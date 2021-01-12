@@ -1,6 +1,7 @@
 from datetime import timedelta, datetime
 from django.contrib.auth import get_user_model
 from guardian.utils import get_anonymous_user
+from oauth2_provider.backends import OAuth2Backend
 from rest_framework.request import Request
 from rest_framework.settings import api_settings
 from django.test import RequestFactory
@@ -8,6 +9,7 @@ from oauth2_provider.models import AccessToken, Application
 import logging
 from oauth2_provider.settings import oauth2_settings
 from delt.constants.scopes import SCOPELIST
+import re
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +19,7 @@ except:
     pass
 
 
-
+tokenstring = re.compile(r'Bearer\:\s*(?P<token>[\S]*)')
 
 
 def authenticateFromRequest(request):
@@ -34,22 +36,32 @@ def authenticateFromRequest(request):
     return None, None
 
 
+
+def authorize_by_token(token):
+    auth = AccessToken.objects.get(token=token)
+    user = auth.user
+
+    return user, auth
+
+
+def authenticateFromScopeAsContext(context):
+    # This is from Session backend?
+    user = context._scope["user"]
+    auth = None
+    return  user, auth
+
+
+
 def authenticateFromAsgiRequest(request):
 
-    try:
-        # This appears to be coming from the Subscription API (websockets -> channels)
-        scope = request._scope
-        return scope["user"], scope["auth"] if "auth" in scope else None
-    except:
-        # A Request from the Standard Web api
-        rf = RequestFactory()
-        get_request = rf.get('/api/comments/')
-        get_request._request = {}
-        get_request.method = "GET"
-        get_request.META["HTTP_AUTHORIZATION"] = request.META["HTTP_AUTHORIZATION"]
 
-        return authenticateFromRequest(get_request)
+    authorization = request.META["HTTP_AUTHORIZATION"]
+    m = tokenstring.match(authorization)
+    if m:
+        token = m.group("token")
+        return authorize_by_token(token)
 
+    return None, None 
 
 SESSIONSCOPES = [k for k,v in SCOPELIST.items()]
 
@@ -82,20 +94,16 @@ class BouncerContext(object):
         if info is not None:
             logger.info("Context Provided by GraphQL Framework")
             context = info.context
-            self._user, self._auth = authenticateFromAsgiRequest(context)
+
+            if hasattr(context, "_scope"): 
+                self._user, self._auth = authenticateFromScopeAsContext(context)
+            else:
+                self._user, self._auth = authenticateFromAsgiRequest(context)
             
 
         if token is not None:
             logger.info("Context Provided by Token Framework")
-
-            # We just go the rout as making a request and use the Oauth Framework
-            rf = RequestFactory()
-            get_request = rf.get('/api/comments/')
-            get_request._request = {}
-            get_request.method = "GET"
-            get_request.META["HTTP_AUTHORIZATION"] = "Bearer {}".format(token)
-
-            self._user, self._auth = authenticateFromRequest(get_request)
+            self._user, self._auth = authorize_by_token(token)
 
 
 

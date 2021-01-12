@@ -1,3 +1,4 @@
+from elements.models import Representation, Sample
 import django_filters
 from django_filters import FilterSet
 from delt.models import Template
@@ -6,12 +7,21 @@ from delt.models import Template
 class ExperimentFilter(FilterSet):
     creator = django_filters.NumberFilter(field_name='creator')
 
+class RepresentationFilter(FilterSet):
+
+    class Meta:
+        model = Representation
+        fields = ["name"]
+
 
 class SampleFilter(FilterSet):
 
-    creator = django_filters.NumberFilter(field_name='creator')
-    experiment = django_filters.NumberFilter(field_name= "experiment__name")
-    bioseries = django_filters.NumberFilter(field_name="bioseries__name",  label="The name of the desired BioSeries")
+    experiment = django_filters.CharFilter(field_name= "experiment__name")
+    bioseries = django_filters.CharFilter(field_name="bioseries__name",  label="The name of the desired BioSeries")
+
+    class Meta:
+        model = Sample
+        fields = ["creator","experiment","bioseries"]
 
 
 class TemplateFilter(django_filters.FilterSet):

@@ -66,18 +66,18 @@ class NodeListWrapper(BalderObjectWrapper):
         return Node.objects.exclude(variety="output").exclude(variety="input")[:10]
 
 
-@register_query("podsformodel", models= graphene.List(graphene.String, description="The pods models (assignable)"), description="Gets all running pods for the Model")
+@register_query("nodesformodel", models= graphene.List(graphene.String, description="The pods models (assignable)"), description="Gets all running pods for the Model")
 class NodeWrapper(BalderObjectWrapper):
-    object_type = PodType
+    object_type = NodeType
     aslist = True
 
     def resolve(context, models):
         #TODO: Implement check before this
-        pods = Pod.objects.accessible(context.user)
+        nodes = Node.objects
         for model in models:
-            pods = pods.filter(node__inputs__contains=[{"identifier": model}])
+            nodes = nodes.filter(inputs__contains=[{"identifier": model}])
 
-        return pods
+        return nodes
 
 
 

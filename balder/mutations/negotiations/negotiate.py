@@ -15,7 +15,7 @@ from balder.utils import modelToDict
 
 logger = logging.getLogger(__name__)
 
-
+from django.conf import settings
 from django.apps import apps
 
 
@@ -36,13 +36,14 @@ class NegotiateMutation(BaseMutation):
         logger.info(f"Initialized by {context.user}")
 
         local = False
+        host = settings.ARNHEIM_INWARD if local else settings.ARNHEIM_HOST
         
 
         transcript = {
             "extensions": {
                 "array": {
                 "type": "s3",
-                "path": "minio:9000" if local else "localhost:9000",
+                "path": f"{host}:9000",
                 "params": {
                     "access_key": settings.AWS_ACCESS_KEY_ID,
                     "secret_key": settings.AWS_SECRET_ACCESS_KEY
@@ -51,7 +52,7 @@ class NegotiateMutation(BaseMutation):
             },
             "communication": {
                 "type" : "grapqhl",
-                "url": "http://arbeider:8000/graphql" if local else "http://localhost:8000/graphql"
+                "url": f"http://{host}:8000/graphql"
             },
             "models": get_extension_models(),
             "points": list(DataPoint.objects.all()),

@@ -65,6 +65,14 @@ DASK_SCHEDULER_PORT = os.environ.get("DASK_SCHEDULER_SERVICE_DASKPORT", 5432)
 MODULES = os.environ.get("ARNHEIM_MODULES", "").split(",")
 
 
+
+
+ARNHEIM_HOST = "p-tnagerl-lab1"
+ARNHEIM_INWARD = "arbeider" # Set this to the host you are on
+ARNHEIM_PORT = 8000 # Set this to the host you are on
+
+
+
 #    _____            _               _
 #   |  __ \          (_)             | |
 #   | |  | | ___ _ __ ___   _____  __| |
@@ -73,9 +81,11 @@ MODULES = os.environ.get("ARNHEIM_MODULES", "").split(",")
 #   |_____/ \___|_|  |_| \_/ \___|\__,_|
 #       Derived Settings for Django
 
-ARNHEIM_HOST = "localhost"
-ARNHEIM_INWARD = "arbeider" # Set this to the host you are on
-ARNHEIM_PORT = 8000 # Set this to the host you are on
+
+
+
+
+
 MEDIA_ROOT = str(defaults.media_path)
 
 # S3 Settings

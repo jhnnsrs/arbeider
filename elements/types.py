@@ -48,6 +48,22 @@ class RepresentationType(BalderObjectType):
 
 
 class SampleType(BalderObjectType):
+
+    representations = graphene.List(RepresentationType,
+                     description="The attached Representations",
+                     name = graphene.String(description="Filtered by Name", required=False),
+                     dims = graphene.List(graphene.String, description="The dimensions required", required=False)
+                     
+                     
+                     )
+
+    def resolve_representations(parent, info, *args, **kwargs):
+
+        queryset = parent.representations
+        if "dims" in kwargs: queryset = queryset.filter(dims__contains=kwargs["dims"])
+        if "name" in kwargs: queryset = queryset.filter(name=kwargs["name"])
+        return queryset.all()
+
     class Meta:
         model = Sample
         description = Sample.__doc__

@@ -1,3 +1,5 @@
+from elements.mutations.create_sample import CreateSampleMutation
+from elements.filters import RepresentationFilter, SampleFilter
 from elements.mutations.update_representation import UpdateRepresentationMutation
 from elements.mutations.create_representation import CreateRepresentationMutation
 from balder.register import register_mutation, register_query
@@ -8,30 +10,44 @@ from .models import Representation, Sample
 from .types import ChannelType, DimsType, RepresentationType, SampleType
 
 
-@register_query("allRepresentation", description="All Representations")
+@register_query("representations", description="All Representations", withfilter=RepresentationFilter)
 class AllRepresentationWrapper(BalderObjectWrapper):
     object_type = RepresentationType
     resolver = lambda root, info: Representation.objects.all()
     aslist = True
 
 
-@register_query("allSamples", description="All Representations")
+@register_query("samples", description="All Samples", withfilter=SampleFilter)
 class SampleWrapper(BalderObjectWrapper):
     object_type = SampleType
     resolver = lambda root, info: Sample.objects.all()
     aslist = True
 
 
+@register_query("sample", description="Sample by ID", id = graphene.ID(description="The id of the sample"))
+class SampleWrapper(BalderObjectWrapper):
+    object_type = SampleType
+    resolve = lambda context, id : Sample.objects.get(id=id)
+    asfield = True
+
+
 @register_query("representation", description="Representations by ID", id = graphene.Int(required=True))
 class RepresentationWrapper(BalderObjectWrapper):
     object_type = RepresentationType
-    resolver = lambda root, info, id: Representation.objects.get(id=id)
+    resolve = lambda context, id: Representation.objects.get(id=id)
     asfield = True
 
 
 @register_mutation("createRepresentation", description="Create Representation")
 class CreateRepresentationWrapper(BalderMutationWrapper):
     mutation = CreateRepresentationMutation
+
+
+@register_mutation("createSample", description="Create Sample")
+class CreateRepresentationWrapper(BalderMutationWrapper):
+    mutation = CreateSampleMutation
+
+
 
 @register_mutation("updateRepresentation", description="Update Representation")
 class CreateRepresentationWrapper(BalderMutationWrapper):
@@ -53,8 +69,8 @@ class ChannelsOfWrapper(BalderObjectWrapper):
 
 
 
-@register_query("mypresentations", description="Show the latest representations for the user")
+@register_query("myrepresentations", description="Show the latest representations for the user")
 class MeQueryWrapper(BalderObjectWrapper):
     object_type = RepresentationType
     aslist = True
-    resolve= lambda context: Representation.objects.filter(creator=context.user).order_by("-created_at")[:5]
+    resolve= lambda context: Representation.objects.filter(sample__creator=context.user).order_by("-created_at")[:5]
