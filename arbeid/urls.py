@@ -13,6 +13,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from kanal.handler import KanalHandler
 import logging
 from slacko.handler import SlackoHandler
 from vart.selector import VartSelector
@@ -47,7 +48,7 @@ from delt.validators.alwaystrue import AlwaysTrueValidator
 from elements.router import router as elementsrouter
 from flow.router import router as flowrouter
 from herre.router import router as herrerouter
-from kanal.handler import KanalHandler
+from mister.router import misterrouter
 from konfig.backend import KonfigBackend
 from port.handler import PortHandler
 from port.publisher import PortPublisher
@@ -114,6 +115,7 @@ class DocsView(APIView):
                    'herre': request.build_absolute_uri('herre/'),
                    'jobs': request.build_absolute_uri('jobs/'),
                    'flows': request.build_absolute_uri('flows/'),
+                   'mister': request.build_absolute_uri('mister/'),
                    }
         return Response(apidocs)
 
@@ -134,6 +136,7 @@ urlpatterns = [
     url(r'^api/herre/', include((herrerouter.urls, 'herrapi'))),
     url(r'^api/config/', include((configrouter.urls, 'configapi'))),
     url(r'^api/flows/', include((flowrouter.urls, 'flowsapi'))),
+    url(r'^api/mister/', include((misterrouter.urls, 'mister'))),
     url('avatar/', include('avatar.urls')),
     path('o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
 ]

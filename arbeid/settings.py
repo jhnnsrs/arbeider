@@ -200,6 +200,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'oauth2_provider',
     'guardian',
+    'mister',
     'graphene_django',
     'rest_framework',
     'corsheaders',

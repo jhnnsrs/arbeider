@@ -19,7 +19,7 @@ except:
     pass
 
 
-tokenstring = re.compile(r'Bearer\:\s*(?P<token>[\S]*)')
+tokenstring = re.compile(r'Bearer[\:]?\s*(?P<token>[\S]*)')
 
 
 def authenticateFromRequest(request):

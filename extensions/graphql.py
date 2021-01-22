@@ -8,7 +8,7 @@ from delt.bouncers.context import BouncerContext
 import graphene
 
 import extensions.delt.introspection
-from balder.delt.models import AssignationType, NodeType, PodType, ProvisionType, UserType
+from balder.delt.models import AssignationType, NodeType, PodType, ProvisionType, TemplateType, UserType
 from balder.mutations.assignations.assign import AssignMutation
 from balder.mutations.provisions.provide import ProvideMutation
 from balder.register import (register_mutation, register_query,
@@ -17,7 +17,7 @@ from balder.subscriptions.provisions.monitor import MonitorSubscription
 from balder.subscriptions.assignation.assign import AssignSubscription
 from balder.subscriptions.provisions.provide import ProvideSubscription
 from balder.wrappers import (BalderMutationWrapper, BalderObjectWrapper, BalderQueryWrapper, BalderSubscriptionWrapper)
-from delt.models import Assignation, Node, Pod, Provision
+from delt.models import Assignation, Node, Pod, Provision, Template
 from balder.queries.introspection.selector import SelectorQuery
 
 
@@ -81,11 +81,34 @@ class NodeWrapper(BalderObjectWrapper):
 
 
 
-@register_query("node", id= graphene.ID(description="The node's ID"), description="Get a nodes in this bergen instance")
+@register_query("node",
+ id= graphene.ID(description="The node's ID", required=False), 
+ package= graphene.String(description="The Node's package", required=False),
+ interface= graphene.String(description="The Node's interface", required=False),
+    description="Get a nodes in this bergen instance")
 class NodeWrapper(BalderObjectWrapper):
     object_type = NodeType
     asfield = True
-    resolve = lambda context, id: Node.objects.get(id=id)
+
+    @staticmethod
+    def resolve(context, *args, **kwargs):
+        print(kwargs)
+
+
+        return Node.objects.get(**kwargs)
+
+
+@register_query("template",
+ id= graphene.ID(description="The template's ID", required=False), 
+description="Get a nodes in this bergen instance")
+class TemplateWrapper(BalderObjectWrapper):
+    object_type = TemplateType
+    asfield = True
+
+    @staticmethod
+    def resolve(context, *args, **kwargs):
+        return Template.objects.get(**kwargs)
+
 
 
 @register_query("monitor", reference= graphene.String(description="The monitored Provision"), description="Show the status of a NOde")

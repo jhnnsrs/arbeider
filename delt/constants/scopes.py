@@ -7,7 +7,7 @@ CAN_ADD_NODES = "can_add_nodes"
 
 
 SCOPELIST = {
-    CAN_HOST_NODES: "This app can host nodes",
+    CAN_HOST_NODES: "This app can host pods",
     CAN_PROVISION_NODES: "This app can provision nodes",
-    CAN_ADD_NODES: "This add can add nodes",
+    CAN_ADD_NODES: "This app can add nodes",
 }
