@@ -21,6 +21,13 @@ class BaseSubscription(channels_graphql_ws.Subscription):
     class Arguments:
         abstract = True
 
+    def __init__(self, *args, **kwargs):
+        logger.error("CALLED NOE")
+        super().__init__(*args, **kwargs)
+
+
+
+
     @classmethod
     def accept(cls, context: BouncerContext, root, info, *args, **kwargs) -> List[str]:
         raise NotImplementedError("Please override the accept method in your BaseSubscription")

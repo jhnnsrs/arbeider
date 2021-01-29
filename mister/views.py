@@ -13,9 +13,9 @@ class UserPathViewSet(viewsets.ViewSet):
     """
     def create(self, request):
         print(request.data)
-        token = request.data["username"]
-        thetoken = AccessToken.objects.get(token=token)
-        print(thetoken)
+        #token = request.data["username"]
+        #thetoken = AccessToken.objects.get(token=token)
+        #print(thetoken)
         return HttpResponse("allow", status=status.HTTP_200_OK)
 
 

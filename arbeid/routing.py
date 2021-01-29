@@ -1,10 +1,12 @@
+from earl.consumers.keep_alive import KeepPeasentAliveConsumer
+from mister.consumers.assignation import AssignationConsumer
 from delt.registries.handler import get_handler_registry
 from delt.registries.additionals import get_additionals_registry
 from kanal.registry import get_kanal_registry
 from balder.notifier.consumer import NotifyConsumer
 from channels.auth import AuthMiddlewareStack
 from channels.routing import ChannelNameRouter, ProtocolTypeRouter, URLRouter
-from django.urls import path
+from django.conf.urls import url
 
 from django.core.asgi import get_asgi_application
 from balder.consumers import MyGraphqlWsConsumer
@@ -36,8 +38,9 @@ application = ProtocolTypeRouter({
     # illustration. Also note the inclusion of the AuthMiddlewareStack to
     # add users and sessions - see http://channels.readthedocs.io/en/latest/topics/authentication.html
     'websocket': WithApolloMiddleWare(URLRouter([
-        path('graphql/', MyGraphqlWsConsumer.as_asgi()),
-        path('graphql', MyGraphqlWsConsumer.as_asgi()),
+        url('graphql/', MyGraphqlWsConsumer.as_asgi()),
+        url('graphql', MyGraphqlWsConsumer.as_asgi()),
+        url(r'peasent\/(?P<peasent_name>\w+)\/$', KeepPeasentAliveConsumer.as_asgi())
     ])),
     "channel": ChannelNameRouter({
         # If running in KANAL Mode
@@ -45,6 +48,7 @@ application = ProtocolTypeRouter({
         "kanal": KanalProvisionConsumer.as_asgi(),
         "gateway": GatewayConsumer.as_asgi(),
         "thenotifier": NotifyConsumer.as_asgi(),
+        "mister": AssignationConsumer.as_asgi(),
         **handlers,
         **additionals
     }

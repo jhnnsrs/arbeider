@@ -15,9 +15,9 @@
             "command": "python manage.py runall"
         },
         {
-            "label": "Kanal",
+            "label": "M",
             "type": "shell",
-            "command": "python manage.py runkanal"
+            "command": "python manage.py runmister"
         },
         {
             "label": "Schema",

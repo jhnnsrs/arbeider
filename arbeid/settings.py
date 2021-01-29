@@ -186,7 +186,8 @@ MODULES = [
     'drawing',
     'flow',
     'vart',
-    'slacko'
+    'slacko',
+    'earl',
 ]
 
 
@@ -198,17 +199,17 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'oauth2_provider',
-    'guardian',
-    'mister',
     'graphene_django',
     'rest_framework',
     'corsheaders',
     'django_filters',
     'django_extensions',
+    'delt', # IMportant that is its before oauth2 provider (overriding Application)
+    'oauth2_provider',
+    'guardian',
+    'mister',
     'channels',
     'herre',
-    'delt',
     'bord',
     'matrise',
     'avatar'
@@ -442,6 +443,9 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
     )
 }
+
+# Uncomment and re run
+OAUTH2_PROVIDER_APPLICATION_MODEL='delt.ArnheimApplication'
 
 LOGIN_REDIRECT_URL = "/"
 # Password validation

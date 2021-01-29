@@ -105,6 +105,12 @@ class SelectorType(BalderObjectType):
         model = Selector
 
 
+class ArnheimApplicationType(BalderObjectType):
+
+    class Meta:
+        model = ArnheimApplication
+
+
 class TemplateType(BalderObjectType):
 
     class Meta:

@@ -49,5 +49,8 @@ pytest-asyncio
 pylint
 pylint-django
 
+pydantic
 colorlog
 namegenerator
+pika
+aiormq

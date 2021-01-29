@@ -1,3 +1,5 @@
+from delt.models import Assignation
+from delt.messages.assignation import AssignationMessage
 import logging
 
 from balder.delt.models import (AssignationType)
@@ -12,8 +14,7 @@ class BaseAssignationSubscription(BaseSubscription):
 
     @classmethod
     def announce(cls, context, payload, *arg, **kwargs):
+        print(payload)
+        assignation = AssignationMessage(**payload)
         logger.info("Publishing it to the Assignation Watchers")
-        serializer = AssignationMessageSerializer(data=payload)
-        if serializer.is_valid():
-            assignation = serializer.validated_data["assignation"]
-            return assignation
+        return Assignation.objects.get(id=assignation.data.id)

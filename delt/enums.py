@@ -6,8 +6,16 @@ def enumToChoices(enum: Enum):
 
 
 
+class ExceptionType(str, Enum):
+    CLIENT = "client"
+    ARNHEIM = "arnheim"
+    PROVIDER = "provider"
+    POD = "pod"
+
+
 class ClientType(str, Enum):
     EXTERNAL = "external"
+    INTERNAL = "internal"
     LOCAL = "local"
     USER = "user"
     ADMIN = "admin"
@@ -21,6 +29,7 @@ class Endpoint(str, Enum):
 
 
 class PodStatus(str, Enum):
+    DOWN = "DOWN"
     ERROR = "ERROR"
     PENDING = "PENDING"
     INFO = "INFO"

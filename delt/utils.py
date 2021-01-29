@@ -57,3 +57,6 @@ def gateway_send(method):
 
 def generate_random_name():
     return namegenerator.gen()
+
+
+

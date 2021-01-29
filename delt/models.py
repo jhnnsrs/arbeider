@@ -1,3 +1,4 @@
+from oauth2_provider.models import AbstractApplication
 from delt.enums import Endpoint, enumToChoices
 from delt.utils import generate_random_name
 from delt.integrity import node_identifier
@@ -114,6 +115,9 @@ class Template(models.Model):
     node = models.ForeignKey(Node, on_delete=models.CASCADE, help_text="The Node this Template Belongs to", related_name="templates")
     name = models.CharField(max_length=1000, default=generate_random_name, help_text="The name of this template")
 
+    params = models.JSONField(null=True, blank=True)
+    identifier = models.CharField(default=uuid.uuid4, unique=True, max_length=500, help_text="A unique identifier for this template")
+
     # Meta Field
     creator = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, null=True, blank=True)
     version = models.CharField(max_length=400, help_text="A short descriptor for the kind of version") #Subject to change
@@ -185,8 +189,12 @@ class Provision(models.Model):
 
 class Assignation(models.Model):
 
+
+    node = models.ForeignKey(Node, on_delete=models.CASCADE, help_text="The Node this assignation is having", blank=True, null=True)
+    template = models.ForeignKey(Template, on_delete=models.CASCADE, help_text="The Node this assignation is having", blank=True, null=True)
+
     # 1. Input to the Assignation
-    pod = models.ForeignKey(Pod, on_delete=models.CASCADE, help_text="The pod this provision connects", related_name="assignations")
+    pod = models.ForeignKey(Pod, on_delete=models.CASCADE, help_text="The pod this provision connects", related_name="assignations", blank=True, null=True)
     inputs = InputsField(blank=True, null=True, help_text="The Inputs")
     reference = models.CharField(max_length=1000, unique=True, default=uuid.uuid4, help_text="The Unique identifier of this Assignation")
 
@@ -198,6 +206,10 @@ class Assignation(models.Model):
 
     # 2. The Termination of the Assignation
     outputs = OutputsField(help_text="The Outputs", blank=True, null=True)
+
+
+    callback = models.CharField(max_length=1000, help_text="The Callback queue once the Assignation has finished")
+    progress = models.CharField(max_length=1000, help_text="The Progress queue once the Assignation has finished")
 
 
     # Meta fields 
@@ -221,3 +233,9 @@ class Selector(models.Model):
 
     def __str__(self) -> str:
         return f"Selector for {self.provider}"
+
+
+
+
+class ArnheimApplication(AbstractApplication):
+    logo = models.ImageField(blank=True, null=True)

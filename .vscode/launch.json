@@ -5,6 +5,7 @@
     "version": "0.2.0",
     "configurations": [
 
+
     
 
 
@@ -28,6 +29,16 @@
             "program": "${workspaceFolder}/manage.py",
             "args": [
                 "runall",
+            ],
+            "django": true
+        },
+        {
+            "name": "M",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/manage.py",
+            "args": [
+                "runmister",
             ],
             "django": true
         },

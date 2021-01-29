@@ -1,24 +1,22 @@
 version: "3.4"
 
 services:
-  charles:
-    image: postgres:12.2-alpine
-    env_file:
-      - arnheim.env
-
-  frank:
-    image: postgres:12.2-alpine
-    env_file:
-      - arnheim.env
-
   nathan:
     image: postgres:12.2-alpine
     env_file:
       - arnheim.env
-
+  francesca:
+    image: postgres:12.5-alpine
+    env_file:
+      - arnheim.env
   arbeider:
     build: .
-    command: python /arbeider/manage.py runallworkers
+    command: python /arbeider/manage.py runserver 0.0.0.0:8000
+    ports:
+      - 8000:8000
+    volumes:
+      - .:/arbeider:cached
+      - /var/run/docker.sock:/var/run/docker.sock 
     environment:
       - ARNHEIM_MODULES=test
     env_file:
@@ -37,6 +35,13 @@ services:
     image: redis:latest
     ports:
       - 6379:6379
+  mister:
+    image: jhnnsrs/mister:fancy
+    hostname: localhost
+    command: rabbitmq-server
+    ports:
+       - 5672:5672
+       - 15672:15672
 
 networks:
   default:

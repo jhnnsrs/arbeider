@@ -59,6 +59,7 @@ def authenticateFromAsgiRequest(request):
     m = tokenstring.match(authorization)
     if m:
         token = m.group("token")
+        print(token)
         return authorize_by_token(token)
 
     return None, None 
@@ -141,6 +142,10 @@ class BouncerContext(object):
                 raise e
 
         return False
+
+    @property
+    def auth(self):
+        return self._auth
 
     @property
     def app(self):

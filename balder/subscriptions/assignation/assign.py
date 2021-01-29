@@ -1,21 +1,31 @@
+from balder.scalars.models import NodeID
 import logging
 import uuid
 
 import graphene
 from graphene.types.generic import GenericScalar
+from graphql.language.ast import IntValue, StringValue
 
 from balder.subscriptions.assignation.base import BaseAssignationSubscription
-from delt.models import Pod, Assignation
-from delt.pipes import (assign_inputs_pipe)
+from delt.models import Node, Pod, Assignation
+from delt.pipes import (assign_inputs_pipe, assign_inputs_to_node_pipe)
+import pika
+
 
 logger = logging.getLogger(__name__)
+
 
 class AssignSubscription(BaseAssignationSubscription):
 
     class Arguments:
-        pod = graphene.ID(required=True, description="The pods id")
-        reference = graphene.String(required=False, description="The pods id")
+        node = NodeID(required=False, description="The node id")
+        pod = graphene.ID(required=False, description="The pod id")
+        template = graphene.ID(required=False, description="The template id")
+        reference = graphene.String(required=True, description="The pods id")
         inputs = GenericScalar(required=True, description="The Inputs for this Pod")
+        extensions = GenericScalar(description="Extensions to the Assignment Protocol")
+        progress = graphene.Boolean(required=False, default_value=False)
+
 
 
     @classmethod
@@ -23,9 +33,28 @@ class AssignSubscription(BaseAssignationSubscription):
 
         reference = kwargs.pop("reference") if "reference" in kwargs else uuid.uuid4()
         inputs = kwargs.pop("inputs") if "inputs" in kwargs else None
-        pod = kwargs.pop("pod") if "pod" in kwargs else None
+        podid = kwargs.pop("pod") if "pod" in kwargs else None
+        node = kwargs.pop("node") if "node" in kwargs else None
+        templateid = kwargs.get("template", None)
+        progress = kwargs.get("progress")
+
+
+
+        if node:
+            print(node)
+            assign_inputs_to_node_pipe(context, reference, inputs, node, progress=progress)
+
+        if podid:
+            try:
+                pod = Pod.objects.get(id=podid)
+            except Pod.DoesNotExist:
+                raise Exception("The pod you specified does not exist!")
+        
+        
+        return [f"assign_{reference}"]
        
-        try:
+       
+        """ try:
             pod = Pod.objects.get(id=pod)
         except Pod.DoesNotExist:
             raise Exception("The pod you specified does not exist!")
@@ -43,4 +72,4 @@ class AssignSubscription(BaseAssignationSubscription):
             assignation = assign_inputs_pipe(context, reference, pod, inputs)
 
         
-        return [f"{reference}"]
+        return [f"{reference}"] """

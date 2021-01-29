@@ -1,4 +1,9 @@
 
+from channels.layers import get_channel_layer
+from delt.messages.assignation import AssignationMessage
+from delt.messengers.pika.base import PikaMessenger
+from delt.messengers.assignation import AssignationMessenger
+from delt.handlers.messenger import Messenger
 from balder.delt.inputs import SelectorInput
 from balder.delt.enums import AssignationStatus
 import logging
@@ -19,6 +24,8 @@ from delt.publishers.base import BasePublisher
 from delt.publishers.utils import publish_to_event
 from delt.selector import get_provider_for_selector
 from delt.utils import pipe
+from pydantic import BaseModel
+from asgiref.sync import async_to_sync
 
 logger = logging.getLogger(__name__)
 
@@ -178,6 +185,50 @@ def provision_pod_pipe(context: BouncerContext, reference, node: Node, selector:
     # Pods are assigned to a Node and a creating User, the provision substring helps identifying the right entitiy
     
     return provision
+
+
+class AssignationInMessage(BaseModel):
+    id: int
+    reference: str
+    
+
+
+
+
+
+def assign_inputs_to_node_pipe(context: BouncerContext, reference: str, inputs: dict, node: Node, **extensions):
+    
+    try:
+        assignation = Assignation.objects.get(reference=reference)
+        return assignation
+    except:
+        assignation = Assignation.objects.create(
+                reference=reference,
+                node=node,
+                creator=context.user,
+                inputs=inputs,
+                status= AssignationStatus.PENDING.value,
+                token= context.token,
+                callback = "gateway_done",
+                progress = "gateway_progess"
+            )
+
+        message = AssignationMessage.fromAssignation(assignation=assignation, **extensions)
+
+
+
+        #async_to_sync(get_channel_layer().send)("mister",{"type": "assignation_in", "data": message.dict()})
+
+        messenger = PikaMessenger()
+        messenger.contact("assignation_in", message)
+
+    return assignation
+
+
+
+
+
+
 
 #@pipe("assign_inputs")
 def assign_inputs_pipe(context: BouncerContext, reference, pod: Pod, inputs: dict):

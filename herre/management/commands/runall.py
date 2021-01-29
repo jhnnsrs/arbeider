@@ -55,7 +55,7 @@ class Command(BaseCommand):
         for key, value in get_additionals_registry().getConsumerMap().items():
             runningchannels.append(key)
 
-        allchannels = runningchannels + ["gateway", "portgateway","thenotifier"]
+        allchannels = runningchannels + ["gateway", "portgateway","thenotifier","mister"]
         logger.info(f"Running worker for providers {allchannels}")
         worker = self.worker_class(
             application=get_default_application(),

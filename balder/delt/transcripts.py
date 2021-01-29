@@ -12,9 +12,14 @@ class CommunicationProtocol(graphene.ObjectType):
     type = graphene.String(description="The communication protocol [grapqhl, channels, kafka, ...]")
     url = graphene.String(description="The path parameter that u can use to access")
 
+class PostmanProtocol(graphene.ObjectType):
+    type = graphene.String(description="The communication protocol [grapqhl, channels, kafka, ...]")
+    kwargs = GenericScalar(description="kwargs for your postman")
+
 class TranscriptType(graphene.ObjectType):
     array = graphene.Field(ArrayProtocol)
     communication = graphene.Field(CommunicationProtocol)
+    postman = graphene.Field(PostmanProtocol)
     extensions = GenericScalar(description="Configuration space for extensios")
     timestamp = graphene.DateTime()
     models = graphene.List(DataModelType, description="Extensionsmap of Identifier and Model")
